@@ -1,0 +1,41 @@
+.settingsGeneralContainer,.settingsCategoriesContainer,.settingsMailContainer,.wait{
+	width: 100%;
+	min-height: 400px;
+}
+.wait{
+	text-align: center;
+	padding-top: 175px;
+}
+.catEdit{
+	cursor: pointer;
+}
+.catDelete{
+	cursor: pointer;
+	margin-left: 5px;
+}
+#createCategoryContainer,#editCategoryContainer{
+	background-color: #eeeeee;
+	border-radius: 10px;
+	padding: 10px;
+	margin-bottom: 20px;
+}
+#catDisplayTableContainer{margin-top: 10px;}
+#newCatName,#editCatName{width: 250px;margin-bottom: 10px;}
+#editCategoryContainer{display: none;}
+#tblEmailFrom td{vertical-align: middle;padding: 10px;}
+#txtFromEmail,#txtFromName{width: 300px;}
+#cmbEmail_admin_new_ticket,#cmbEmail_admin_reply_ticket{vertical-align: middle;}
+#cmbEmail_admin_new_ticket_label,#cmbEmail_admin_reply_ticket{padding-left: 10px;padding-top:2px; vertical-align: middle;}
+#setSupportPage{margin-top: 14px;}
+.tblGeneralStingsTdFirst{vertical-align: middle;}
+.tblGeneralStingsTdSecond{padding-left: 10px;padding-top:2px; vertical-align: middle;}
+#setBtnPosition{margin-top: 14px;}
+.facebookAppTdFirst{vertical-align: middle;padding: 10px;text-align: left;}
+.wpspRdbSecond{margin-left: 15px;}
+#setSupportPage{width: 80px !important;}
+#add_custom_menu_container { padding: 20px; background-color: #eeeeee;border-radius: 10px;margin-top: 20px; }
+.seperator_menu_items { padding-left: 10px;padding-right: 10px; }
+#cusom_slider_menu_icon { cursor: pointer;width: 40px; height: 40px; }
+#add_custom_menu_container td{ padding: 5px; }
+#menuDisplayTableContainer td{ vertical-align: top; }
+.cusom_slider_menu_icon{ width: 40px;height: 40px; }

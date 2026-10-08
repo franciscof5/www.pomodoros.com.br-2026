@@ -1,0 +1,213 @@
+.ticket_list,.ticket_indivisual,.ticket_assignment,.wait{
+	width: 100%;
+	min-height: 400px;
+}
+.wait{
+	text-align: center;
+	padding-top: 175px;
+}
+.ticket_filter{
+	margin: 10px 0;
+	padding-left: 5px;
+	width: 100%;
+	height: 40px;
+	background-color: #eeeeee;
+}
+.filter_item{
+	float: left;
+}
+.ticket_filter td{
+	height: 40px;
+	padding: 2px;
+	vertical-align: middle;
+	text-align: left;
+}
+.filter_search{
+	float: right;
+	margin-right: 5px;
+}
+
+#theadReplyContainer{
+	width: 100%;
+	margin-top: 20px;
+	background-color: #eeeeee;
+	padding: 10px;
+	border-radius: 10px;
+}
+
+#replyFloatedContainer{
+	width: 100%;
+	height: 60px;
+	margin-top: 10px;
+}
+
+.replyFloatLeft{
+	width: 120px;
+	height: 60px;
+	float: left;
+}
+.replyFloatRight{
+	margin: 10px;
+	float: right;
+}
+
+.threadContainer{
+	width: 100%;
+	margin-top: 20px;
+	background-color: #eeeeee;
+	padding: 10px;
+	border-radius: 10px;
+}
+
+.gravtar_container{
+	width: 60px;
+	height: 60px;
+	float: left;
+}
+.threadInfo{
+	width: 190px;
+	height: 60px;
+	padding-left: 10px;
+	float: left;
+}
+.threadUserName{
+	font-size: 16px;
+	font-weight: bold;
+}
+.threadUserType,.threadCreateTime{
+	font-style: italic;
+}
+.threadBody{
+	width: 100%;
+	margin-top: 20px;
+}
+.threadAttachment{
+	width: 100%;
+	font-style: italic;
+	margin-top: 20px;
+}
+.attachment_link{
+	color: blue;
+	cursor: pointer;
+}
+#tblChangeStatusContainer td{
+	padding: 10px;
+}
+
+#tblChangeStatusContainer, #tblChangeStatusContainer tr, #tblChangeStatusContainer th, #tblChangeStatusContainer td{
+	border: none !important;
+}
+#create_ticket_subject{width: 95%; margin-top: 10px;}
+#create_ticket_body{margin-top: 10px; width: 95%; overflow-y:hidden;}
+#create_ticket_category,#create_ticket_priority,.create_ticket_attachment{margin-top: 10px;}
+.ticket_list,.ticket_indivisual,.ticket_assignment,#ticketContainer .wait{display: none;}
+#agentSignature{width: 95%;overflow-y:hidden;margin-top: 10px;}
+#txtAgentSkypeId{width: 150px;}
+.secondRadioButton{margin-left: 15px;}
+#saveAgentSettingsBtn{margin-top: 10px;}
+.changeTicketSubBtn,.wpsp_ticket_nav_btn,#reply_ticket_status,#reply_ticket_category,#reply_ticket_priority,#wpsp_reply_attachment{margin-top: 10px !important;}
+#replyBody{width: 100% !important;}
+#wpsp_reply_attach_label{font-weight: bold;font-style: italic;}
+#create_ticket .wait{ display: none; }
+.filter_item select,#replyFloatedContainer select{width: 80px !important;}
+
+@-moz-document url-prefix() {
+  fieldset { display: table-cell; }
+}
+
+@media only screen and (min-width:320px) and (max-width: 379px) {
+	.ticket_filter{
+		height: 240px;
+	}
+	#replyFloatedContainer{
+		height: 340px;
+	}
+	.replyFloatLeft{
+		width: 250px;
+		height: 73px;
+	}
+	.replyFloatRight{
+		float: left;
+		margin-left: 0px;
+	}
+}
+
+@media only screen and (min-width:380px) and (max-width: 507px) {
+	.ticket_filter{
+		height: 162px;
+	}
+	#replyFloatedContainer{
+		height: 340px;
+	}
+	.replyFloatLeft{
+		width: 200px;
+		height: 73px;
+	}
+	.replyFloatRight{
+		float: left;
+		margin-left: 0px;
+	}
+}
+
+@media only screen and (min-width:507px) and (max-width: 597px) {
+	#replyFloatedContainer{
+		height: 121px;
+	}
+	.replyFloatLeft{
+		width: 200px;
+		height: 73px;
+	}
+	.replyFloatRight{
+		float: right;
+	}
+}
+
+@media only screen and (min-width:597px) and (max-width: 668px) {
+	#replyFloatedContainer{
+		height: 133px;
+	}
+	.replyFloatLeft{
+		width: 150px;
+		height: 73px;
+	}
+	.replyFloatRight{
+		float: right;
+	}
+}
+
+@media only screen and (min-width:669px) and (max-width: 750px) {
+	#replyFloatedContainer{
+		height: 133px;
+	}
+	.replyFloatLeft{
+		width: 180px;
+		height: 73px;
+	}
+	.replyFloatRight{
+		float: right;
+	}
+}
+
+@media only screen and (min-width:751px) and (max-width: 1000px) {
+	#replyFloatedContainer{
+		height: 133px;
+	}
+	.replyFloatLeft{
+		width: 120px;
+		height: 73px;
+	}
+	.replyFloatRight{
+		float: right;
+	}
+}
+
+@media only screen and (min-width:508px) and (max-width: 608px) {
+	.ticket_filter{
+		height: 120px;
+	}
+}
+@media only screen and (min-width:609px) and (max-width: 1303px) {
+	.ticket_filter{
+		height: 80px;
+	}
+}

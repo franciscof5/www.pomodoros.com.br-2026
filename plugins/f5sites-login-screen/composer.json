@@ -1,0 +1,17 @@
+{
+	"name": "f5sites/f5sites-login-screen",
+	"description": "Simple update your logo /mu-plugins folder and change file f5sites-login-screen.php for customize css. WordPress F5 Sites DEV projects",
+	"type": "wordpress-plugin",
+	"version": "1.0",
+	"authors": [
+		{
+			"name": "Francisco Matelli Matulovic",
+			"email": "francisco@f5sites.com",
+			"homepage": "http://franciscomat.com"
+		}
+	],
+	"require": {
+    		"composer/installers": "~1.0",
+	        "php": ">=5.2.4"
+        }
+}

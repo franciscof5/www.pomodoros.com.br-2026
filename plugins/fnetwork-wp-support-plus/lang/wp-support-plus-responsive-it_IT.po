@@ -1,0 +1,935 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Support Plus\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-10-20 09:46+0530\n"
+"PO-Revision-Date: 2014-11-08 11:25+0100\n"
+"Last-Translator: Giuseppe Beghelli <info@giuseppebeghelli.it>\n"
+"Language-Team: \n"
+"Language: it_IT\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: __;_e\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.6.10\n"
+"X-Poedit-SearchPath-0: /home/pradeep/Documents/Plugin Parking/wp-support-"
+"plus/wp-support-plus\n"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/loggedInUser.php:7
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/display_ticket.php:3
+msgid "Tickets"
+msgstr "Tickets"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/loggedInUser.php:8
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/display_ticket.php:4
+msgid "Create New Ticket"
+msgstr "Crea Nuovo Ticket"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/loggedInUser.php:16
+#: Parking/wp-support-plus/wp-support-plus/includes/loggedInUser.php:22
+#: Parking/wp-support-plus/wp-support-plus/includes/guestUser.php:5
+msgid "Please Wait"
+msgstr "Attenndi per favore"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/guestTicketForm.php:2
+msgid "Your Name"
+msgstr "Tuo Nome"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/guestTicketForm.php:4
+msgid "Your Email"
+msgstr "Tua Email"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/guestTicketForm.php:6
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getFrontEndTicket.php:33
+msgid "Subject"
+msgstr "Oggetto"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/guestTicketForm.php:8
+msgid "Description"
+msgstr "Descrizione"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/guestTicketForm.php:12
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getFrontEndTicket.php:34
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getChangeTicketStatus.php:28
+msgid "Category"
+msgstr "Categoria"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/guestTicketForm.php:22
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getFrontEndTicket.php:35
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getChangeTicketStatus.php:42
+msgid "Priority"
+msgstr "Priorità"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/guestTicketForm.php:24
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:84
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getChangeTicketStatus.php:46
+msgid "Normal"
+msgstr "Normale"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/guestTicketForm.php:25
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:85
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getChangeTicketStatus.php:47
+msgid "High"
+msgstr "Alta"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/guestTicketForm.php:26
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:86
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getChangeTicketStatus.php:48
+msgid "Medium"
+msgstr "Media"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/guestTicketForm.php:27
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:87
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getChangeTicketStatus.php:49
+msgid "Low"
+msgstr "Bassa"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/guestTicketForm.php:35
+msgid "Submit Ticket"
+msgstr "Inserisci Ticket"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/guestTicketForm.php:36
+msgid "Reset Form"
+msgstr "Resetta il Form"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/support_panel.php:21
+msgid "Skype Chat"
+msgstr "Chat Skype "
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/support_panel.php:27
+msgid "Skype Call"
+msgstr "Chiamata Skype "
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/support_panel.php:40
+msgid "Support Ticket"
+msgstr "Supporto Ticket"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/create_new_ticket.php:11
+msgid "Have an Account?"
+msgstr "Se hai un account"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/create_new_ticket.php:11
+msgid "Login Here"
+msgstr "fai il Login qui"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/create_new_ticket.php:13
+#: Parking/wp-support-plus/wp-support-plus/includes/create_new_ticket.php:19
+msgid "OR"
+msgstr "O"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/create_new_ticket.php:15
+msgid "Login with Facebook"
+msgstr "Login conFacebook"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/create_new_ticket.php:24
+msgid "Please Wait..."
+msgstr "Attenndi per favore..."
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getFrontEndTicket.php:32
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getChangeTicketStatus.php:15
+msgid "Status"
+msgstr "Stato"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getFrontEndTicket.php:36
+msgid "Updated"
+msgstr "Aggiornato"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getFrontEndTicket.php:89
+msgid "Newer"
+msgstr "Successivo"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getFrontEndTicket.php:91
+msgid "Older"
+msgstr "Precedente"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getFrontEndTicket.php:93
+msgid "No Tickets Found"
+msgstr "Nessun Tickets Trovato"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getTicketAssignment.php:19
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getChangeTicketStatus.php:11
+msgid "[Ticket #"
+msgstr "[Ticket #"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getTicketAssignment.php:21
+msgid "Assign to"
+msgstr "Assegnato a "
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getTicketAssignment.php:24
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:63
+msgid "None"
+msgstr "Nessuno"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getTicketAssignment.php:33
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getChangeTicketStatus.php:55
+msgid "Cancel"
+msgstr "Cancella"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getTicketAssignment.php:34
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getChangeTicketStatus.php:56
+msgid "Save Changes"
+msgstr "Salva le modifiche"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/display_ticket.php:5
+msgid "Agent Settings"
+msgstr "Settaggio Agenti"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:10
+msgid "Status:"
+msgstr "Stato:"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:13
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:29
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:44
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:62
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:83
+msgid "All"
+msgstr "Tutti"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:14
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getChangeTicketStatus.php:19
+msgid "Open"
+msgstr "Aperto"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:15
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getChangeTicketStatus.php:21
+msgid "Pending"
+msgstr "In Attesa"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:16
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getChangeTicketStatus.php:23
+msgid "Closed"
+msgstr "Chiuso"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:26
+msgid "Type:"
+msgstr "Tipologia:"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:30
+msgid "User"
+msgstr "Utente"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:31
+msgid "Guest"
+msgstr "Ospite"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:41
+msgid "Category:"
+msgstr "Categoria:"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:59
+msgid "Assigned to:"
+msgstr "Assegnato a:"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:80
+msgid "Priority:"
+msgstr "Priorità:"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:97
+msgid "No of Tickets:"
+msgstr "Nessuno dei Tickets:"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:100
+msgid "10"
+msgstr "10"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:101
+msgid "20"
+msgstr "20"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:102
+msgid "30"
+msgstr "30"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:103
+msgid "40"
+msgstr "40"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:104
+msgid "50"
+msgstr "50"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/ticket_filter.php:114
+msgid "Search Tickets..."
+msgstr "Cerca Tickets..."
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:9
+msgid "Support Page/Post"
+msgstr "Supporto Pagina/Post"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:11
+msgid "Select Page/Post"
+msgstr "Seleziona Page/Post"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:29
+msgid "Use shortcode"
+msgstr "Usa shortcode"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:29
+msgid "in selected page/post above."
+msgstr "nella  pagina/post selezionata sopra."
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:32
+msgid "Support Button"
+msgstr "Pulsante Supporto"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:33
+msgid ""
+"If enabled, button will be shown on all pages of front-end which redirect to "
+"support page/post selected above on click."
+msgstr ""
+"Se abilitato, il pulsante viene visualizzato in tutte le pagine di front-end "
+"che reindirizzano alla  pagina/post selezionata sopra al clic."
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:37
+msgid "Enable Support Button"
+msgstr "Attiva pulsante Supporto"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:42
+msgid "Top Left"
+msgstr "In alto a sinistra"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:43
+msgid "Top Right"
+msgstr "In alto a destra"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:44
+msgid "Bottom Left"
+msgstr "In basso a sinistra"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:45
+msgid "Bottom Right"
+msgstr "In basso a destra"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:49
+msgid "Guest Ticket"
+msgstr "Ticket di Ospite"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:50
+msgid "If enabled, non logged-in user will able to raise ticket"
+msgstr ""
+"Se abilitata, un utente non connesso sarà in grado di modificare i tickets"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:54
+msgid "Enable Guest Tickets"
+msgstr "Abilita Tickets per gli ospiti"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:59
+msgid "Facebook App Details"
+msgstr "Dettagli Facebook App "
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:60
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/admin.php:94
+msgid "Click Here"
+msgstr "Clicca qui"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:63
+msgid "App ID:"
+msgstr "App ID:"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:69
+msgid "App Secret:"
+msgstr "App Segreto:"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:77
+msgid "Front End Support Panel"
+msgstr "Supporto Pannello Front End "
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:80
+msgid "Enable:"
+msgstr "Permettere:"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:82
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:101
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:108
+msgid "Yes"
+msgstr "Si"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:83
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:102
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:109
+msgid "No"
+msgstr "No"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:87
+msgid "Support Title:"
+msgstr "Titolo Supporto :"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:93
+msgid "Phone Number:"
+msgstr "Numero Telefono:"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:99
+msgid "Display Skype Chat?:"
+msgstr "Mostrare Chat Skype?:"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:106
+msgid "Display Skype Call?:"
+msgstr "Mostrare Chiamata Skype?:"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:115
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getAgentSettings.php:54
+msgid "Save Settings"
+msgstr "Salva il settaggio"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:122
+msgid "Facebook App Help"
+msgstr "Aiuto Facebook App "
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:126
+msgid "Create your application"
+msgstr "Crea la tua applicazione"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:127
+msgid "Look for Site URL field in the Website tab and enter"
+msgstr "Cercare il campo URL del sito nella scheda Sito web e digitare"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:128
+msgid "After this, go to the"
+msgstr "Dopo questo, andare alla pagina"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:128
+msgid "Facebook Application List"
+msgstr "Lista delle Applicazioni Facebook "
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:128
+msgid "page and select your newly created application"
+msgstr " e selezionare l'applicazione appena creata"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:129
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:130
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:131
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:132
+msgid "Go to"
+msgstr "Vai allo"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:129
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:130
+msgid "Settings"
+msgstr "Settaggio"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:129
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:130
+msgid "and enter"
+msgstr "ed inserisci"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:129
+msgid "Contact Email"
+msgstr "il Contatto Email"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:130
+msgid "+Add Platform"
+msgstr "+Aggiungere Piattaforma"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:130
+msgid "select"
+msgstr "seleziona"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:130
+msgid "Website"
+msgstr "Website"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:131
+msgid "Status and Review"
+msgstr "Stato e Revisione"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:131
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:132
+msgid " and"
+msgstr " e"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:131
+msgid "ON"
+msgstr "SU"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:131
+msgid "available to the general public"
+msgstr "disposizione del pubblico"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:132
+msgid "Dashboard"
+msgstr "Bacheca"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:132
+msgid " and Copy the values from these fields:"
+msgstr " e copiare i valori di questi campi:"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:132
+msgid "App ID/API key"
+msgstr "App ID/API key"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:132
+msgid "Application Secret"
+msgstr "Applicazione Segreta"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:132
+msgid ", and enter in <b>Facebook App Settings"
+msgstr ", ed inserirli nel <b>Settaggio App Facebook App "
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getGeneralSettings.php:136
+msgid "Close"
+msgstr "Chiuso"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/selectRegisteredUser.php:2
+msgid "Username or Email"
+msgstr "Username o Email"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/selectRegisteredUser.php:3
+msgid "Search"
+msgstr "Cerca"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getAgentSettings.php:25
+msgid "Signature"
+msgstr "Firma"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getAgentSettings.php:28
+msgid "Skype Settings"
+msgstr "Settaggio Skype"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getAgentSettings.php:29
+msgid ""
+" You'll need to update your Skype setting to allow incoming calls or "
+"messages from people who are not on your contact list."
+msgstr ""
+" Avrai bisogno di aggiornare le impostazioni di Skype per consentire le "
+"chiamate in arrivo o messaggi da persone che non sono nella tua lista "
+"contatti."
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getAgentSettings.php:32
+msgid "Skype ID"
+msgstr "Skype ID"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getAgentSettings.php:37
+msgid "Available to Chat?"
+msgstr "Disponibile alla Chat?"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getAgentSettings.php:45
+msgid "Available to Call?"
+msgstr "Disponibile alla Chiamata?"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getTicketsByFilter.php:64
+msgid "Raised By"
+msgstr "Modifica Di"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getTicketsByFilter.php:65
+msgid "Type"
+msgstr "Tipologia"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getTicketsByFilter.php:67
+msgid "Assigned to"
+msgstr "Assegnato a"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/admin.php:53
+msgid "WP Support Plus"
+msgstr "WP Support Plus"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/admin.php:54
+msgid "Welcome, "
+msgstr "Benvenuto, "
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/admin.php:83
+msgid "WP Support Plus Settings"
+msgstr "Settaggio WP Support Plus "
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/admin.php:94
+msgid " for Support and updates after 1.0"
+msgstr "per Supporto ed aggiornamenti dopo  1.0"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/admin.php:104
+msgid "WP Support Plus Statistics"
+msgstr "Statistiche WP Support Plus "
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCallOnlineAgents.php:15
+msgid "Online Call Agents"
+msgstr "Agenti Online per Chiamate"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCallOnlineAgents.php:43
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCallOnlineAgents.php:74
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCallOnlineAgents.php:105
+msgid "Skype ID:"
+msgstr "Skype ID:"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCallOnlineAgents.php:112
+msgid "Sorry, currently no agent available for call!!!"
+msgstr ""
+"Siamo spiacenti, attualmente nessun agente è disponibile per la chiamata !!!"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getIndivisualTicketFront.php:20
+msgid " Back To Tickets"
+msgstr "Ritorna ai Tickets"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getIndivisualTicketFront.php:21
+msgid "Change Status"
+msgstr "Cambia lo  Stato"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getIndivisualTicketFront.php:71
+msgid "Attach File(s):"
+msgstr "Allega File(s):"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getIndivisualTicketFront.php:77
+msgid "Reset"
+msgstr "Resetta"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getIndivisualTicketFront.php:78
+msgid "Submit Reply"
+msgstr "Inserisci Replica"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getIndivisualTicketFront.php:131
+msgid "Attachment: "
+msgstr "Allegato: "
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/statistics.php:33
+msgid "Open Tickets: "
+msgstr "Tickets Aperti: "
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/statistics.php:34
+msgid "Pending Tickets: "
+msgstr "Tickets in Attesa: "
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/statistics.php:35
+msgid "Closed Tickets: "
+msgstr "Tickets Chiusi: "
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/statistics.php:41
+msgid "Open Tickets"
+msgstr "Tickets Aperti"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/statistics.php:42
+msgid "Pending Tickets"
+msgstr "Tickets in Attesa"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/statistics.php:43
+msgid "Closed Tickets"
+msgstr "Tickets Chiusi"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCustomSliderMenus.php:12
+msgid "Icon"
+msgstr "Icona"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCustomSliderMenus.php:13
+msgid "Menu"
+msgstr "Menu"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCustomSliderMenus.php:14
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCustomSliderMenus.php:47
+msgid "Redirect URL"
+msgstr "Reindirizza URL"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCustomSliderMenus.php:15
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCategories.php:10
+msgid "Action"
+msgstr "Azione"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCustomSliderMenus.php:22
+msgid "Delete"
+msgstr "Cancella"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCustomSliderMenus.php:28
+msgid "No Menus Found"
+msgstr "Nessun Menu Trovato"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCustomSliderMenus.php:37
+msgid "Select Icon (40 x 40 pixel)"
+msgstr "Seleziona icona (40 x 40 pixel)"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCustomSliderMenus.php:42
+msgid "Menu Text"
+msgstr "Testo Menu"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCustomSliderMenus.php:52
+msgid "Create New Menu"
+msgstr "Crea Nuovo Menu"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getChatOnlineAgents.php:15
+msgid "Online Chat Agents"
+msgstr "Agenti di chat online"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getChatOnlineAgents.php:112
+msgid "Sorry, currently no agent available for chat!!!"
+msgstr ""
+"Siamo spiacenti, attualmente nessun agente è disponibile per la chat !!!"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/searchRegisteredUsaers.php:15
+msgid "Name"
+msgstr "Nome"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/searchRegisteredUsaers.php:16
+msgid "Username"
+msgstr "Username"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/searchRegisteredUsaers.php:17
+msgid "Email"
+msgstr "Email"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/searchRegisteredUsaers.php:29
+msgid "No Results Found"
+msgstr "Nessun Risultato Trovato"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCategories.php:9
+msgid "Category Name"
+msgstr "Nome Categoria"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCategories.php:26
+msgid "Enter Category Name"
+msgstr "Insersci Nome Categoria"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCategories.php:27
+msgid "Create New Category"
+msgstr "Crea Nuova Categoria"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getCategories.php:32
+msgid "Update Category"
+msgstr "Aggiorna Categoria"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/create_new_ticket.php:14
+msgid "Create Ticket As"
+msgstr "Crea il Ticket come"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/create_new_ticket.php:17
+msgid "Change User"
+msgstr "Cambia Utente"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/create_new_ticket.php:46
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getIndivisualTicket.php:66
+msgid "Attach File(s)"
+msgstr "Allega File(s)"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/create_new_ticket.php:64
+msgid "Select User"
+msgstr "Utente selezionato"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getIndivisualTicket.php:24
+msgid "Assign Agent"
+msgstr "Assegna  Agente"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getIndivisualTicket.php:25
+msgid "Delete Ticket"
+msgstr "Cancella Ticket"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/admin_settings.php:3
+msgid "General"
+msgstr "Generale"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/admin_settings.php:4
+msgid "Categories"
+msgstr "Categorie"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/admin_settings.php:5
+msgid "Email Notification"
+msgstr "Notifiche Email "
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/admin_settings.php:6
+msgid "Custom Slider Menus"
+msgstr " Slider Menu Personalizzato"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getEmailNotificationSettings.php:5
+msgid "Mail Settings"
+msgstr "Settaggio Mail "
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getEmailNotificationSettings.php:8
+msgid "From Email:"
+msgstr "Da Email:"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getEmailNotificationSettings.php:12
+msgid "From Name:"
+msgstr "Dal Nome:"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getEmailNotificationSettings.php:18
+msgid "Notification Settings"
+msgstr " Settaggo Notifiche"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getEmailNotificationSettings.php:22
+msgid "New Ticket Created"
+msgstr "Nuovo Ticket Creato"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getEmailNotificationSettings.php:25
+msgid ""
+"This will send email notification to Administrator when new ticket has been "
+"created"
+msgstr ""
+"Questo invierà un'email di notifica all'amministratore quando è stato creato "
+"nuovo ticket"
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getEmailNotificationSettings.php:29
+msgid "Ticket Reply"
+msgstr "Replica Ticket "
+
+#: /home/pradeep/Documents/Plugin
+#: Parking/wp-support-plus/wp-support-plus/includes/admin/getEmailNotificationSettings.php:32
+msgid ""
+"This will send email notification to all Agent when any ticket has been "
+"updated"
+msgstr ""
+"Questo invierà un'email di notifica a tutti gli Agenti quando un ticket è "
+"stato aggiornato"

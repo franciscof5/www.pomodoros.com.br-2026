@@ -1,0 +1,668 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: wp-support-plus-responsive\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-09-28 08:45+0530\n"
+"PO-Revision-Date: 2015-11-05 09:33-0300\n"
+"Last-Translator: Francisco Mat <fmatelli@gmail.com>\n"
+"Language-Team: \n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: __;_e\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.5.4\n"
+"X-Poedit-SearchPath-0: /var/www/wp-poll/wp-content/plugins/wp-support-plus\n"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/loggedInUser.php:7
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/display_ticket.php:3
+msgid "Tickets"
+msgstr "Tickets"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/loggedInUser.php:8
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/display_ticket.php:4
+msgid "Create New Ticket"
+msgstr "Abrir Ticket"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/loggedInUser.php:16
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/loggedInUser.php:24
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/guestUser.php:5
+msgid "Please Wait"
+msgstr "Por favor espere"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/support_panel.php:15
+msgid "Skype Chat"
+msgstr "Chat de Skype"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/support_panel.php:21
+msgid "Skype Call"
+msgstr "Llamada de Skype"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/support_panel.php:26
+msgid "Support Ticket"
+msgstr "Revisar Tickets"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/create_new_ticket.php:7
+msgid "Have an Account?"
+msgstr "Tem uma conta?"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/create_new_ticket.php:7
+msgid "Login Here"
+msgstr "Login aquí "
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/create_new_ticket.php:8
+msgid "OR"
+msgstr "O"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/create_new_ticket.php:10
+msgid "Login with Facebook"
+msgstr "Login con Facebook"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/create_new_ticket.php:14
+msgid "Please Wait..."
+msgstr "Por favor espere..."
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getFrontEndTicket.php:32
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getChangeTicketStatus.php:15
+msgid "Status"
+msgstr "Estado"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getFrontEndTicket.php:33
+msgid "Subject"
+msgstr "Título"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getFrontEndTicket.php:34
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getChangeTicketStatus.php:28
+msgid "Category"
+msgstr "Categoria"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getFrontEndTicket.php:35
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getChangeTicketStatus.php:42
+msgid "Priority"
+msgstr "Prioridade"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getFrontEndTicket.php:36
+msgid "Updated"
+msgstr "Atualizado"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getFrontEndTicket.php:89
+msgid "Newer"
+msgstr "Mais novo"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getFrontEndTicket.php:91
+msgid "Older"
+msgstr "Mais velho"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getFrontEndTicket.php:93
+msgid "No Tickets Found"
+msgstr "Nenhum Ticket encontrado"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getTicketAssignment.php:19
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getChangeTicketStatus.php:11
+msgid "[Ticket #"
+msgstr "[Ticket #"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getTicketAssignment.php:21
+msgid "Assign to"
+msgstr "Atribuir a"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getTicketAssignment.php:24
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:63
+msgid "None"
+msgstr "Ninguém"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getTicketAssignment.php:33
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getChangeTicketStatus.php:55
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getTicketAssignment.php:34
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getChangeTicketStatus.php:56
+msgid "Save Changes"
+msgstr "Guardar mudanças"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/display_ticket.php:5
+msgid "Agent Settings"
+msgstr "Configuración de moderador"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:10
+msgid "Status:"
+msgstr "Estado:"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:13
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:29
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:44
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:62
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:83
+msgid "All"
+msgstr "Todos"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:14
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getChangeTicketStatus.php:19
+msgid "Open"
+msgstr "Aberto"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:15
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getChangeTicketStatus.php:21
+msgid "Pending"
+msgstr "Pendente"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:16
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getChangeTicketStatus.php:23
+msgid "Closed"
+msgstr "Fechado"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:26
+msgid "Type:"
+msgstr "Tipo:"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:30
+msgid "User"
+msgstr "Usuário"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:31
+msgid "Guest"
+msgstr "Convidado"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:41
+msgid "Category:"
+msgstr "Categoria"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:59
+msgid "Assigned to:"
+msgstr "Atribuido a:"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:80
+msgid "Priority:"
+msgstr "Prioridade:"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:84
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getChangeTicketStatus.php:46
+msgid "Normal"
+msgstr "Normal"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:85
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getChangeTicketStatus.php:47
+msgid "High"
+msgstr "Urgente"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:86
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getChangeTicketStatus.php:48
+msgid "Medium"
+msgstr "Moderada"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:87
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getChangeTicketStatus.php:49
+msgid "Low"
+msgstr "Baixa"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:97
+msgid "No of Tickets:"
+msgstr "Nº de Tickets"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:100
+msgid "10"
+msgstr "10"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:101
+msgid "20"
+msgstr "20"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:102
+msgid "30"
+msgstr "30"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:103
+msgid "40"
+msgstr "40"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:104
+msgid "50"
+msgstr "50"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/ticket_filter.php:114
+msgid "Search Tickets..."
+msgstr "Buscar Tickets..."
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:9
+msgid "Support Page/Post"
+msgstr "Página/entrada de Ticket"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:11
+msgid "Select Page/Post"
+msgstr "Seleccionar página/entrada"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:29
+msgid "Use shortcode"
+msgstr "Usar atajo"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:29
+msgid "in selected page/post above."
+msgstr "en la página/entrada seleccionada encima."
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:32
+msgid "Support Button"
+msgstr "Botão de Tickets"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:33
+msgid ""
+"If enabled, button will be shown on all pages of front-end which redirect to "
+"support page/post selected above on click."
+msgstr ""
+"Si se habilita, el botón se mostrará en todas las páginas y redireccionará a "
+"la página de Casos seleccionada arriba"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:37
+msgid "Enable Support Button"
+msgstr "Habilitar Botón de casos"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:42
+msgid "Top Left"
+msgstr "Arriba Izquierda"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:43
+msgid "Top Right"
+msgstr "Arriba Derecha"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:44
+msgid "Bottom Left"
+msgstr "Abajo Izquierda"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:45
+msgid "Bottom Right"
+msgstr "Abajo Derecha"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:49
+msgid "Guest Ticket"
+msgstr "Casos de usuarios no registrados"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:50
+msgid "If enabled, non logged-in user will able to raise ticket"
+msgstr "Si se habilita, los usuarios no registrados podrán enviar casos"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:54
+msgid "Enable Guest Tickets"
+msgstr "Habilitar Casos de usuarios no registrados"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:59
+msgid "Facebook App Details"
+msgstr "Detalles de App de Facebook"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:60
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/admin.php:88
+msgid "Click Here"
+msgstr "Clic aquí"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:63
+msgid "App ID:"
+msgstr "ID de App:"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:69
+msgid "App Secret:"
+msgstr "App Secreta:"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:77
+msgid "Front End Support Panel"
+msgstr "Panel Front End de casos"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:80
+msgid "Support Title:"
+msgstr "Título:"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:86
+msgid "Phone Number:"
+msgstr "Número de teléfono:"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:92
+msgid "Display Skype Chat?:"
+msgstr "¿Mostrar chat de Skype?:"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:94
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:101
+msgid "Yes"
+msgstr "Sí"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:95
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:102
+msgid "No"
+msgstr "No"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:99
+msgid "Display Skype Call?:"
+msgstr "¿Mostrar llamada de Skype?:"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:108
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getAgentSettings.php:54
+msgid "Save Settings"
+msgstr "Guardar configuración"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:115
+msgid "Facebook App Help"
+msgstr "Ayuda de la App de Facebook"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:119
+msgid "Create your application"
+msgstr "Crea tu aplicación"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:120
+msgid "Look for Site URL field in the Website tab and enter"
+msgstr ""
+"Busque el campo del enlace del sitio en la pestaña de Web y pulse Enter"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:121
+msgid "After this, go to the"
+msgstr "Tras esto vaya a la"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:121
+msgid "Facebook Application List"
+msgstr "Lista de Aplicación de Facebook"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:121
+msgid "page and select your newly created application"
+msgstr "y seleccione su nueva aplicación creada"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:122
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:123
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:124
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:125
+msgid "Go to"
+msgstr "Ir a"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:122
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:123
+msgid "Settings"
+msgstr "Configuración"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:122
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:123
+msgid "and enter"
+msgstr "Y Enter"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:122
+msgid "Contact Email"
+msgstr "Email de contacto"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:123
+msgid "+Add Platform"
+msgstr "+Añadir plataforma"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:123
+msgid "select"
+msgstr "seleccionar"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:123
+msgid "Website"
+msgstr "Web"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:124
+msgid "Status and Review"
+msgstr "Estado y Revisión"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:124
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:125
+msgid " and"
+msgstr "y"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:124
+msgid "ON"
+msgstr "ON"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:124
+msgid "available to the general public"
+msgstr "disponible al público general"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:125
+msgid "Dashboard"
+msgstr "Escritorio"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:125
+msgid " and Copy the values from these fields:"
+msgstr "y copie los valores de estos campos:"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:125
+msgid "App ID/API key"
+msgstr "App ID/AP key"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:125
+msgid "Application Secret"
+msgstr "Aplicación secreta"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:125
+msgid ", and enter in <b>Facebook App Settings"
+msgstr ", y entre en <b>Configuración de la aplicación de Facebook"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getGeneralSettings.php:129
+msgid "Close"
+msgstr "Cerrar"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getAgentSettings.php:25
+msgid "Signature"
+msgstr "Firma"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getAgentSettings.php:28
+msgid "Skype Settings"
+msgstr "Opciones de Skype"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getAgentSettings.php:29
+msgid ""
+" You'll need to update your Skype setting to allow incoming calls or "
+"messages from people who are not on your contact list."
+msgstr ""
+"Deberá actualizar su configuración de Skype para permitir llamadas entrantes "
+"o mensajes de gente que no esté en su lista de contactos."
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getAgentSettings.php:32
+msgid "Skype ID"
+msgstr "ID de Skype"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getAgentSettings.php:37
+msgid "Available to Chat?"
+msgstr "¿Disponible para Chat?"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getAgentSettings.php:45
+msgid "Available to Call?"
+msgstr "¿Disponible para llamar?"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getTicketsByFilter.php:64
+msgid "Raised By"
+msgstr "Hecho por"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getTicketsByFilter.php:65
+msgid "Type"
+msgstr "Tipo"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getTicketsByFilter.php:67
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/statistics.php:40
+msgid "Assigned to"
+msgstr "Asignado por"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/admin.php:49
+msgid "WP Support Plus"
+msgstr "WP Gestión de Casos"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/admin.php:50
+msgid "Welcome, "
+msgstr "Bienvenido,"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/admin.php:77
+msgid "WP Support Plus Settings"
+msgstr "Configuración de WP Gestión de Casos"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/admin.php:88
+msgid " for Support and updates after 1.0"
+msgstr "para ayuda y actualizaciones tras 1.0"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/admin.php:98
+msgid "WP Support Plus Statistics"
+msgstr "Estadísticas de WP Gestión de Casos"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getCallOnlineAgents.php:15
+msgid "Online Call Agents"
+msgstr "Moderadores Online para llamada"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getCallOnlineAgents.php:43
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getCallOnlineAgents.php:74
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getCallOnlineAgents.php:105
+msgid "Skype ID:"
+msgstr "ID de Skype"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getCallOnlineAgents.php:112
+msgid "Sorry, currently no agent available for call!!!"
+msgstr ""
+"Lo sentimos, ahora mismo no hay moderadores disponibles para una llamada"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getIndivisualTicketFront.php:20
+msgid " Back To Tickets"
+msgstr "Volver a Casos"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getIndivisualTicketFront.php:21
+msgid "Change Status"
+msgstr "Cambiar Estado"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getIndivisualTicketFront.php:71
+msgid "Attach File(s):"
+msgstr "Anexar Archivo(s):"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getIndivisualTicketFront.php:77
+msgid "Reset"
+msgstr "Apagar"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getIndivisualTicketFront.php:78
+msgid "Submit Reply"
+msgstr "Enviar Respuesta"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getIndivisualTicketFront.php:132
+msgid "Attachment: "
+msgstr "Archivo Adjunto:"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/statistics.php:33
+msgid "Open Tickets: "
+msgstr "Casos Abiertos:"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/statistics.php:34
+msgid "Pending Tickets: "
+msgstr "Casos Pendientes:"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/statistics.php:35
+msgid "Closed Tickets: "
+msgstr "Casos Cerrados:"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/statistics.php:41
+msgid "Open Tickets"
+msgstr "Casos Abiertos"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/statistics.php:42
+msgid "Pending Tickets"
+msgstr "Casos Pendientes"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/statistics.php:43
+msgid "Closed Tickets"
+msgstr "Casos Cerrados"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getChatOnlineAgents.php:15
+msgid "Online Chat Agents"
+msgstr "Moderadores Online para chat"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getChatOnlineAgents.php:112
+msgid "Sorry, currently no agent available for chat!!!"
+msgstr "Lo sentimos, ahora mismo no hay moderadores disponibles para chat"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getCategories.php:8
+msgid "Category Name"
+msgstr "Nombre de categoría"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getCategories.php:9
+msgid "Action"
+msgstr "Acción"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getCategories.php:25
+msgid "Enter Category Name"
+msgstr "Escriba Nombre de Categoría"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getCategories.php:26
+msgid "Create New Category"
+msgstr "Crear nueva categoría"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getCategories.php:31
+msgid "Update Category"
+msgstr "Modificar Categoría"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/create_new_ticket.php:11
+msgid "Description"
+msgstr "Descrição"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/create_new_ticket.php:33
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getIndivisualTicket.php:65
+msgid "Attach File(s)"
+msgstr "Adjuntar Archivo(s)"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/create_new_ticket.php:41
+msgid "Submit Ticket"
+msgstr "Submeter Ticket"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/create_new_ticket.php:42
+msgid "Reset Form"
+msgstr "Apagar dados"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getIndivisualTicket.php:23
+msgid "Assign Agent"
+msgstr "Asignar Moderador"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getIndivisualTicket.php:24
+msgid "Delete Ticket"
+msgstr "Borrar Caso"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/admin_settings.php:3
+msgid "General"
+msgstr "General"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/admin_settings.php:4
+msgid "Categories"
+msgstr "Categorías"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/admin_settings.php:5
+msgid "Email Notification"
+msgstr "Notificación por Email"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getEmailNotificationSettings.php:5
+msgid "Mail Settings"
+msgstr "Configuración de email"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getEmailNotificationSettings.php:8
+msgid "From Email:"
+msgstr "De (email):"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getEmailNotificationSettings.php:12
+#, fuzzy
+msgid "From Name:"
+msgstr "De (Nombre):"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getEmailNotificationSettings.php:18
+msgid "Notification Settings"
+msgstr "Configuración de notificaciones"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getEmailNotificationSettings.php:22
+msgid "New Ticket Created"
+msgstr "Nuevo Caso creado"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getEmailNotificationSettings.php:25
+msgid ""
+"This will send email notification to Administrator when new ticket has been "
+"created"
+msgstr ""
+"Esto enviará un email notificando al Administrador cuando se cree un nuevo "
+"Caso"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getEmailNotificationSettings.php:29
+msgid "Ticket Reply"
+msgstr "Respuesta a Caso"
+
+#: /var/www/wp-poll/wp-content/plugins/wp-support-plus/includes/admin/getEmailNotificationSettings.php:32
+msgid ""
+"This will send email notification to all Agent when any ticket has been "
+"updated"
+msgstr ""
+"Esto enviará un email notificando a todos los Moderadores cuando un Caso se "
+"haya actualizado"

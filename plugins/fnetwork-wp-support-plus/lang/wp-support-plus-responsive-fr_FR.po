@@ -1,0 +1,851 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Support Plus v3.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-09-28 20:28+0100\n"
+"PO-Revision-Date: 2014-09-28 20:37+0100\n"
+"Last-Translator: X-Raym <extremraym@yahoo.fr>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n>1;\n"
+"X-Generator: Poedit 1.6.9\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;"
+"_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2\n"
+"X-Textdomain-Support: yes\n"
+"X-Poedit-SearchPath-0: .\n"
+
+# @ wp-support-plus-responsive
+#: includes/admin/admin.php:49
+msgid "WP Support Plus"
+msgstr "WP Support Plus"
+
+#: includes/admin/admin.php:50
+msgid "Welcome, "
+msgstr "Bienvenue, "
+
+# @ wp-support-plus-responsive
+#: includes/admin/admin.php:77
+msgid "WP Support Plus Settings"
+msgstr "Paramètres de WP Support Plus"
+
+# @ wp-support-plus-responsive
+#: includes/admin/admin.php:88 includes/admin/getGeneralSettings.php:60
+msgid "Click Here"
+msgstr "Cliquez ici"
+
+# @ wp-support-plus-responsive
+#: includes/admin/admin.php:88
+msgid " for Support and updates after 1.0"
+msgstr " pour le Support et les mises-à-jour après la version 1.0"
+
+# @ wp-support-plus-responsive
+#: includes/admin/admin.php:98
+msgid "WP Support Plus Statistics"
+msgstr "Statistiques de WP Support Plus"
+
+# @ wp-support-plus-responsive
+#: includes/admin/admin_settings.php:3
+msgid "General"
+msgstr "Général"
+
+# @ wp-support-plus-responsive
+#: includes/admin/admin_settings.php:4
+msgid "Categories"
+msgstr "Catégories"
+
+# @ wp-support-plus-responsive
+#: includes/admin/admin_settings.php:5
+msgid "Email Notification"
+msgstr "Notification d'E-mail"
+
+# @ wp-support-plus-responsive
+#: includes/admin/create_new_ticket.php:7 includes/admin/display_ticket.php:4
+#: includes/loggedInUser.php:8
+msgid "Create New Ticket"
+msgstr "Créer un Nouveau Billet"
+
+# @ wp-support-plus-responsive
+#: includes/admin/create_new_ticket.php:9
+#: includes/admin/getFrontEndTicket.php:33
+#: includes/admin/getTicketsByFilter.php:63
+msgid "Subject"
+msgstr "Sujet"
+
+# @ wp-support-plus-responsive
+#: includes/admin/create_new_ticket.php:11
+msgid "Description"
+msgstr "Description"
+
+# @ wp-support-plus-responsive
+#: includes/admin/create_new_ticket.php:14
+#: includes/admin/getChangeTicketStatus.php:28
+#: includes/admin/getFrontEndTicket.php:34
+#: includes/admin/getIndivisualTicket.php:44
+#: includes/admin/getTicketsByFilter.php:66
+msgid "Category"
+msgstr "Catégorie"
+
+# @ wp-support-plus-responsive
+#: includes/admin/create_new_ticket.php:24
+#: includes/admin/getChangeTicketStatus.php:42
+#: includes/admin/getFrontEndTicket.php:35
+#: includes/admin/getTicketsByFilter.php:68
+msgid "Priority"
+msgstr "Priorité"
+
+# @ wp-support-plus-responsive
+#: includes/admin/create_new_ticket.php:26
+#: includes/admin/getChangeTicketStatus.php:46
+#: includes/admin/getIndivisualTicket.php:57
+#: includes/admin/getIndivisualTicketFront.php:63
+#: includes/admin/ticket_filter.php:84
+msgid "Normal"
+msgstr "Normal"
+
+# @ wp-support-plus-responsive
+#: includes/admin/create_new_ticket.php:27
+#: includes/admin/getChangeTicketStatus.php:47
+#: includes/admin/getIndivisualTicket.php:58
+#: includes/admin/getIndivisualTicketFront.php:64
+#: includes/admin/ticket_filter.php:85
+msgid "High"
+msgstr "Élevé"
+
+# @ wp-support-plus-responsive
+#: includes/admin/create_new_ticket.php:28
+#: includes/admin/getChangeTicketStatus.php:48
+#: includes/admin/getIndivisualTicket.php:59
+#: includes/admin/getIndivisualTicketFront.php:65
+#: includes/admin/ticket_filter.php:86
+msgid "Medium"
+msgstr "Moyen"
+
+# @ wp-support-plus-responsive
+#: includes/admin/create_new_ticket.php:29
+#: includes/admin/getChangeTicketStatus.php:49
+#: includes/admin/getIndivisualTicket.php:60
+#: includes/admin/getIndivisualTicketFront.php:66
+#: includes/admin/ticket_filter.php:87
+msgid "Low"
+msgstr "Faible"
+
+# @ wp-support-plus-responsive
+#: includes/admin/create_new_ticket.php:33
+#: includes/admin/getIndivisualTicket.php:65
+msgid "Attach File(s)"
+msgstr "Fichier(s) joint(s)"
+
+# @ wp-support-plus-responsive
+#: includes/admin/create_new_ticket.php:41
+msgid "Submit Ticket"
+msgstr "Soumettre un Billet"
+
+# @ wp-support-plus-responsive
+#: includes/admin/create_new_ticket.php:42
+msgid "Reset Form"
+msgstr "Réinitialiser le Formulaire"
+
+# @ wp-support-plus-responsive
+#: includes/admin/display_ticket.php:3 includes/loggedInUser.php:7
+msgid "Tickets"
+msgstr "Billet"
+
+# @ wp-support-plus-responsive
+#: includes/admin/display_ticket.php:5
+msgid "Agent Settings"
+msgstr "Paramètres des Agents"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getAgentSettings.php:25
+msgid "Signature"
+msgstr "Signature"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getAgentSettings.php:28
+msgid "Skype Settings"
+msgstr "Paramètres de Skype"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getAgentSettings.php:29
+msgid ""
+" You'll need to update your Skype setting to allow incoming calls or "
+"messages from people who are not on your contact list."
+msgstr ""
+"Vous devez mettre à jour les paramètres de Skype pour autoriser les appels "
+"entrants ou les messages de personnes n'étant pas dans votre liste de "
+"contacts."
+
+# @ wp-support-plus-responsive
+#: includes/admin/getAgentSettings.php:32
+msgid "Skype ID"
+msgstr "Identifiant Skype"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getAgentSettings.php:37
+msgid "Available to Chat?"
+msgstr "Disponible pour Discuter ?"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getAgentSettings.php:45
+msgid "Available to Call?"
+msgstr "Disponible pour un Appel ?"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getAgentSettings.php:54
+#: includes/admin/getEmailNotificationSettings.php:34
+#: includes/admin/getGeneralSettings.php:108
+msgid "Save Settings"
+msgstr "Sauvegarder les Paramètres"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getCallOnlineAgents.php:15
+msgid "Online Call Agents"
+msgstr "Agents d'Appel Connectés"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getCallOnlineAgents.php:43
+#: includes/admin/getCallOnlineAgents.php:74
+#: includes/admin/getCallOnlineAgents.php:105
+#: includes/admin/getChatOnlineAgents.php:43
+#: includes/admin/getChatOnlineAgents.php:74
+#: includes/admin/getChatOnlineAgents.php:105
+msgid "Skype ID:"
+msgstr "Identifiant Skype : "
+
+# @ wp-support-plus-responsive
+#: includes/admin/getCallOnlineAgents.php:112
+msgid "Sorry, currently no agent available for call!!!"
+msgstr "Désolé, pour le moment aucun agent n'est disponible pour un appel !!!"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getCategories.php:8
+msgid "Category Name"
+msgstr "Nom de Catégorie"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getCategories.php:9
+msgid "Action"
+msgstr "Action"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getCategories.php:25
+msgid "Enter Category Name"
+msgstr "Entrez Nom de Catégorie"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getCategories.php:26
+msgid "Create New Category"
+msgstr "Créer une Nouvelle Catégorie"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getCategories.php:31
+msgid "Update Category"
+msgstr "Mettre à jour la Catégorie"
+
+#: includes/admin/getChangeTicketStatus.php:11
+#: includes/admin/getIndivisualTicket.php:27
+#: includes/admin/getIndivisualTicketFront.php:22
+#: includes/admin/getTicketAssignment.php:19
+msgid "[Ticket #"
+msgstr "[Billet #"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getChangeTicketStatus.php:15
+#: includes/admin/getFrontEndTicket.php:32
+#: includes/admin/getIndivisualTicket.php:34
+#: includes/admin/getTicketsByFilter.php:62
+msgid "Status"
+msgstr "Statut"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getChangeTicketStatus.php:19
+#: includes/admin/getIndivisualTicket.php:36
+#: includes/admin/getIndivisualTicketFront.php:38
+#: includes/admin/ticket_filter.php:14
+msgid "Open"
+msgstr "Ouvrir"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getChangeTicketStatus.php:21
+#: includes/admin/getIndivisualTicket.php:38
+#: includes/admin/getIndivisualTicketFront.php:40
+#: includes/admin/ticket_filter.php:15
+msgid "Pending"
+msgstr "En attente"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getChangeTicketStatus.php:23
+#: includes/admin/getIndivisualTicket.php:40
+#: includes/admin/getIndivisualTicketFront.php:42
+#: includes/admin/ticket_filter.php:16
+msgid "Closed"
+msgstr "Fermé"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getChangeTicketStatus.php:55
+#: includes/admin/getTicketAssignment.php:33
+msgid "Cancel"
+msgstr "Annuler"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getChangeTicketStatus.php:56
+#: includes/admin/getTicketAssignment.php:34
+msgid "Save Changes"
+msgstr "Sauvegarder les Changements"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getChatOnlineAgents.php:15
+msgid "Online Chat Agents"
+msgstr "Agents Connectés"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getChatOnlineAgents.php:112
+msgid "Sorry, currently no agent available for chat!!!"
+msgstr "Désolé, pour le moment aucun agent n'est disponible pour discuter !!!"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getEmailNotificationSettings.php:5
+msgid "Mail Settings"
+msgstr "Réglages E-mail"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getEmailNotificationSettings.php:8
+msgid "From Email:"
+msgstr "Depuis E-mail : "
+
+# @ wp-support-plus-responsive
+#: includes/admin/getEmailNotificationSettings.php:12
+msgid "From Name:"
+msgstr "Depuis Nom : "
+
+# @ wp-support-plus-responsive
+#: includes/admin/getEmailNotificationSettings.php:18
+msgid "Notification Settings"
+msgstr "Paramètres de Notification"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getEmailNotificationSettings.php:22
+msgid "New Ticket Created"
+msgstr "Nouveau Billet Créé"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getEmailNotificationSettings.php:25
+msgid ""
+"This will send email notification to Administrator when new ticket has been "
+"created"
+msgstr ""
+"Quand un nouveau billet est créé, un e-mail de notification est envoyé à "
+"l'Administrateur"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getEmailNotificationSettings.php:29
+msgid "Ticket Reply"
+msgstr "Billet de Réponse"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getEmailNotificationSettings.php:32
+msgid ""
+"This will send email notification to all Agent when any ticket has been "
+"updated"
+msgstr ""
+"Quand un billet à été mis à jour, un e-mail de notification est envoyé à "
+"tous les Agents"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getFrontEndTicket.php:36
+#: includes/admin/getTicketsByFilter.php:69
+msgid "Updated"
+msgstr "Mis à Jour"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getFrontEndTicket.php:89
+#: includes/admin/getTicketsByFilter.php:134
+msgid "Newer"
+msgstr "Plus Récent"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getFrontEndTicket.php:91
+#: includes/admin/getTicketsByFilter.php:136
+msgid "Older"
+msgstr "Plus Ancien"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getFrontEndTicket.php:93
+#: includes/admin/getTicketsByFilter.php:138
+msgid "No Tickets Found"
+msgstr "Aucun Billet Trouvé"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:9
+msgid "Support Page/Post"
+msgstr "Page/Article du Support"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:11
+msgid "Select Page/Post"
+msgstr "Sélectionner Page/Article"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:29
+msgid "Use shortcode"
+msgstr "Utiliser shortcode"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:29
+msgid "in selected page/post above."
+msgstr "dans la page/l'article ci-dessus"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:32
+msgid "Support Button"
+msgstr "Bouton de Support"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:33
+msgid ""
+"If enabled, button will be shown on all pages of front-end which redirect to "
+"support page/post selected above on click."
+msgstr ""
+"Si activé, le bouton sera affiché sur toutes les pages du côté visiteur ce "
+"qui redirigera versla page/l'article de support sélectionné par un clic."
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:37
+msgid "Enable Support Button"
+msgstr "Autoriser le Bouton de Support"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:42
+msgid "Top Left"
+msgstr "En Haut à Gauche"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:43
+msgid "Top Right"
+msgstr "En Haut à Droite"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:44
+msgid "Bottom Left"
+msgstr "En Bas à Gauche"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:45
+msgid "Bottom Right"
+msgstr "En Bas à Droite"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:49
+msgid "Guest Ticket"
+msgstr "Billet des visiteurs non-inscrits"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:50
+msgid "If enabled, non logged-in user will able to raise ticket"
+msgstr "Si autorisé, les utilisateurs non-connectés pourront poster un billet"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:54
+msgid "Enable Guest Tickets"
+msgstr "Autorisé les Billets des Visiteurs Non-inscrits"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:59
+msgid "Facebook App Details"
+msgstr "Détails App Facebook"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:63
+msgid "App ID:"
+msgstr "ID de l'App :"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:69
+msgid "App Secret:"
+msgstr "Secret de l'App :"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:77
+msgid "Front End Support Panel"
+msgstr "Panneau de Support Côté Visiteurs"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:80
+msgid "Support Title:"
+msgstr "Ticket de Support"
+
+#: includes/admin/getGeneralSettings.php:86
+msgid "Phone Number:"
+msgstr "Numéro de Téléphone :"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:92
+msgid "Display Skype Chat?:"
+msgstr "Afficher Chat Skype"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:94
+#: includes/admin/getGeneralSettings.php:101
+msgid "Yes"
+msgstr "Oui"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:95
+#: includes/admin/getGeneralSettings.php:102
+msgid "No"
+msgstr "Non"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:99
+msgid "Display Skype Call?:"
+msgstr "Afficher Appel Skype ? :"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:115
+msgid "Facebook App Help"
+msgstr "Aide de l'App Facebook"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:119
+msgid "Create your application"
+msgstr "Créez votre application"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:120
+msgid "Look for Site URL field in the Website tab and enter"
+msgstr "Rechercher le champs d'URL du site dans l'onglet Website et Entre"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:121
+msgid "After this, go to the"
+msgstr "Après cela, allez vers la"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:121
+msgid "Facebook Application List"
+msgstr "Liste d'Application Facebook"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:121
+msgid "page and select your newly created application"
+msgstr "page et sélectionnez votre application nouvellement créée"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:122
+#: includes/admin/getGeneralSettings.php:123
+#: includes/admin/getGeneralSettings.php:124
+#: includes/admin/getGeneralSettings.php:125
+msgid "Go to"
+msgstr "Aller vers"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:122
+#: includes/admin/getGeneralSettings.php:123
+msgid "Settings"
+msgstr "Paramètres"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:122
+#: includes/admin/getGeneralSettings.php:123
+msgid "and enter"
+msgstr "et entrez"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:122
+msgid "Contact Email"
+msgstr "E-mail de Contact"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:123
+msgid "+Add Platform"
+msgstr "+Ajouter Plateforme"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:123
+msgid "select"
+msgstr "sélectionner"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:123
+msgid "Website"
+msgstr "Site Internet"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:124
+msgid "Status and Review"
+msgstr "Statut et Revue"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:124
+#: includes/admin/getGeneralSettings.php:125
+msgid " and"
+msgstr " et"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:124
+msgid "ON"
+msgstr "ON"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:124
+msgid "available to the general public"
+msgstr "accessible pour le public"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:125
+msgid "Dashboard"
+msgstr "Tableau de Bord"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:125
+msgid " and Copy the values from these fields:"
+msgstr " et Copier les valeurs à partir de ces champs :"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:125
+msgid "App ID/API key"
+msgstr "Clé d'ID/API de l'APP"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:125
+msgid "Application Secret"
+msgstr "Secret de l'Application"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:125
+msgid ", and enter in <b>Facebook App Settings"
+msgstr ", et entrez dans <b>les Paramètres de l'App Facebook"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getGeneralSettings.php:129
+msgid "Close"
+msgstr "Fermer"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getIndivisualTicket.php:20
+#: includes/admin/getIndivisualTicketFront.php:20
+msgid " Back To Tickets"
+msgstr "Retour aux Billets"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getIndivisualTicket.php:21
+#: includes/admin/getIndivisualTicketFront.php:21
+msgid "Change Status"
+msgstr "Changer le Statut"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getIndivisualTicket.php:23
+msgid "Assign Agent"
+msgstr "Assigner un Agent"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getIndivisualTicket.php:24
+msgid "Delete Ticket"
+msgstr "Supprimer le Billet"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getIndivisualTicket.php:129
+#: includes/admin/getIndivisualTicketFront.php:132
+msgid "Attachment: "
+msgstr "Pièce Jointe :"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getIndivisualTicketFront.php:35
+#: includes/admin/ticket_filter.php:10
+msgid "Status:"
+msgstr "Statut :"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getIndivisualTicketFront.php:47
+#: includes/admin/ticket_filter.php:41
+msgid "Category:"
+msgstr "Catégorie :"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getIndivisualTicketFront.php:60
+#: includes/admin/ticket_filter.php:80
+msgid "Priority:"
+msgstr "Priorité :"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getIndivisualTicketFront.php:71
+msgid "Attach File(s):"
+msgstr "Joindre un/des Fichiers(s)"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getIndivisualTicketFront.php:77
+msgid "Reset"
+msgstr "Réinitialiser"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getIndivisualTicketFront.php:78
+msgid "Submit Reply"
+msgstr "Poster la Réponse"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getTicketAssignment.php:21
+msgid "Assign to"
+msgstr "Assigné à"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getTicketAssignment.php:24 includes/admin/statistics.php:46
+#: includes/admin/ticket_filter.php:63
+msgid "None"
+msgstr "Aucun"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getTicketsByFilter.php:64
+msgid "Raised By"
+msgstr "Trié Par"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getTicketsByFilter.php:65
+msgid "Type"
+msgstr "Type"
+
+# @ wp-support-plus-responsive
+#: includes/admin/getTicketsByFilter.php:67 includes/admin/statistics.php:40
+msgid "Assigned to"
+msgstr "Assigné à"
+
+# @ wp-support-plus-responsive
+#: includes/admin/statistics.php:33
+msgid "Open Tickets: "
+msgstr "Tickets Ouverts :"
+
+# @ wp-support-plus-responsive
+#: includes/admin/statistics.php:34
+msgid "Pending Tickets: "
+msgstr "Billet en Attentes !"
+
+# @ wp-support-plus-responsive
+#: includes/admin/statistics.php:35
+msgid "Closed Tickets: "
+msgstr "Billets Fermés :"
+
+# @ wp-support-plus-responsive
+#: includes/admin/statistics.php:41
+msgid "Open Tickets"
+msgstr "Billets Ouverts :"
+
+# @ wp-support-plus-responsive
+#: includes/admin/statistics.php:42
+msgid "Pending Tickets"
+msgstr "Billets en Attente"
+
+# @ wp-support-plus-responsive
+#: includes/admin/statistics.php:43
+msgid "Closed Tickets"
+msgstr "Billet Clos"
+
+# @ wp-support-plus-responsive
+#: includes/admin/ticket_filter.php:13 includes/admin/ticket_filter.php:29
+#: includes/admin/ticket_filter.php:44 includes/admin/ticket_filter.php:62
+#: includes/admin/ticket_filter.php:83
+msgid "All"
+msgstr "Tout"
+
+# @ wp-support-plus-responsive
+#: includes/admin/ticket_filter.php:26
+msgid "Type:"
+msgstr "Type :"
+
+# @ wp-support-plus-responsive
+#: includes/admin/ticket_filter.php:30
+msgid "User"
+msgstr "Utilisateur"
+
+# @ wp-support-plus-responsive
+#: includes/admin/ticket_filter.php:31
+msgid "Guest"
+msgstr "Invité"
+
+# @ wp-support-plus-responsive
+#: includes/admin/ticket_filter.php:59
+msgid "Assigned to:"
+msgstr "Assigné à :"
+
+# @ wp-support-plus-responsive
+#: includes/admin/ticket_filter.php:97
+msgid "No of Tickets:"
+msgstr "Nombre de Tickets :"
+
+# @ wp-support-plus-responsive
+#: includes/admin/ticket_filter.php:100
+msgid "10"
+msgstr "10"
+
+# @ wp-support-plus-responsive
+#: includes/admin/ticket_filter.php:101
+msgid "20"
+msgstr "20"
+
+# @ wp-support-plus-responsive
+#: includes/admin/ticket_filter.php:102
+msgid "30"
+msgstr "30"
+
+# @ wp-support-plus-responsive
+#: includes/admin/ticket_filter.php:103
+msgid "40"
+msgstr "40"
+
+# @ wp-support-plus-responsive
+#: includes/admin/ticket_filter.php:104
+msgid "50"
+msgstr "50"
+
+# @ wp-support-plus-responsive
+#: includes/admin/ticket_filter.php:114
+msgid "Search Tickets..."
+msgstr "Rechercher Tickets...."
+
+# @ wp-support-plus-responsive
+#: includes/create_new_ticket.php:7
+msgid "Have an Account?"
+msgstr "Déjà Inscrit ?"
+
+# @ wp-support-plus-responsive
+#: includes/create_new_ticket.php:7
+msgid "Login Here"
+msgstr "Se Connecter Ici"
+
+# @ wp-support-plus-responsive
+#: includes/create_new_ticket.php:8
+msgid "OR"
+msgstr "OU"
+
+# @ wp-support-plus-responsive
+#: includes/create_new_ticket.php:10
+msgid "Login with Facebook"
+msgstr "Se connecter avec Facebook"
+
+# @ wp-support-plus-responsive
+#: includes/create_new_ticket.php:14
+msgid "Please Wait..."
+msgstr "Patientez s'il vous plaît..."
+
+# @ wp-support-plus-responsive
+#: includes/guestUser.php:5 includes/loggedInUser.php:16
+#: includes/loggedInUser.php:24
+msgid "Please Wait"
+msgstr "Patientez s'il vous plaît"
+
+# @ wp-support-plus-responsive
+#: includes/support_panel.php:15
+msgid "Skype Chat"
+msgstr "Chat Skype"
+
+# @ wp-support-plus-responsive
+#: includes/support_panel.php:21
+msgid "Skype Call"
+msgstr "Appel Skype"
+
+# @ wp-support-plus-responsive
+#: includes/support_panel.php:26
+msgid "Support Ticket"
+msgstr "Billet de Support"

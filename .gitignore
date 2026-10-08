@@ -1,0 +1,16 @@
+# OS
+.DS_Store
+*/.DS_Store
+
+# Logs / debug
+debug.log
+*.log
+
+# WordPress
+upgrade/
+cache/
+ai1wm-backups/
+
+# Uploads ficam versionados por opcao (isolamento do site).
+# Se preferir nao versionar os uploads, descomente:
+# uploads/

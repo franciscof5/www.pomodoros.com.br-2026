@@ -1,0 +1,15 @@
+body{
+	background-color: transparent !important;
+}
+#settingsGeneral .settingsGeneralContainer,
+#settingsGeneral .wait,
+#settingsCategories .settingsCategoriesContainer,
+#settingsCategories .wait,
+#settingsMail .settingsMailContainer,
+#settingsMail .wait{display: none;} 
+.wpsp_admin_panel{width: 99%; margin-top: 20px;}
+.wpsp_support_admin_welcome{float: right; margin-top: -19px;}
+#support_link{text-align: center; margin-top: 50px;}
+.wpsp_title_label{font-size: 13px !important;}
+.stat_heading{font-size: 24px !important;font-weight: bold !important;}
+.stat_coloumn_lable{font-size: 15px !important;font-weight: bold !important;}

@@ -1,0 +1,17 @@
+{
+	"name": "f5sites/ranking-calendar",
+	"description": "Wordpress plugin for daily, monthly and yearly gamefied post count calendar. Based on Sanisoft Calendar Archives. WordPress F5 Sites DEV projects",
+	"type": "wordpress-plugin",
+	"version": "0.1",
+	"authors": [
+		{
+			"name": "Francisco Matelli Matulovic",
+			"email": "francisco@f5sites.com",
+			"homepage": "http://franciscomat.com"
+		}
+	],
+	"require": {
+    		"composer/installers": "~1.0",
+	        "php": ">=5.2.4"
+        }
+}

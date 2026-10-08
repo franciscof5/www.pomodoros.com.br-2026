@@ -1,0 +1,39 @@
+.pnfpb_ic_push_pwa_settings_table_row {
+	height:70px;
+}
+
+.pnfpb_ic_push_pwa_settings_table_label_checkbox {
+	padding-left:0px;
+	padding-right:10px;
+}
+
+.pnfpb_ic_push_pwa_settings_table_column {
+	border:1px solid #ccc;
+}
+
+
+.pnfpb_ic_push_pwa_settings_table_value_column {
+	width:80% !important;
+}
+
+.pnfpb_ic_push_pwa_settings_table_value_column_input_field {
+	width:82% !important;
+}
+.pnfpb_ic_push_pwa_color {
+       width:20% !important;
+}
+
+.pnfpb_ic_push_pwa_settings_upload_icon {
+	width:100%;
+  	background-color: #135e96 !important; 
+  	border: none !important;
+  	color: white !important;
+  	padding: 10px !important;
+  	text-align: center !important;
+  	text-decoration: none !important;
+  	display: inline-block !important;
+  	font-size: 16px !important;
+  	margin: 4px 2px !important;
+  	cursor: pointer !important;
+  	border-radius: 8px !important;	
+}
