@@ -11,6 +11,9 @@ upgrade/
 cache/
 ai1wm-backups/
 
+# Segredos (gerado pelo entrypoint do container; nunca versionar)
+wp-secrets.php
+
 # Uploads ficam versionados por opcao (isolamento do site).
 # Se preferir nao versionar os uploads, descomente:
 # uploads/
