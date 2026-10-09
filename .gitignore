@@ -17,3 +17,4 @@ wp-secrets.php
 # Uploads ficam versionados por opcao (isolamento do site).
 # Se preferir nao versionar os uploads, descomente:
 # uploads/
+.sfs_debug_output.txt
