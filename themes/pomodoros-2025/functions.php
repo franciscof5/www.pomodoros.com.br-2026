@@ -610,18 +610,23 @@ function get_projectimer_tags_COPY($excludeTags=NULL) {
 		'author'        =>  get_current_user_id(),
 		'post_status' => array("publish", "future", "pending", "draft"),
 		'posts_per_page' => -1,
-
+		// Hotfix: carregar apenas os IDs e nao "prime" de cache de meta/termos.
+		// Sem isso, contas com muitos pomodoros carregavam milhares de WP_Post
+		// e estouravam a memoria do PHP-FPM (admin-ajax 502 / SIGKILL 9).
+		'fields' => 'ids',
+		'no_found_rows' => true,
+		'update_post_meta_cache' => false,
+		'update_post_term_cache' => false,
 	);
-	$all_projectimer_tags = get_posts( $args );
+	$all_projectimer_ids = get_posts( $args );
 	$please_dont_change_wpdb_woo_separated_tables=false;
 	#set_shared_database_schema();
 	$terms = array();
-	foreach ($all_projectimer_tags as $post) {
-		$tags = get_the_terms($post->ID, 'post_tag');
-		if($tags) {
+	// Uma consulta de termos por lote (500) em vez de get_the_terms por post.
+	foreach (array_chunk((array) $all_projectimer_ids, 500) as $ids_chunk) {
+		$tags = wp_get_object_terms($ids_chunk, 'post_tag');
+		if($tags && !is_wp_error($tags)) {
 			foreach ($tags as $tag) {
-				//array_
-				//$t = "<option>".$tag->slug."</option>";
 				$t = $tag->slug;
 				if(!in_array($t, $terms)) {
 					if($excludeTags) {
@@ -634,7 +639,6 @@ function get_projectimer_tags_COPY($excludeTags=NULL) {
 				}
 			}
 		}
-		//$terms[] = $tags;
 	}
 	if($terms)
 		return $terms;
