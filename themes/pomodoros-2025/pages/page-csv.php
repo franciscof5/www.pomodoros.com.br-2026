@@ -1,14 +1,11 @@
-<script>
-	document.title = "Pomodoros <?php global $title_apendix; echo $title_apendix.' » ';_e('CSV', 'sis-foca-js'); ?>";
-</script>
-<div id="content" class="content_default  col-xs-12">
-<div class="padder">
-<h1>Exportar CSV</h1>
-Tenha mais controle sobre seus dados e de seus funcionários, visualize as informações onde está acostumado, assim é possível por exemplo utilizar o Microsoft Excel ou o OpenOffice Calc.
+<div class="pomo-page">
+	<header class="pomo-page__head">
+		<h1 class="pomo-page__title"><span class="fas fa-file-csv" aria-hidden="true"></span> <?php _e('Export CSV', 'sis-foca-js'); ?></h1>
+		<p class="pomo-page__subtitle"><?php _e('Have more control over your data and view it in Excel, LibreOffice Calc and others.', 'sis-foca-js'); ?></p>
+	</header>
 
-<?php 
-echo do_shortcode('[wpcsv_export_form]'); ?>
-
-Aviso: futuramente será possível importar pomodoros.
-</div>
-</div>
+	<div class="pomo-card">
+		<?php echo do_shortcode('[wpcsv_export_form]'); ?>
+		<p class="pomo-page__subtitle" style="margin-top:14px;"><?php _e('Note: in the future it will be possible to import pomodoros.', 'sis-foca-js'); ?></p>
+	</div>
+</div><!-- .pomo-page -->

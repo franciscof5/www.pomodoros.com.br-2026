@@ -1,0 +1,1777 @@
+/*!
+ * Pomodoros - modern dark app UI
+ * Scoped to body.pomo-app so the public theme is untouched.
+ * No build step: plain CSS with custom properties.
+ */
+
+body.pomo-app {
+	--pomo-bg: #0b0f14;
+	--pomo-bg-soft: #10151c;
+	--pomo-surface: #151b24;
+	--pomo-surface-2: #1b2431;
+	--pomo-border: rgba(255, 255, 255, 0.08);
+	--pomo-border-strong: rgba(255, 255, 255, 0.16);
+	--pomo-text: #e6edf3;
+	--pomo-muted: #9aa7b4;
+	--pomo-accent: #22c55e;
+	--pomo-accent-2: #16a34a;
+	--pomo-danger: #f43f5e;
+	--pomo-radius: 18px;
+	--pomo-radius-sm: 12px;
+	--pomo-shadow: 0 18px 40px -20px rgba(0, 0, 0, 0.9);
+	--pomo-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+	margin: 0;
+	min-height: 100vh;
+	background: var(--pomo-bg);
+	color: var(--pomo-text);
+	font-family: var(--pomo-font);
+	-webkit-font-smoothing: antialiased;
+}
+
+body.pomo-app .main-cotainer-app {
+	background: radial-gradient(1200px 600px at 50% -10%, #16202c 0%, var(--pomo-bg) 60%) !important;
+	color: var(--pomo-text) !important;
+	min-height: 100vh;
+	padding-bottom: 32px;
+}
+
+body.pomo-app a {
+	color: inherit;
+}
+
+body.pomo-app *,
+body.pomo-app *::before,
+body.pomo-app *::after {
+	box-sizing: border-box;
+}
+
+/* The old Bootstrap navbar is replaced by the modern .pomo-appbar. */
+body.pomo-app > .main-cotainer-app > .navbar,
+body.pomo-app .navbar.pomo-legacy-nav {
+	display: none !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* App bar                                                             */
+/* ------------------------------------------------------------------ */
+.pomo-appbar {
+	position: sticky;
+	top: 0;
+	z-index: 60;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
+	background: rgba(11, 15, 20, 0.82);
+	backdrop-filter: blur(14px);
+	-webkit-backdrop-filter: blur(14px);
+	border-bottom: 1px solid var(--pomo-border);
+}
+
+.pomo-appbar__brand {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	text-decoration: none;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+}
+
+.pomo-appbar__brand img {
+	height: 28px;
+	width: auto;
+	display: block;
+}
+
+.pomo-appbar__clock {
+	margin-left: 4px;
+	font-variant-numeric: tabular-nums;
+	font-size: 14px;
+	color: var(--pomo-muted);
+	letter-spacing: 0.08em;
+}
+
+.pomo-appbar__nav {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	margin-left: auto;
+}
+
+.pomo-appbar__link {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 12px;
+	border-radius: 999px;
+	color: var(--pomo-muted);
+	text-decoration: none;
+	font-size: 13px;
+	font-weight: 600;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.pomo-appbar__link:hover,
+.pomo-appbar__link:focus-visible {
+	background: var(--pomo-surface);
+	color: var(--pomo-text);
+}
+
+.pomo-appbar__link.is-current {
+	background: rgba(34, 197, 94, 0.14);
+	color: #86efac;
+}
+
+.pomo-appbar__link--danger:hover {
+	color: #fda4af;
+	background: rgba(244, 63, 94, 0.12);
+}
+
+.pomo-appbar__toggle {
+	display: none;
+	margin-left: auto;
+	background: var(--pomo-surface);
+	border: 1px solid var(--pomo-border);
+	color: var(--pomo-text);
+	width: 40px;
+	height: 40px;
+	border-radius: 12px;
+	font-size: 18px;
+	cursor: pointer;
+}
+
+/* Mobile: collapse nav behind the toggle. */
+@media (max-width: 860px) {
+	.pomo-appbar__toggle {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.pomo-appbar__nav {
+		position: fixed;
+		inset: 64px 0 auto 0;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 2px;
+		margin: 0;
+		padding: 12px 16px 20px;
+		background: var(--pomo-bg-soft);
+		border-bottom: 1px solid var(--pomo-border);
+		transform: translateY(-130%);
+		transition: transform 0.22s ease;
+		z-index: 55;
+	}
+
+	body.pomo-nav-open .pomo-appbar__nav {
+		transform: translateY(0);
+	}
+}
+
+/* ------------------------------------------------------------------ */
+/* Layout                                                              */
+/* ------------------------------------------------------------------ */
+.pomo-focus {
+	width: 100%;
+	max-width: 720px;
+	margin: 0 auto;
+	padding: 20px 16px 40px;
+}
+
+.pomo-focus .row {
+	display: block;
+	margin: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Timer hero                                                          */
+/* ------------------------------------------------------------------ */
+.pomo-timer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 20px;
+	padding: 26px 18px 30px;
+	margin-top: 18px;
+	background: linear-gradient(180deg, var(--pomo-surface) 0%, var(--pomo-bg-soft) 100%);
+	border: 1px solid var(--pomo-border);
+	border-radius: 26px;
+	box-shadow: var(--pomo-shadow);
+}
+
+.pomo-clock {
+	position: relative;
+	width: min(74vw, 300px);
+	height: min(74vw, 300px);
+	aspect-ratio: 1 / 1;
+	cursor: pointer;
+	--accent: var(--pomo-accent);
+	--accent-2: var(--pomo-accent-2);
+}
+
+.pomo-clock[data-mode="rest"] {
+	--accent: #f59e0b;
+	--accent-2: #d97706;
+}
+
+.pomo-clock[data-mode="bigRest"] {
+	--accent: #6366f1;
+	--accent-2: #4f46e5;
+}
+
+.pomo-clock__ring {
+	width: 100%;
+	height: 100%;
+	transform: rotate(-90deg);
+	overflow: visible;
+}
+
+.pomo-clock__track,
+.pomo-clock__progress {
+	fill: none;
+	stroke-width: 10;
+	stroke-linecap: round;
+}
+
+.pomo-clock__track {
+	stroke: rgba(255, 255, 255, 0.08);
+}
+
+.pomo-clock__progress {
+	stroke: var(--accent);
+	transition: stroke-dashoffset 0.25s linear, stroke 0.3s ease;
+	filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 55%, transparent));
+}
+
+.pomo-clock__readout {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	pointer-events: none;
+}
+
+.pomo-clock__time {
+	font-size: clamp(44px, 15vw, 68px);
+	font-weight: 700;
+	line-height: 1;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0.02em;
+}
+
+.pomo-clock__label {
+	font-size: 13px;
+	text-transform: uppercase;
+	letter-spacing: 0.22em;
+	color: var(--pomo-muted);
+}
+
+.pomo-clock__status {
+	font-size: 12px;
+	color: var(--accent);
+}
+
+body.pomo-app.is-running .pomo-clock__progress {
+	transition: stroke-dashoffset 0.9s linear, stroke 0.3s ease;
+}
+
+/* Action button: keep the legacy id, modern look. */
+body.pomo-app #action_button_id {
+	width: 100%;
+	max-width: 420px;
+	border: 0;
+	border-radius: 999px;
+	padding: 16px 28px;
+	font-size: 16px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: #04140a;
+	background: linear-gradient(135deg, var(--pomo-accent) 0%, var(--pomo-accent-2) 100%);
+	cursor: pointer;
+	box-shadow: 0 12px 30px -12px color-mix(in srgb, var(--pomo-accent) 70%, transparent);
+	transition: transform 0.12s ease, filter 0.15s ease;
+}
+
+body.pomo-app #action_button_id:hover:not(:disabled) {
+	filter: brightness(1.06);
+}
+
+body.pomo-app #action_button_id:active:not(:disabled) {
+	transform: scale(0.985);
+}
+
+body.pomo-app #action_button_id:disabled {
+	opacity: 0.55;
+	cursor: progress;
+}
+
+/* Indicators + controls */
+body.pomo-app #pomolist {
+	display: flex;
+	gap: 10px;
+	justify-content: center;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+	width: auto;
+	color: inherit;
+}
+
+body.pomo-app .pomoindi {
+	background-image: none !important;
+	width: 34px;
+	height: 34px;
+	border-radius: 999px;
+	border: 1px solid var(--pomo-border-strong);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 12px;
+	font-weight: 700;
+	color: var(--pomo-muted);
+	margin: 0;
+	float: none;
+	transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+body.pomo-app .pomoindi.is-done {
+	background: var(--pomo-accent);
+	border-color: transparent;
+	color: #04140a;
+}
+
+.pomo-timer__controls {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+body.pomo-app .pomo-timer__controls .btn-round {
+	width: 44px;
+	height: 44px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 999px;
+	border: 1px solid var(--pomo-border);
+	background: var(--pomo-surface-2);
+	color: var(--pomo-text);
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+body.pomo-app .pomo-timer__controls .btn-round:hover {
+	background: #263140;
+}
+
+/* ------------------------------------------------------------------ */
+/* Cards, tabs, forms                                                  */
+/* ------------------------------------------------------------------ */
+.pomo-card {
+	background: var(--pomo-surface);
+	border: 1px solid var(--pomo-border);
+	border-radius: var(--pomo-radius);
+	padding: 18px;
+	margin-top: 18px;
+	box-shadow: var(--pomo-shadow);
+}
+
+.pomo-tabs {
+	display: flex;
+	gap: 6px;
+	padding: 5px;
+	background: var(--pomo-bg-soft);
+	border: 1px solid var(--pomo-border);
+	border-radius: 999px;
+	margin-top: 22px;
+}
+
+.pomo-tab {
+	flex: 1;
+	border: 0;
+	background: transparent;
+	color: var(--pomo-muted);
+	padding: 10px 12px;
+	border-radius: 999px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.pomo-tab.is-active {
+	background: var(--pomo-surface-2);
+	color: var(--pomo-text);
+}
+
+.pomo-panel {
+	display: none;
+}
+
+.pomo-panel.is-active {
+	display: block;
+}
+
+body.pomo-app #pomopainel label {
+	display: block;
+	margin: 18px 0 8px;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--pomo-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+
+body.pomo-app #pomopainel .form-group {
+	margin: 0;
+}
+
+body.pomo-app #title_box,
+body.pomo-app #description_box,
+body.pomo-app .ts-wrapper .ts-control {
+	width: 100%;
+	background: var(--pomo-bg-soft) !important;
+	border: 1px solid var(--pomo-border) !important;
+	border-radius: var(--pomo-radius-sm) !important;
+	color: var(--pomo-text) !important;
+	padding: 12px 14px;
+	font-size: 15px;
+	min-height: 48px;
+}
+
+body.pomo-app #title_box,
+body.pomo-app #description_box {
+	min-height: 48px;
+}
+
+body.pomo-app #title_box:focus,
+body.pomo-app #description_box:focus,
+body.pomo-app .ts-wrapper.focus .ts-control,
+body.pomo-app .ts-wrapper .ts-control:focus-within {
+	outline: none;
+	border-color: var(--pomo-accent) !important;
+	box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+/* Tom Select - modern tags */
+body.pomo-app .ts-wrapper {
+	width: 100%;
+}
+
+body.pomo-app .ts-control > input {
+	color: var(--pomo-text);
+	background: transparent;
+}
+
+body.pomo-app .ts-control > input::placeholder {
+	color: var(--pomo-muted);
+}
+
+body.pomo-app .ts-control .item {
+	background: rgba(34, 197, 94, 0.16);
+	border: 1px solid rgba(34, 197, 94, 0.4);
+	color: #bbf7d0;
+	border-radius: 999px;
+	padding: 2px 6px 2px 10px;
+	margin: 2px 4px 2px 0;
+}
+
+body.pomo-app .ts-control .item .remove {
+	border-left: 0;
+	color: #bbf7d0;
+	padding: 0 4px;
+}
+
+body.pomo-app .ts-control .item .remove:hover {
+	background: rgba(34, 197, 94, 0.25);
+	color: #fff;
+}
+
+body.pomo-app .ts-wrapper .ts-dropdown {
+	background: var(--pomo-surface-2);
+	border: 1px solid var(--pomo-border);
+	color: var(--pomo-text);
+	border-radius: var(--pomo-radius-sm);
+	margin-top: 6px;
+	box-shadow: var(--pomo-shadow);
+	z-index: 1050;
+}
+
+body.pomo-app .ts-dropdown .option,
+body.pomo-app .ts-dropdown .create {
+	color: var(--pomo-text);
+}
+
+body.pomo-app .ts-dropdown .optgroup-header {
+	color: var(--pomo-muted);
+}
+
+body.pomo-app .ts-dropdown .option.active,
+body.pomo-app .ts-dropdown .option:hover {
+	background: var(--pomo-accent);
+	color: #04140a;
+}
+
+body.pomo-app #pomopainel ul {
+	list-style: none;
+	padding: 0;
+	margin: 8px 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+body.pomo-app #pomopainel ul li {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 9px 14px;
+	border: 1px solid var(--pomo-border);
+	border-radius: 999px;
+	background: var(--pomo-bg-soft);
+	color: var(--pomo-text);
+	font-size: 14px;
+}
+
+body.pomo-app #botao-salvar-modelo {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 16px;
+	padding: 12px 18px;
+	border: 0;
+	border-radius: 999px;
+	background: var(--pomo-surface-2);
+	color: var(--pomo-text);
+	font-weight: 600;
+	cursor: pointer;
+}
+
+body.pomo-app #botao-salvar-modelo:hover {
+	background: #263140;
+}
+
+/* ------------------------------------------------------------------ */
+/* TODO / cycler                                                       */
+/* ------------------------------------------------------------------ */
+body.pomo-app #auto_cicler,
+body.pomo-app #tab-focus .container {
+	width: 100%;
+}
+
+body.pomo-app #cycle_start,
+body.pomo-app #cycle_prev,
+body.pomo-app #cycle_next,
+body.pomo-app #cycle_empty {
+	width: 42px;
+	height: 42px;
+	border-radius: 999px;
+	border: 1px solid var(--pomo-border);
+	background: var(--pomo-surface-2);
+	color: var(--pomo-text);
+	cursor: pointer;
+	margin-right: 6px;
+}
+
+body.pomo-app #contem-ciclo,
+body.pomo-app #contem-modelos {
+	list-style: none;
+	padding: 0;
+	margin: 12px 0 0;
+	display: grid;
+	gap: 10px;
+}
+
+body.pomo-app #contem-ciclo li,
+body.pomo-app #contem-modelos li.modelo-carregado {
+	background: var(--pomo-bg-soft);
+	border: 1px solid var(--pomo-border);
+	border-radius: var(--pomo-radius-sm);
+	padding: 12px 14px;
+	color: var(--pomo-text);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+}
+
+body.pomo-app #contem-ciclo li.cycleSelectedTask {
+	background: rgba(34, 197, 94, 0.14);
+	border-color: rgba(34, 197, 94, 0.45);
+	color: #d1fae5;
+}
+
+body.pomo-app .model-container {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex: 1;
+	min-width: 0;
+}
+
+body.pomo-app .model-container span[id^="bxtitle"] {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+body.pomo-app .model-container-extra {
+	display: inline-flex;
+	gap: 6px;
+}
+
+body.pomo-app .delete-task-model-btn,
+body.pomo-app .remove-task-from-list-btn {
+	border: 0;
+	border-radius: 8px;
+	padding: 6px 10px;
+	cursor: pointer;
+}
+
+body.pomo-app .delete-task-model-btn {
+	background: var(--pomo-accent);
+	color: #04140a;
+}
+
+body.pomo-app .remove-task-from-list-btn {
+	background: var(--pomo-surface-2);
+	color: var(--pomo-text);
+}
+
+/* ------------------------------------------------------------------ */
+/* Settings drawer (reuses #settingsbox from header-app.php)           */
+/* ------------------------------------------------------------------ */
+body.pomo-app #settingsbox {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: auto;
+	width: min(420px, 92vw);
+	max-width: none;
+	margin: 0;
+	padding: calc(24px + env(safe-area-inset-top)) 22px 32px;
+	background: var(--pomo-bg-soft);
+	border: 0;
+	border-left: 1px solid var(--pomo-border);
+	border-radius: 0;
+	box-shadow: -30px 0 60px -30px rgba(0, 0, 0, 0.9);
+	opacity: 1;
+	z-index: 90;
+	overflow-y: auto;
+	transform: translateX(105%);
+	transition: transform 0.24s ease;
+	display: block;
+	color: var(--pomo-text);
+}
+
+body.pomo-settings-open #settingsbox {
+	transform: translateX(0);
+}
+
+body.pomo-app #settingsbox h2,
+body.pomo-app #settingsbox h3 {
+	color: var(--pomo-text);
+}
+
+body.pomo-app #settingsbox p,
+body.pomo-app #settingsbox label {
+	color: var(--pomo-muted);
+}
+
+body.pomo-app #settingsbox input[type="range"] {
+	width: 100%;
+	accent-color: var(--pomo-accent);
+}
+
+body.pomo-app #settingsbox .btn-primary {
+	background: var(--pomo-accent);
+	border-color: var(--pomo-accent);
+	color: #04140a;
+	border-radius: 999px;
+}
+
+body.pomo-app #settingsbox .pomo-lang-form {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+body.pomo-app #settingsbox .pomo-lang-select {
+	width: 100%;
+	max-width: 260px;
+	padding: 10px 34px 10px 12px;
+	color: var(--pomo-text);
+	background-color: var(--pomo-bg);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%239fb0a6' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 12px center;
+	border: 1px solid var(--pomo-border);
+	border-radius: 12px;
+	appearance: none;
+	-webkit-appearance: none;
+	font-size: 15px;
+	line-height: 1.2;
+	cursor: pointer;
+}
+
+body.pomo-app #settingsbox .pomo-lang-select:focus {
+	outline: none;
+	border-color: var(--pomo-accent);
+	box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.25);
+}
+
+.pomo-settings-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.55);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.2s ease;
+	z-index: 80;
+}
+
+body.pomo-settings-open .pomo-settings-backdrop {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+/* ------------------------------------------------------------------ */
+/* Login card (guests)                                                 */
+/* ------------------------------------------------------------------ */
+body.pomo-app #loginlogbox {
+	display: block;
+	max-width: 420px;
+	margin: 22px auto;
+	padding: 22px;
+	background: var(--pomo-surface);
+	border: 1px solid var(--pomo-border);
+	border-radius: var(--pomo-radius);
+}
+
+body.pomo-app #loginlogbox input[type="text"],
+body.pomo-app #loginlogbox input[type="password"] {
+	background: var(--pomo-bg-soft);
+	border: 1px solid var(--pomo-border);
+	color: var(--pomo-text);
+	border-radius: var(--pomo-radius-sm);
+}
+
+/* ------------------------------------------------------------------ */
+/* Footer (footer.php uses utility classes that are not bundled)       */
+/* ------------------------------------------------------------------ */
+body.pomo-app footer {
+	margin-top: 28px;
+	padding: 28px 18px;
+	background: var(--pomo-bg-soft);
+	border-top: 1px solid var(--pomo-border);
+	color: var(--pomo-muted);
+	font-size: 13px;
+}
+
+body.pomo-app footer a {
+	color: var(--pomo-text);
+	text-decoration: none;
+}
+
+body.pomo-app footer a:hover {
+	color: #86efac;
+}
+
+body.pomo-app footer .grid {
+	display: grid;
+	gap: 12px;
+	margin-bottom: 18px;
+}
+
+body.pomo-app footer .text-center {
+	text-align: center;
+}
+
+body.pomo-app footer .text-right {
+	text-align: right;
+}
+
+body.pomo-app footer .text-sm {
+	font-size: 12px;
+}
+
+/* Notification prompt */
+.pomo-notify {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 16px;
+	border-radius: 999px;
+	border: 1px dashed var(--pomo-border-strong);
+	background: transparent;
+	color: var(--pomo-muted);
+	font-size: 13px;
+	cursor: pointer;
+}
+
+.pomo-notify.is-on {
+	border-style: solid;
+	border-color: rgba(34, 197, 94, 0.5);
+	color: #86efac;
+}
+
+/* ------------------------------------------------------------------ */
+/* Radio pills (task kind / privacy)                                   */
+/* ------------------------------------------------------------------ */
+body.pomo-app #pomopainel ul li {
+	cursor: pointer;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+body.pomo-app #pomopainel ul li:hover {
+	border-color: var(--pomo-border-strong);
+}
+
+body.pomo-app #pomopainel input[type="radio"] {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 20px;
+	height: 20px;
+	margin: 0;
+	border: 2px solid var(--pomo-border-strong);
+	border-radius: 50%;
+	background: var(--pomo-bg-soft);
+	display: inline-grid;
+	place-content: center;
+	cursor: pointer;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+body.pomo-app #pomopainel input[type="radio"]::before {
+	content: "";
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	transform: scale(0);
+	background: var(--pomo-accent);
+	transition: transform 0.12s ease;
+}
+
+body.pomo-app #pomopainel input[type="radio"]:checked {
+	border-color: var(--pomo-accent);
+	box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18);
+}
+
+body.pomo-app #pomopainel input[type="radio"]:checked::before {
+	transform: scale(1);
+}
+
+body.pomo-app #pomopainel ul li:has(input[type="radio"]:checked) {
+	border-color: var(--pomo-accent);
+	background: rgba(34, 197, 94, 0.12);
+	color: #d1fae5;
+}
+
+/* ------------------------------------------------------------------ */
+/* Alertify toasts - keep them and make them clearly visible           */
+/* ------------------------------------------------------------------ */
+body.pomo-app .alertify,
+body.pomo-app .alertify-cover,
+body.pomo-app .alertify-logs {
+	z-index: 999999;
+}
+
+body.pomo-app .alertify-log {
+	border-radius: 12px;
+	border: 1px solid var(--pomo-border);
+	background: #1f2937;
+	color: var(--pomo-text);
+	text-shadow: none;
+	font-family: var(--pomo-font);
+	box-shadow: var(--pomo-shadow);
+}
+
+body.pomo-app .alertify-log-success {
+	background: var(--pomo-accent-2);
+	border-color: transparent;
+	color: #04140a;
+	font-weight: 600;
+}
+
+body.pomo-app .alertify-log-error {
+	background: var(--pomo-danger);
+	border-color: transparent;
+	color: #fff;
+}
+
+/* On small screens alertify's default bottom-right stack can be clipped;
+   keep it top-right, under the app bar. */
+@media (max-width: 680px) {
+	body.pomo-app .alertify-logs {
+		top: calc(env(safe-area-inset-top, 0px) + 72px);
+		bottom: auto;
+		left: 5%;
+		right: auto;
+		width: 90%;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	body.pomo-app * {
+		transition: none !important;
+		animation: none !important;
+	}
+}
+
+/* ================================================================== */
+/* Generic app page patterns + legacy content overrides                */
+/* ================================================================== */
+
+body.pomo-app .main-cotainer-app {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.pomo-page {
+	width: 100%;
+	max-width: 1100px;
+	margin: 0 auto;
+	padding: 24px 16px 72px;
+}
+
+@media (min-width: 768px) {
+	.pomo-page {
+		padding: 32px 24px 80px;
+	}
+}
+
+.pomo-page__head {
+	margin: 0 0 22px;
+}
+
+.pomo-page__title {
+	margin: 0 0 6px;
+	font-size: clamp(22px, 3.5vw, 32px);
+	font-weight: 700;
+	letter-spacing: -0.01em;
+	color: var(--pomo-text);
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.pomo-page__subtitle {
+	margin: 0;
+	color: var(--pomo-muted);
+	font-size: 15px;
+}
+
+.pomo-section {
+	margin: 0 0 22px;
+}
+
+.pomo-grid {
+	display: grid;
+	gap: 16px;
+	grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+	.pomo-grid--2 {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	.pomo-grid--3 {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+/* Legacy containers -> transparent dark */
+body.pomo-app .content_nosidebar,
+body.pomo-app .content_default,
+body.pomo-app .content_closed,
+body.pomo-app #content,
+body.pomo-app .padder,
+body.pomo-app #center_layout {
+	background: transparent !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	color: var(--pomo-text) !important;
+}
+
+body.pomo-app .content_nosidebar,
+body.pomo-app .content_default,
+body.pomo-app .content_closed {
+	width: 100%;
+	max-width: 1100px;
+	margin: 0 auto;
+	padding: 24px 16px 64px;
+}
+
+body.pomo-app h1,
+body.pomo-app h2,
+body.pomo-app h3,
+body.pomo-app h4,
+body.pomo-app h5,
+body.pomo-app .forte {
+	color: var(--pomo-text);
+	font-weight: 700;
+	letter-spacing: -0.01em;
+}
+
+body.pomo-app .content_nosidebar h2,
+body.pomo-app .content_closed h2,
+body.pomo-app .content_default h2 {
+	font-size: clamp(20px, 3vw, 28px);
+	margin: 0 0 16px;
+}
+
+body.pomo-app #main-cotainer-app a:not(.pomo-appbar__link):not(.btn):not(.button) {
+	color: var(--pomo-accent);
+	text-decoration: none;
+}
+
+body.pomo-app #main-cotainer-app a:not(.pomo-appbar__link):not(.btn):not(.button):hover {
+	text-decoration: underline;
+}
+
+/* Buttons */
+body.pomo-app .btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 16px;
+	border: 1px solid var(--pomo-border);
+	border-radius: 999px;
+	background: var(--pomo-surface-2);
+	color: var(--pomo-text);
+	font-weight: 600;
+	font-size: 14px;
+	line-height: 1;
+	cursor: pointer;
+	transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+body.pomo-app .btn:hover {
+	background: #22303f;
+	border-color: var(--pomo-border-strong);
+	color: var(--pomo-text);
+}
+
+body.pomo-app .btn-success,
+body.pomo-app .btn-primary {
+	background: var(--pomo-accent);
+	border-color: transparent;
+	color: #04140a;
+}
+
+body.pomo-app .btn-success:hover,
+body.pomo-app .btn-primary:hover {
+	background: #2ee66a;
+	color: #04140a;
+}
+
+body.pomo-app .btn-dark,
+body.pomo-app .btn-darkness,
+body.pomo-app .btn-none {
+	background: var(--pomo-surface);
+	color: var(--pomo-text);
+}
+
+/* Alerts / callouts */
+body.pomo-app .bg-danger,
+body.pomo-app .bg-dangerD {
+	background: rgba(244, 63, 94, 0.12) !important;
+	color: #fecdd3 !important;
+	border-radius: 12px;
+	padding: 12px 16px;
+}
+
+body.pomo-app .bg-warning {
+	background: rgba(245, 158, 11, 0.14) !important;
+	color: #fde68a !important;
+	border-radius: 12px;
+	padding: 12px 16px;
+}
+
+body.pomo-app .bg-success {
+	background: rgba(34, 197, 94, 0.14) !important;
+	color: #bbf7d0 !important;
+	border-radius: 12px;
+	padding: 12px 16px;
+}
+
+/* Tables */
+body.pomo-app .pomo-page table,
+body.pomo-app .content_nosidebar table,
+body.pomo-app .content_default table {
+	width: 100%;
+	border-collapse: collapse;
+	color: var(--pomo-text);
+}
+
+body.pomo-app table th,
+body.pomo-app table td {
+	border-bottom: 1px solid var(--pomo-border);
+	padding: 10px 12px;
+	text-align: left;
+}
+
+body.pomo-app table thead th {
+	color: var(--pomo-muted);
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+/* Forms / login */
+body.pomo-app #loginform p {
+	margin: 0 0 12px;
+}
+
+body.pomo-app #loginform label {
+	display: block;
+	margin-bottom: 4px;
+	color: var(--pomo-muted);
+	font-size: 13px;
+}
+
+body.pomo-app #loginform input[type="text"],
+body.pomo-app #loginform input[type="email"],
+body.pomo-app #loginform input[type="password"],
+body.pomo-app .loginformdiv input[type="text"],
+body.pomo-app .loginformdiv input[type="password"] {
+	width: 100%;
+	background: var(--pomo-bg-soft);
+	border: 1px solid var(--pomo-border);
+	border-radius: var(--pomo-radius-sm);
+	padding: 12px 14px;
+	color: var(--pomo-text);
+}
+
+body.pomo-app #loginform input[type="submit"],
+body.pomo-app #loginform .button-primary,
+body.pomo-app .loginformdiv input[type="submit"] {
+	width: 100%;
+	background: var(--pomo-accent);
+	border: 0;
+	border-radius: var(--pomo-radius-sm);
+	padding: 12px 16px;
+	color: #04140a;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+body.pomo-app .loginformdiv {
+	background: var(--pomo-surface);
+	border: 1px solid var(--pomo-border);
+	border-radius: var(--pomo-radius);
+	padding: 22px;
+	max-width: 420px;
+	margin: 0 auto;
+}
+
+/* Third party shortcode wrappers */
+body.pomo-app #wp-support-plus,
+body.pomo-app .wpcf7,
+body.pomo-app .wpcsv,
+body.pomo-app .ranking-calendar {
+	background: var(--pomo-surface);
+	border: 1px solid var(--pomo-border);
+	border-radius: var(--pomo-radius);
+	padding: 18px;
+	color: var(--pomo-text);
+}
+
+body.pomo-app #wp-support-plus input,
+body.pomo-app #wp-support-plus select,
+body.pomo-app #wp-support-plus textarea,
+body.pomo-app .wpcf7 input,
+body.pomo-app .wpcf7 select,
+body.pomo-app .wpcf7 textarea {
+	background: var(--pomo-bg-soft);
+	border: 1px solid var(--pomo-border);
+	border-radius: 10px;
+	padding: 10px 12px;
+	color: var(--pomo-text);
+}
+
+/* Ranking list (proportional bars) */
+body.pomo-app .ul-ranking-page {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+body.pomo-app #page-ranking .ul-ranking-page li,
+body.pomo-app #page-ranking .top-authors-widget ul li {
+	position: relative;
+	height: 46px;
+	min-width: 50%;
+	margin: 0 0 8px;
+	padding: 0;
+	border: 1px solid var(--pomo-border);
+	border-radius: 12px;
+	background: var(--pomo-surface);
+	color: var(--pomo-text);
+	overflow: visible;
+	transition: filter 0.15s ease;
+}
+
+body.pomo-app #page-ranking .ul-ranking-page li:hover {
+	filter: brightness(1.1);
+}
+
+body.pomo-app #page-ranking .ul-ranking-page li .pos {
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 46px;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	background: rgba(255, 255, 255, 0.05);
+	border-radius: 12px 0 0 12px;
+	color: var(--pomo-accent);
+	font-weight: 800;
+	font-size: 16px;
+	line-height: 1;
+}
+
+body.pomo-app #page-ranking .ul-ranking-page li a {
+	position: absolute;
+	left: 46px;
+	top: 0;
+	z-index: 2;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	width: auto;
+	max-width: none;
+	height: 100%;
+	padding-right: 14px;
+	color: var(--pomo-text);
+	white-space: nowrap;
+	overflow: visible;
+}
+
+body.pomo-app #page-ranking .ul-ranking-page li img {
+	width: 28px;
+	height: 28px;
+	margin-right: 6px;
+	border-radius: 50%;
+}
+
+/* Blog post listings (product page) */
+body.pomo-app .post {
+	background: var(--pomo-surface);
+	border: 1px solid var(--pomo-border);
+	border-radius: var(--pomo-radius);
+	padding: 18px;
+	margin: 0 0 18px;
+}
+
+body.pomo-app .posttitle a {
+	color: var(--pomo-text);
+}
+
+body.pomo-app .entry,
+body.pomo-app .date,
+body.pomo-app .postmetadata {
+	color: var(--pomo-muted);
+}
+
+/* Footer (footer.php uses Tailwind classes that are not loaded on app pages) */
+body.pomo-app footer {
+	margin-top: 48px;
+	border-top: 1px solid var(--pomo-border);
+	background: #0d131a;
+	color: var(--pomo-muted);
+}
+
+body.pomo-app footer > div {
+	max-width: 1100px;
+	margin: 0 auto;
+	padding: 28px 16px;
+}
+
+body.pomo-app footer a {
+	color: var(--pomo-text);
+	text-decoration: none;
+}
+
+body.pomo-app footer a:hover {
+	color: var(--pomo-accent);
+}
+
+body.pomo-app footer p {
+	margin: 0 0 10px;
+}
+
+/* ================================================================== */
+/* BuddyPress (members directory, profiles, activity)                  */
+/* ================================================================== */
+
+body.pomo-app #members-directory-form {
+	margin: 0;
+}
+
+body.pomo-app .dir-search {
+	margin: 0 0 16px;
+}
+
+body.pomo-app .dir-search input[type="text"],
+body.pomo-app .dir-search input[type="search"] {
+	width: 100%;
+	max-width: 380px;
+	background: var(--pomo-bg-soft);
+	border: 1px solid var(--pomo-border);
+	border-radius: var(--pomo-radius-sm);
+	padding: 11px 14px;
+	color: var(--pomo-text);
+}
+
+body.pomo-app .item-list-tabs {
+	margin: 0 0 14px;
+}
+
+body.pomo-app .item-list-tabs ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+body.pomo-app .item-list-tabs ul li a {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 14px;
+	border-radius: 999px;
+	background: var(--pomo-surface);
+	border: 1px solid var(--pomo-border);
+	color: var(--pomo-text);
+	font-weight: 600;
+	font-size: 14px;
+	text-decoration: none;
+}
+
+body.pomo-app .item-list-tabs ul li.selected a,
+body.pomo-app .item-list-tabs ul li.current a {
+	background: var(--pomo-accent);
+	border-color: transparent;
+	color: #04140a;
+}
+
+body.pomo-app .item-list-tabs ul li a span {
+	color: inherit;
+	opacity: 0.7;
+}
+
+body.pomo-app #members-order-select label {
+	color: var(--pomo-muted);
+	margin-right: 6px;
+	font-size: 13px;
+}
+
+body.pomo-app #members-order-by {
+	background: var(--pomo-bg-soft);
+	border: 1px solid var(--pomo-border);
+	border-radius: 10px;
+	padding: 8px 12px;
+	color: var(--pomo-text);
+}
+
+body.pomo-app #members-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+	gap: 12px;
+}
+
+body.pomo-app #members-list li {
+	position: relative;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 12px;
+	margin: 0;
+	padding: 14px;
+	background: var(--pomo-surface);
+	border: 1px solid var(--pomo-border);
+	border-radius: 14px;
+}
+
+body.pomo-app #members-list .item-avatar {
+	flex: 0 0 auto;
+}
+
+body.pomo-app #members-list .item-avatar img {
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	display: block;
+}
+
+body.pomo-app #members-list .item {
+	flex: 1 1 0;
+	min-width: 0;
+	padding-right: 42px;
+}
+
+body.pomo-app #members-list .item-title a {
+	color: var(--pomo-text);
+	font-weight: 600;
+	text-decoration: none;
+	overflow-wrap: anywhere;
+}
+
+body.pomo-app #members-list .item-meta,
+body.pomo-app #members-list .activity {
+	display: block;
+	margin-top: 6px;
+	color: var(--pomo-muted);
+	font-size: 12px;
+}
+
+/* Latest update: thought bubble that never breaks the card. */
+body.pomo-app #members-list .member-update {
+	flex: 1 0 100%;
+	margin: 12px 0 0;
+}
+
+body.pomo-app #members-list .member-update .update {
+	position: relative;
+	display: block;
+	margin: 0;
+	padding: 9px 12px;
+	background: var(--pomo-surface-2);
+	border: 1px solid var(--pomo-border);
+	border-radius: 12px;
+	color: var(--pomo-muted);
+	font-size: 12px;
+	line-height: 1.45;
+	white-space: normal;
+	overflow-wrap: anywhere;
+	word-break: break-word;
+	max-width: 100%;
+}
+
+body.pomo-app #members-list .member-update .update::before {
+	content: "";
+	position: absolute;
+	top: -6px;
+	left: 14px;
+	width: 11px;
+	height: 11px;
+	background: var(--pomo-surface-2);
+	border-left: 1px solid var(--pomo-border);
+	border-top: 1px solid var(--pomo-border);
+	transform: rotate(45deg);
+}
+
+/* Floating colleague action button (icon only, keeps the text for a11y). */
+body.pomo-app #members-list li .action {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	margin: 0;
+	z-index: 2;
+	display: flex;
+	gap: 6px;
+}
+
+body.pomo-app #members-list .action .generic-button {
+	display: block;
+	margin: 0;
+}
+
+body.pomo-app #members-list .action .button,
+body.pomo-app #members-list .action a {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	padding: 0;
+	border-radius: 50%;
+	background: var(--pomo-surface-2);
+	border: 1px solid var(--pomo-border);
+	color: var(--pomo-text);
+	font-size: 0;
+	line-height: 1;
+	text-decoration: none;
+}
+
+body.pomo-app #members-list .action .button:hover,
+body.pomo-app #members-list .action a:hover {
+	background: var(--pomo-accent);
+	border-color: transparent;
+	color: #04140a;
+}
+
+body.pomo-app #members-list .action .button::before,
+body.pomo-app #members-list .action a::before {
+	font-family: "Font Awesome 6 Free";
+	font-weight: 900;
+	content: "\f234";
+	font-size: 14px;
+}
+
+body.pomo-app #members-list .action .is_friend a::before {
+	content: "\f503";
+}
+
+body.pomo-app .pagination {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	margin: 16px 0;
+	color: var(--pomo-muted);
+	font-size: 13px;
+}
+
+body.pomo-app .pagination-links a,
+body.pomo-app .pagination-links span {
+	display: inline-block;
+	padding: 6px 12px;
+	border-radius: 8px;
+	background: var(--pomo-surface);
+	border: 1px solid var(--pomo-border);
+	color: var(--pomo-text);
+	text-decoration: none;
+}
+
+body.pomo-app .pag-count {
+	color: var(--pomo-muted);
+}
+
+/* Profiles */
+body.pomo-app #item-header {
+	background: var(--pomo-surface);
+	border: 1px solid var(--pomo-border);
+	border-radius: var(--pomo-radius);
+	padding: 18px;
+	margin: 0 0 18px;
+}
+
+body.pomo-app #item-header #item-header-avatar img {
+	border-radius: 16px;
+}
+
+body.pomo-app #item-nav ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	list-style: none;
+	margin: 0 0 18px;
+	padding: 0;
+}
+
+body.pomo-app #item-nav ul li a {
+	display: inline-flex;
+	align-items: center;
+	padding: 8px 14px;
+	border-radius: 999px;
+	background: var(--pomo-surface);
+	border: 1px solid var(--pomo-border);
+	color: var(--pomo-text);
+	font-weight: 600;
+	font-size: 14px;
+	text-decoration: none;
+}
+
+body.pomo-app #item-nav ul li.selected a,
+body.pomo-app #item-nav ul li.current a {
+	background: var(--pomo-accent);
+	border-color: transparent;
+	color: #04140a;
+}
+
+body.pomo-app #item-body {
+	color: var(--pomo-text);
+}
+
+/* Activity stream */
+body.pomo-app .activity-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+body.pomo-app .activity-item {
+	background: var(--pomo-surface);
+	border: 1px solid var(--pomo-border);
+	border-radius: 14px;
+	padding: 14px;
+	margin: 0 0 10px;
+}
+
+body.pomo-app .activity-item .activity-avatar img {
+	border-radius: 50%;
+}
+
+body.pomo-app .activity-item a {
+	color: var(--pomo-text);
+}
+
+body.pomo-app .activity-item .time-since {
+	color: var(--pomo-muted);
+	font-size: 12px;
+}
+
+/* --- Kill legacy bp-default layout (floats, absolute actions, colors) --- */
+body.pomo-app .item-list-tabs {
+	background: transparent !important;
+	clear: none !important;
+	overflow: visible !important;
+	margin: 0 !important;
+}
+
+body.pomo-app .item-list-tabs ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+body.pomo-app .item-list-tabs ul li {
+	float: none !important;
+	margin: 0 !important;
+}
+
+body.pomo-app .item-list-tabs ul li.last {
+	float: none !important;
+	margin: 0 !important;
+}
+
+body.pomo-app .item-list-tabs ul li.selected a,
+body.pomo-app .item-list-tabs ul li.current a {
+	background: var(--pomo-accent) !important;
+	border-color: transparent !important;
+	color: #04140a !important;
+}
+
+body.pomo-app .item-list-tabs#user-subnav,
+body.pomo-app .item-list-tabs#group-subnav {
+	background: transparent !important;
+	border: 0 !important;
+	margin: 0 !important;
+}
+
+body.pomo-app ul.item-list {
+	width: 100%;
+}
+
+body.pomo-app ul.item-list li {
+	position: static;
+	padding: 0;
+	border: 0;
+}
+
+body.pomo-app ul.item-list li img.avatar {
+	float: none !important;
+	margin: 0 !important;
+}
+
+body.pomo-app #members-list .clear {
+	display: none;
+}
+
+body.pomo-app div.pagination {
+	margin: 16px 0 !important;
+	padding: 0 !important;
+	height: auto !important;
+	background: transparent !important;
+	border: 0 !important;
+}
+
+/* --- Directory toolbar (tabs left, search center, order right) --- */
+body.pomo-app .pomo-dir-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	flex-wrap: wrap;
+	margin: 0 0 20px;
+}
+
+body.pomo-app .pomo-dir-toolbar .item-list-tabs {
+	flex: 0 0 auto;
+}
+
+body.pomo-app .pomo-dir-toolbar .pomo-dir-order {
+	flex: 0 0 auto;
+}
+
+body.pomo-app .pomo-dir-toolbar .dir-search {
+	flex: 1 1 260px;
+	display: flex;
+	justify-content: center;
+	float: none !important;
+	margin: 0 !important;
+}
+
+body.pomo-app #search-members-form {
+	display: flex;
+	gap: 8px;
+	width: 100%;
+	max-width: 440px;
+}
+
+body.pomo-app #search-members-form label {
+	display: flex;
+	flex: 1 1 auto;
+	margin: 0;
+}
+
+body.pomo-app #search-members-form #members_search {
+	width: 100%;
+	background: var(--pomo-bg-soft);
+	border: 1px solid var(--pomo-border);
+	border-radius: 999px;
+	padding: 10px 16px;
+	color: var(--pomo-text);
+}
+
+body.pomo-app #search-members-form #members_search::placeholder {
+	color: var(--pomo-muted);
+}
+
+body.pomo-app #search-members-form #members_search_submit {
+	background: var(--pomo-accent);
+	border: 0;
+	border-radius: 999px;
+	padding: 10px 18px;
+	color: #04140a;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+body.pomo-app #members-order-select label {
+	color: var(--pomo-muted);
+	margin-right: 6px;
+	font-size: 13px;
+}
+
+/* Profile header legacy floats */
+body.pomo-app #item-header ul li,
+body.pomo-app #item-header div.generic-button {
+	float: none !important;
+}
+

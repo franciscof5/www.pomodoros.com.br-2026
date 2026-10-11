@@ -1,1225 +1,1248 @@
-//BEFORE START CODE CHECK OUT README.MD OR GITHUB FOR FULL DOCUMENTATION
+(function () {
+	'use strict';
 
-//SYSTEM VARS
-{
-	var debug = true;
-	if(data_from_php.is_admin)
-		var debug = true;
-	//
-	var doing_ajax = false;
-	//
-	var pomodoros_to_big_rest=4;
+	var $ = window.jQuery;
 
-	var pomodoroTime = 1500;
-	var restTime = 300;
-	var bigRestTime = 1800;
-	var intervalMiliseconds = 1000;
-
-	//for testing
-	//pomodoroTime = 15;restTime = 30;bigRestTime = 180;intervalMiliseconds = 10;
-
-	//Dynamic clock var
-	//var is_interrupt_button;
-	var m1;
-	var m2;
-	var m3;
-	var m4;
-	var m1_current = 9;
-	var m2_current = 9;
-	var s1_current = 9;
-	var s2_current= 9;
-
-	//Pomodoro session control vars
-	var pomodoro_actual = 1;
-	var is_pomodoro = true; //is_pomodoros is when using timer for focusing (otherwise ir resting)
-	var secondsRemaining = 0;//pomodoroTime;
-	var interval_clock=false;
-
-	//
-	var noSleep;
-	var artyom_voice;
-	var soundManager;
-	var volumeLevel;
-	var pomodoro_completed_sound;
-	var active_sound;
-	var session_reseted_sound;
-	active_sound = document.getElementById('active_sound');
-	pomodoro_completed_sound = document.getElementById('pomodoro_completed_sound');
-	session_reseted_sound =  document.getElementById('session_reseted_sound');
-	//
-	var autoAction=false; //if true dont need to click
-	var autoCycle=false;
-	//var autoCycleCurrent=jQuery("#current_cycle").val();// 1; //#current_cycle
-	var autoCycleCurrent=1; //#current_cycle
-	var qtdd_tasks;
-	var listen_changes_on_task_form;
-
-	//
-	var color_default = "#000000";
-	var color_focus = "#006633";
-	var color_rest = "#990000";
-	//var startedTimer;
-	//2024 CAIU var tempoCotagem;//seconds
-	//2024 caiu var tempTimer = 0;
-	var secondsRemainingClock;//clock format MM:SS
-	var isRunning=false;
-}
-function startTest() {
-	alertify.success("Special demonstration configuration loaded");
-	pomodoroTime = 5;
-	restTime = 3;
-	//bigRestTime = 1800;
-	intervalMiliseconds = 0.1;
-}
-//With that line jQuery can use the selector ($) and jQuery use the selector (jQuery), without conflict
-//jQuery.noConflict();
-
-//jQuery.getScript("projectimer-pomodoros-shared-parts.js");
-
-jQuery(document).ready(function ($) {
-	//
-	if(debug)
-		console.log("ready()");
-	
-	// 🔥 RELÓGIO DIGITAL HH:mm
-	atualizarRelogioDigital();
-	setInterval(atualizarRelogioDigital, 30000);
-	//
-	jQuery("#action_button_id").click(function(e) {
-		e.preventDefault();
-		action_button()
-	});
-	jQuery("#action_button_id").prop("disabled", true);
-	jQuery("#relogio").click(function(e) {
-		e.preventDefault();
-		action_button()
-	});
-	/*jQuery(".delete-task-model-btn").click(function(e) {
-		e.preventDefault();
-		delete_model(jQuery(this).data('modelid'));
-	});*/
-	jQuery("#session-reset-btn").click(function(e) {
-		e.preventDefault();
-		reset_pomodoro_session();
-	});
-	jQuery("#continuos-session-btn").click(function(e) {
-		e.preventDefault();
-		set_continuous_session();
-	});
-	jQuery("#cycle_empty").click(function(e) {
-		e.preventDefault();
-		cycle_list_update(true);
-	});
-	jQuery("#cycle_start").click(function(e) {
-		e.preventDefault();
-		cycle_list_play();
-	});
-	jQuery("#cycle_prev").click(function(e) {
-		e.preventDefault();
-		cycle_list_prev();
-	});
-	jQuery("#cycle_next").click(function(e) {
-		e.preventDefault();
-		cycle_list_next();
-	});
-	model_task_buttons_functions();
-	
-	//
-	jQuery('input[type="range"]').rangeslider();
-	//Voice recon and speech JS
-	startContinuousArtyom();
-	//
-	startNoSleepWakeLock();
-	//Sound library for Sound FX 
-	//startSoundMan();
-
-	//
-	change_status(txt_loading_initial_data);	
-	//
-	load_initial_data();
-	//
-	secondsRemaining = pomodoroTime;
-	convertSeconds(secondsRemaining);
-	flip_number(true);
-	
-	//listen to changes
-	jQuery("#title_box, #description_box, input[type=radio], #tags_box, #rangeVolume, #soundfx_enabled, #voice_enabled").change(function() {	
-		update_pomodoro_clipboard();
-	});
-	//
-	start_listen_changes_on_task_form();
-});
-
-function atualizarRelogioDigital() {
-	const agora = new Date();
-
-	let horas = agora.getHours().toString().padStart(2, '0');
-	let minutos = agora.getMinutes().toString().padStart(2, '0');
-
-	const elHoras = document.getElementById('relogio-horas');
-	const elMinutos = document.getElementById('relogio-minutos');
-
-	if (elHoras && elMinutos) {
-		elHoras.textContent = horas;
-		elMinutos.textContent = minutos;
-	}
-}
-
-function start_listen_changes_on_task_form() {
-	//Check updates on task every 15s (if not on focus)
-	if(!listen_changes_on_task_form) {
-		listen_changes_on_task_form = setInterval(function() {
-			if(!jQuery("#title_box").is(":focus") && !jQuery("#tags_box").data('select2').isOpen() && !jQuery("#description_box").is(":focus") && !doing_ajax )
-			load_initial_data();
-		},15000);
-	}
-}
-
-function model_task_buttons_functions() {
-	jQuery("#botao-salvar-modelo").off("click").click(function(e) {
-		e.preventDefault();
-		save_model();
-	});
-	jQuery(".delete-task-model-btn").off("click").click(function(e) {
-		e.preventDefault();
-		delete_model(jQuery(this).data('modelid'));
-	});
-	jQuery(".remove-task-from-list-btn").off("click").click(function(e) {
-		e.preventDefault();
-		jQuery(this).parent().parent().remove();
-		cycle_list_update();
-		//delete_model(jQuery(this).data('modelid'));
-	});
-	
-	jQuery("#contem-modelos .model-container").off("click").click(function(e) {
-		e.preventDefault();
-		load_model(jQuery(this).data('modelid'));
-	});
-	jQuery( "#contem-ciclo" ).sortable({
-	  revert: true,
-	  	over: function() {
-	      removeIntent = false;
-	    }, //Remove function
-	    out: function() {
-	      removeIntent = true;
-	    },
-	    beforeStop: function(event, ui) {
-	      if (removeIntent == true) {
-	        ui.item.remove();
-	      }
-		},
-		receive: function (event, ui) {      
-            cycle_list_update();
-        }
-	}).droppable({
-        /*activeClass: "ui-state-default",
-        hoverClass: "ui-state-hover",
-        drop: function(event, ui) {
-            var newClone = $(ui.helper).clone();
-            $(this).after(newClone);
-            $(this).height($(this).height+20);
-        }
-        drop: function(event, ui) {
-        	update_cycle_list();
-        },*/
-        out: function(event, ui) {
-        	cycle_list_update();
-        }
-    });
-
-	jQuery( "#contem-modelos li" ).draggable({
-		connectToSortable: "#contem-ciclo",
-		snap: "#contem-ciclo",
-		snapMode: "outer",
-		helper: "clone",
-		revert: "invalid",
-		cursor: "move",
-	});
-	jQuery( "ul, li" ).disableSelection();
-	//
-	qtdd_tasks = jQuery('ul#contem-ciclo li').length;
-}
-
-function load_initial_data() {
-	if(debug)
-		console.log("load_initial_data()");
-	
-	doing_ajax = true;
-	var data = {
-		action: 'load_session',
-	};
-	jQuery.post(ajaxurl, data, function(response) {
-		doing_ajax = false;
-		if(response=="NOTIN")window.location.href = "/";
-
-		// if(response==0) {
-		// 	//alertify.error("Tarefa não encontrada");
-		// 	change_status(txt_no_task_found);
-		// } else {
-			if(!jQuery("#title_box").is(":focus") && !jQuery("#tags_box").is(":focus") && !jQuery("#description_box").is(":focus") && !doing_ajax) {
-
-			var postReturned = jQuery.parseJSON( response.slice( 0 ) );
-			
-			title_box.value = postReturned['post_title'];
-			tags_box.value  = postReturned['post_tags'];
-			description_box.value = postReturned['post_content'];
-			data_box.value = postReturned['post_data'];
-			status_box.value = postReturned['post_status'];
-			post_id_box.value = postReturned['ID'];
-			secondsRemainingFromPHP = postReturned['secondsRemainingFromPHP'];
-			if(debug)
-				console.log("interval_clock", interval_clock, " is_pomodoro", is_pomodoro);
-			if(secondsRemainingFromPHP>0) {
-				secondsRemaining=secondsRemainingFromPHP;
-				if(!interval_clock)
-					start_clock();
-			} else {
-				//if((secondsRemainingFromPHP*-1)>180) {
-					//se passou mais de 3 minutos
-					if(interval_clock && is_pomodoro)
-						interrupt();
-				//}
-			}
-			//COPY
-			tags = postReturned['post_tags'];
-
-			//
-			jQuery('#tags_box').empty();
-			if(tags) {
-				//
-				jQuery('#tags_box').append('<optgroup label="'+txt_in_use+'">');
-				jQuery.each(tags, function(i) {
-					text_variable = tags[i];
-					jQuery('#tags_box').append( '<option value="'+text_variable+'" selected=selected>'+text_variable+'</option>' );
-				});
-				jQuery('#tags_box').append('</optgroup>');
-			}
-
-			tags_list = postReturned['tags_total'];
-			///
-			if(tags_list) {
-				jQuery('#tags_box').append('<optgroup label="'+txt_available+'">');
-				jQuery.each(tags_list, function(i) {
-					text_variable = tags_list[i];
-					jQuery('#tags_box').append( '<option value="'+text_variable+'">'+text_variable+'</option>' );
-				});
-				jQuery('#tags_box').append('</optgroup>');
-			}
-			if(postReturned['post_category']) {
-				cat_list = postReturned['post_category'];
-				cat_is = cat_list[0]==1 ? cat_list[1] : cat_list[0];
-				jQuery('input[name=cat_vl][value='+cat_is+']').attr('checked', true); 
-			}
-			document.getElementById("secondsRemaining_box").value=secondsRemaining + "s";
-			//
-			volumeLevel=postReturned['range_volume'];
-			jQuery("#rangeVolume").val(volumeLevel);
-			//soundManager.volume(volumeLevel);
-			//pomodoro_completed_sound.volume = volumeLevel;
-			//active_sound.volume = volumeLevel;
-			//session_reseted_sound.volume = volumeLevel;
-
-			senabled = (postReturned['soundfx_enabled'] === 'true');
-			jQuery("#soundfx_enabled").prop("checked", senabled);
-			venabled = (postReturned['voice_enabled'] === 'true');
-			jQuery("#voice_enabled").prop("checked", venabled);
-			//alert(volumeLevel);
-			//if(volumeLevel>1)
-				//startContinuousArtyom();
-			if(artyom_voice!=undefined && volumeLevel>1 )
-				artyom_voice.initialize({volume:volumeLevel/100});
-			}
-		// }
-		//
-		if(jQuery("#action_button_id").is(':disabled')) {
-			jQuery("#action_button_id").val(textPomodoro);
-			jQuery("#action_button_id").prop("disabled", false);	
+	var CONFIG = {
+		focusSeconds: 1500,
+		restSeconds: 300,
+		bigRestSeconds: 1800,
+		pomodorosPerBigRest: 4,
+		tickMs: 200,
+		syncMs: 15000,
+		flipMs: 300,
+		syncGraceMs: 20000,
+		clipboardDebounceMs: 600,
+		colorDefault: '#000000',
+		colorFocus: '#006633',
+		colorRest: '#990000',
+		images: {
+			upRight: '/pomodoro/Double/Up/Right/',
+			downRight: '/pomodoro/Double/Down/Right/',
+			upLeft: '/pomodoro/Double/Up/Left/',
+			downLeft: '/pomodoro/Double/Down/Left/'
 		}
-	});
-
-	jQuery('#tags_box').select2({
-		tags: true,
-		//closeOnSelect: false,
-		//maximumSelectionLength: 3,
-		//createSearchChoice: true,
-		width: '100%',
-		tokenSeparators: [","],
-		placeholder: function() {
-			jQuery(this).data('placeholder');
-		}
-	});
-}
-
-function update_pomodoro_clipboard (post_stts, loud) {
-	//
-	if(debug)
-		console.log("update_pomodoro_clipboard()");
-	console.log("update_pomodoro_clipboard")
-	if(loud)
-	change_status(txt_update_current_task);
-	//
-	doing_ajax = true;
-	var postcat=getRadioCheckedValue("cat_vl");
-	var privornot=getRadioCheckedValue("priv_vl");
-	var data = {
-		action: 'update_session',
-		post_titulo: title_box.value,
-		post_descri: description_box.value,
-		post_tags: jQuery('#tags_box').val(),
-		post_cat: postcat,
-		post_id: post_id_box.value,
-		//post_data: data_box.value,
-		post_priv: privornot,
-		range_volume: jQuery('#rangeVolume').val(),
-		soundfx_enabled: jQuery('#soundfx_enabled').prop("checked"),
-		voice_enabled: jQuery('#voice_enabled').prop("checked"),
-	};
-	
-	if(interval_clock) {
-		//alert(interval_clock);
-		data["interval_clock"]=true;
-	}
-	
-	if(post_stts) {
-		data["post_status"] = post_stts;
-	}
-
-	volumeLevel = jQuery("#rangeVolume").val();
-	//soundManager.volume(volumeLevel);
-	//pomodoro_completed_sound.volume = volumeLevel;
-	//active_sound.volume = volumeLevel;
-	//session_reseted_sound.volume = volumeLevel;
-	if(artyom_voice!=undefined && volumeLevel>1)
-		artyom_voice.initialize({volume:volumeLevel/100});
-	//artyom_voice.volume = volumeLevel/100;
-
-	jQuery.post(ajaxurl, data, function(response) {
-		doing_ajax = false;
-		if(response=="NOTIN")window.location.href = "/";
-		//rex = response.split("$^$ ");
-		change_status("Pomodoro atualizado");
-		//alert(response['ID']);
-		// status_box.value = rex[1];
-		// data_box.value = rex[2].slice(0, -1);
-		//title_box.value = rex[0];
-		//tags_box.value  = rex[1];
-		//description_box.value = rex[2];
-	});
-}
-
-//Only one button trigger all actions for timmer manager
-function action_button() {
-	if(debug)
-		console.log("action_button()");
-	//2024 as vezes para...
-	start_listen_changes_on_task_form();
-
-	if(interval_clock) {
-		//The user clicked on Interrupt button 	-> Check if the timmer (countdown_clock()) are running
-		interrupt();
-	} else {
-		//The user clicked on Pomodoro or Rest button
-		start_clock();
-	}
-	startNoSleepWakeLock();
-	//startContinuousArtyom();//BROKES SLOW DEVICES
-	//update_pomodoro_clipboard();//Isso sim é a verdadeira gambiarra, aplicada ao nível extremo, como não salva a data quando usa "pending", então salva um rascunho com a data de agora e altera para pending que não mexe na data
-
-}
-//Start countdown
-function start_clock() {
-	if(debug)
-		console.log("start_clock()");
-	if(jQuery("#soundfx_enabled").is(":checked"))
-	active_sound.play();
-	//TODO: post_status="future;"
-	//interval_clock = setInterval('countdown_clock()', intervalMiliseconds);
-	//var tempTimer = 0;
-	startedTimer = Date.now();
-	//tempoCotagem = secondsRemaining;
-	interval_clock = setInterval(countdown_clock, 1000)
-
-	//is_pomodoros is when using 25min for focusing
-	if(is_pomodoro) {
-		change_button(textInterruptFocus, color_focus);//Chage button to "Interrupt Focus"
-		//update_pomodoro_clipboard("pending");
-		tagsv = jQuery("#tags_box").val().toString().replace(/,/g, ', ');
-		change_status(txt_started_countdown + jQuery("#title_box").val() + ", tags " + tagsv);
-		//não perde mais tempo perdido - window.onbeforeunload = myConfirmation;
-		
-		if(status_box.value=="draft")
-			save_progress("future");//futuro = true
-	} else {
-		change_button(textInterruptRest, color_rest);//Chage button to "Stop Rest"
-		change_status(txt_rest_started);
-		
-		//window.onbeforeunload = null;
-	}
-	//startContinuousArtyom();
-}
-
-// function myConfirmation() {
-//     return 'Are you sure you want to quit? You have time left on timer';
-// }
-
-//Function called every second when pomodoros are running
-function countdown_clock (){
-	//tempTimer = Math.floor((Date.now() - startedTimer) / 1000);
-	//alert(tempTimer);
-	//Everty second of pomodoros running these functions are called
-	secondsRemaining--;
-	//tempoCotagem = secondsRemaining - tempTimer;
-	//Function user to convert number, like 140, into clock time, like 2:20
-	convertSeconds(secondsRemaining);
-	//Functions to make the effect of flip on countdown_clock
-	flip_number();
-	//Test the end of the time
-	if(secondsRemaining<=0)
-	complete();
-	//Change the title to time
-	changeTitle();
-	//
-	document.getElementById("secondsRemaining_box").value=secondsRemaining + "s";
-}
-
-
-//This is the reason of all the code, the time when user complete a pomodoro, these satisfaction!
-function complete() {
-	if(debug)
-		console.log("complete()");
-	//alert("complete(), is_pomodoro: "+is_pomodoro+", pomodoro_actual:"+pomodoro_actual);
-	//is_interrupt_button = false;
-	pomodoro_completed_sound.pause();
-	if(jQuery("#soundfx_enabled").is(":checked"))
-	pomodoro_completed_sound.play();
-	//
-	window.onbeforeunload = null;
-	//update_pomodoro_clipboard();//pensei que podia ser EXCESSIVAMENTE
-	stop_clock();	
-	//changeTitle(txt_title_done);
-	if(is_pomodoro) {
-		//console.log("is_pomodoro: "+is_pomodoro+", pomodoro_actual:"+pomodoro_actual);
-		turn_on_pomodoro_indicator(pomodoro_actual);
-		save_progress("publish");
-		is_pomodoro = false;
-		if(pomodoro_actual==pomodoros_to_big_rest) {
-			//big rest
-			pomodoro_actual=1;
-			change_button(textBigRest, color_default);
-			change_status(txt_bigrest_countdown);
-			secondsRemaining=bigRestTime;
-			changeTitle(txt_title_big_rest);
-			reset_indicators_display();
-		} else {
-			//normal rest
-			pomodoro_actual++;
-			change_button(textRest, color_default);
-			change_status(txt_normalrest_countdown);
-			secondsRemaining=restTime;
-			changeTitle(txt_title_rest);
-		}
-		//
-		if(autoCycle) {
-			cycle_list_next();
-		}
-	} else {
-		//rest finished
-		//alert("rest finished")
-		change_button(textPomodoro, color_default);
-		change_status(txt_completed_rest, "er");
-		is_pomodoro=true;
-		secondsRemaining=pomodoroTime;
-		changeTitle(txt_title_done);
-	}
-	convertSeconds(secondsRemaining);
-	flip_number();
-	if(autoAction)
-		action_button();
-}
-
-
-//Just stop de contdown_clock function at certains moments
-function stop_clock() {
-	if(debug)
-		console.log("stop_clock()");
-	window.clearInterval(interval_clock);
-	//pomodoro_completed_sound.play();
-	interval_clock=false;
-	//update_pomodoro_clipboard();
-	//alert(is_pomodoro);
-	//Functions to make the effect of flip on countdown_clock
-	if(is_pomodoro) {
-		convertSeconds(restTime);
-	} else {
-		convertSeconds(pomodoroTime);
-	}
-	flip_number(true);
-	document.getElementById("secondsRemaining_box").value=pomodoroTime+"s";//pomodoroTime
-	//is_interrupt_button = false;
-}
-
-//Function to show status warnings at bottom of the clock
-function change_status(txt, stts) {
-	//console.log("change_status: " + txt);
-	if(artyom_voice) {
-		artyom_voice.shutUp();
-		//artyom_voice.initialize({volume:0.1});
-		if(volumeLevel>1 && jQuery("#voice_enabled").is(":checked"))
-		artyom_voice.say(txt, {onStart() {window.artyom_voice.dontObey();},onEnd() {window.artyom_voice.obey();}});
-	}
-	
-	if(typeof stts=="undefined")
-		alertify.log(txt);
-	else if(stts=="suc")
-		alertify.success(txt);
-	else if(stts=="er")
-		alertify.error(txt);
-
-	//document.getElementById("div_status").innerHTML=txt;
-}
-
-//Function to change button text and color
-function change_button (valueset, colorset) {
-	var button = jQuery("#action_button_id");
-	//var banner = jQuery(".navbar");
-	//var banner = jQuery(".navbar");
-	//var banner = jQuery("#main-cotainer");
-	
-	//var button = document.getElementById("action_button_id");
-	button.val(valueset);
-	//button.animate({'background-color': colorset}, 2000);
-	jQuery("#action_button_id").animate({'background-color': colorset}, 2000);
-	//button.set('morph', {duration: 2000});
-	//button.morph({/*'border': '2px solid #F00',*/'background-color': colorset});
-}
-
-//
-function interrupt() {
-	if(debug)
-		console.log("interrupt()");
-	//pomodoro_completed_sound.play();
-	//document.getElementById("secondsRemaining_box").value = "";
-	//if(!is_pomodoro)is_pomodoro=true;
-	
-	if(is_pomodoro && status_box.value=="future") {
-	 	var sure = confirm(txt_interrupted_ask);
-	 	if(!sure)
-	 		return;	
-	}
-	window.onbeforeunload = "";
-	
-	pomodoro_completed_sound.play();//STARTS FOWARD
-	//if(is_pomodoro)is_pomodoro=false;//NAO
-	is_pomodoro=true;//SEMPRE QUE INTERROMPER VOLTA PARA FOCAR, CERTO?
-	//
-	change_status(txt_interrupted_countdowns, "er");
-	//convertSeconds(0);
-	//flip_number();
-	change_button(textPomodoro, color_default);
-	//update_pomodoro_clipboard("trash");
-	//
-	stop_clock();
-	//secondsRemaining=0;
-	secondsRemaining = pomodoroTime;
-	convertSeconds(secondsRemaining); //ALWASY 25 MIN WHEN INTERRUPT
-	flip_number(secondsRemaining);
-	if(status_box.value=="future") {
-		//se estiver future está rolando o tempo, manda um sinal para salvar post futuro e na API vai bater que já tem e vai deletar
-		save_progress("interrupt");
-	}
-	//alert(pomodoroTime);
-	//is_interrupt_button=false;
-	//if(!is_pomodoro)is_pomodoro=true;
-}
-
-//Auxiliar function to countdown_clock() function
-function convertSeconds(secs) {
-	minutes=secs/60;
-	
-	if(minutes>10) {
-		someValueString = '' + minutes;
-		someValueParts = someValueString.split('');
-		m1 = parseFloat(someValueParts[0]);
-		m2 = parseFloat(someValueParts[1]);
-	} else {
-		m1 = parseFloat(0);
-		m2 = parseFloat(minutes);
-	}
-	//seconds%=secs/60;
-	if(secs%60!=0) {
-		seconds=secs%60;
-		otherValueString = '' + seconds;
-		otherValueParts = otherValueString.split('');
-		if(seconds>10) {
-			s1 = parseFloat(otherValueParts[0]);
-			s2 = parseFloat(otherValueParts[1]);
-		} else {
-			s1=0;
-			s2=parseFloat(otherValueParts[0]);
-		}
-	} else {
-		s1=0;
-		s2=0;
-	}
-	//alert(m1+""+m2+":"+s1+""+s2);
-}
-
-function reset_pomodoro_session() {
-	if(debug)
-		console.log("reset_pomodoro_session()");
-	//zerar_pomodoro()
-	interrupt();
-	pomodoro_actual=1;
-	change_status(txt_session_reseted);
-	if(jQuery("#soundfx_enabled").is(":checked"))
-	session_reseted_sound.play();
-	reset_indicators_display();
-	//changeTitle("Sessão de pomodoros reiniciada...");
-}
-
-function set_continuous_session() {
-	if(autoAction) {
-		autoAction=false;
-		change_status(auto_action_disabled);
-		jQuery("#resetter_btn").css("background-color", "transparent");
-		jQuery("#resetter_btn").css("color", "#B8B8B8");
-	} else {
-		autoAction=true;
-		change_status(auto_action_enabled);
-		jQuery("#resetter_btn").css("background-color", "#FFF");
-		jQuery("#resetter_btn").css("color", "#222");
-	}
-}
-
-//Function to "light" one pomodoro
-function turn_on_pomodoro_indicator (indicator_number) {
-	//var pomo = ;
-	//console.log("turn_on_pomodoro_indicator:"+indicator_number);
-	jQuery("#pomoindi"+indicator_number).animate({'background-position': '-30px'});
-}
-
-//Function to restart the pomodoros
-function reset_indicators_display() {
-	jQuery("#pomoindi1").animate({'background-position': '0px'});
-	jQuery("#pomoindi2").animate({'background-position': '0px'});
-	jQuery("#pomoindi3").animate({'background-position': '0px'});
-	jQuery("#pomoindi4").animate({'background-position': '0px'});
-}
-
-//Functions to make the effect on the clock
-function flip_number(force) {
-
-    const upRight   = pomodorosData.themeUrl + '/pomodoro/Double/Up/Right/';
-    const downRight = pomodorosData.themeUrl + '/pomodoro/Double/Down/Right/';
-    const upLeft    = pomodorosData.themeUrl + '/pomodoro/Double/Up/Left/';
-    const downLeft  = pomodorosData.themeUrl + '/pomodoro/Double/Down/Left/';
-
-    if (m2 != m2_current || force) {
-        flip('minutesUpRight', 'minutesDownRight', m2, upRight, downRight);
-        m2_current = m2;
-    }
-
-    if (m1 != m1_current || force) {
-        flip('minutesUpLeft', 'minutesDownLeft', m1, upLeft, downLeft);
-        m1_current = m1;
-    }
-
-    if (s2 != s2_current || force) {
-        flip('secondsUpRight', 'secondsDownRight', s2, upRight, downRight);
-        s2_current = s2;
-    }
-
-    if (s1 != s1_current || force) {
-        flip('secondsUpLeft', 'secondsDownLeft', s1, upLeft, downLeft);
-        s1_current = s1;
-    }
-}
-
-// function flip_number(force) {
-// 	/*if(force) {
-// 		var m1_current = 9;
-// 		var m2_current = 9;
-// 		var s1_current = 9;
-// 		var s2_current = 9;
-// 	}*/
-// 	//alert(m1 + " cur:" + m1_current);
-// 	if( m2 != m2_current || force){
-// 		flip('minutesUpRight', 'minutesDownRight', m2, 'https://pomodoros.com.br/wp-content/themes/sistema-focalizador-javascript/pomodoro/Double/Up/Right/', 'https://pomodoros.com.br/wp-content/themes/sistema-focalizador-javascript/pomodoro/Double/Down/Right/');
-// 		m2_current = m2;
-// 	}
-// 	if( m1 != m1_current || force){	
-// 		flip('minutesUpLeft', 'minutesDownLeft', m1, 'https://pomodoros.com.br/wp-content/themes/sistema-focalizador-javascript/pomodoro/Double/Up/Left/', 'https://pomodoros.com.br/wp-content/themes/sistema-focalizador-javascript/pomodoro/Double/Down/Left/');
-// 		m1_current = m1;
-// 	}
-// 	if (s2 != s2_current || force){
-// 		flip('secondsUpRight', 'secondsDownRight', s2, 'https://pomodoros.com.br/wp-content/themes/sistema-focalizador-javascript/pomodoro/Double/Up/Right/', 'https://pomodoros.com.br/wp-content/themes/sistema-focalizador-javascript/pomodoro/Double/Down/Right/');
-// 		s2_current = s2;
-// 	}
-// 	if (s1 != s1_current || force){
-// 		flip('secondsUpLeft', 'secondsDownLeft', s1, 'https://pomodoros.com.br/wp-content/themes/sistema-focalizador-javascript/pomodoro/Double/Up/Left/', 'https://pomodoros.com.br/wp-content/themes/sistema-focalizador-javascript/pomodoro/Double/Down/Left/');
-// 		s1_current = s1;
-// 	}
-// }
-
-function flip (upperId, lowerId, changeNumber, pathUpper, pathLower){
-	//var upperBackId = upperId+"Back";
-
-	var upperBackId = jQuery("#"+upperId+"Back");
-	var upperId     = jQuery("#"+upperId);
-	var lowerBackId = jQuery("#"+lowerId+"Back");
-	var lowerId     = jQuery("#"+lowerId);
-
-	upperId.css("height", "64px");
-	upperId.attr("src", upperBackId.attr("src"));
-	upperBackId.attr("src", pathUpper+parseInt(changeNumber)+".png");
-	upperId.animate({"height": "0"});
-	
-	lowerId.css("height", "64px");
-	lowerId.attr("src", lowerBackId.attr("src"));
-	lowerBackId.attr("src", pathLower+parseInt(changeNumber)+".png");
-	lowerId.css("margin-top", "0");
-	lowerId.animate({"height": "0", "margin-top": "50px"});
-	//lowerId.animate({});
-	
-	//lowerId.animate({height:20, "top:64px", marginTop:0},200)
-	//lowerId.animate({top: '-=1px'});
-
-	//jQuery(lowerId).src = pathLower+parseInt(changeNumber)+".png";
-	//jQuery(lowerId).css("height", "0px");
-	//jQuery(lowerId).css("visibility", "visible");
-
-
-	//upperBackId.animate({"height": "64px"});
-
-	//upperId.animate({"visibility": "hidden"});
-	//upperBackId.animate({"visibility": "visible"});
-	/*var flipUpper = new Fx.Tween(upperId, {duration: 200, transition: Fx.Transitions.Sine.easeInOut});
-	flipUpper.addEvents({
-		'complete': function(){
-			var flipLower = new Fx.Tween(lowerId, {duration: 200, transition: Fx.Transitions.Sine.easeInOut});
-				flipLower.addEvents({
-					'complete': function(){	
-						lowerBackId = lowerId+"Back";
-						jQuery(lowerBackId).src = jQuery(lowerId).src;
-						jQuery(lowerId).css("visibility", "hidden");
-						jQuery(upperId).css("visibility", "hidden");
-					}				});					
-				flipLower.start('height', 64);
-				
-		}
-	});
-	flipUpper.start('height', 0);*/
-}
-
-//The real life at pomodoros: jQuery calling php function on functions.php
-function save_progress(acao) {
-	if(debug)
-		console.log("save_progress("+acao+")");
-	//2024 CAIU?
-	var postcat=getRadioCheckedValue("cat_vl");
-	var privornot=getRadioCheckedValue("priv_vl");
-	//TODO: verificar se o último post publicado já faz mais que pomodoroTime (25min), evitando flood e 2 navegadores abertos
-	var data = {
-		action: 'save_progress',
-		post_acao: acao,
-		post_titulo: title_box.value,
-		post_descri: description_box.value,
-		post_tags: jQuery("#tags_box").val(),
-		post_cat: postcat,
-		post_priv: privornot,
-		post_local_city: jQuery("#user_location_city").text(),
-		post_local_region: jQuery("#user_location_region").text(),
-		post_local_country: jQuery("#user_location_country").text(),
 	};
 
-	jQuery.post(ajaxurl, data, function(response) {
-		if(response=="NOTIN")window.location.href = "/";
-		if(response)		
-		change_status(txt_save_success, "suc");
-		else
-		change_status(txt_save_error, "er");
-		/*Append the fresh completed pomodoro at the end of the list, simulating the data
-		var d=new Date();
-		data = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()+" "+d.getUTCHours()+":"+d.getUTCMinutes()+":"+d.getUTCSeconds();//new Date(year, month, day, hours, minutes, seconds);
-		if(response[0]=="1")
-		jQuery("#points_completed").append('<li>'+data+" -> "+description.value+'</li>');*/
-	});
-}
+	var S = {
+		mode: 'focus',
+		running: false,
+		endsAt: 0,
+		remaining: CONFIG.focusSeconds,
+		completedInCycle: 0,
+		autoAction: false,
+		autoCycle: false,
+		cycleIndex: 1,
+		ajaxBusy: false,
+		startedAt: 0,
+		lastSecond: -1,
+		digits: [-1, -1, -1, -1],
+		volume: 100,
+		voice: null,
+		noSleep: null,
+		wakeLock: null,
+		wakeBound: false,
+		syncTimer: null,
+		tickTimer: null,
+		digitalTimer: null,
+		clipboardTimer: null,
+		listenTimer: null,
+		tagSelect: null,
+		sortableReady: false,
+		applyingTags: false,
+		lastTagsSignature: '',
+		qtddTasks: 0
+	};
 
-//Load e save user cycle
-function cycle_list_update(clean_) {
-	content = jQuery("#contem-ciclo").html();
-	var data = {
-		action: 'update_cycle_list',
-		list: content,
-		clean: clean_,
+	function byId(id) {
+		return document.getElementById(id);
 	}
-	if(clean_) {
-		alertify.log("Cleaning list...");
+
+	function val(id) {
+		var el = byId(id);
+		return el ? el.value : '';
 	}
-	jQuery.post(ajaxurl, data, function(response) {
-		if(clean_) {
-			if(response) {
-				alertify.log("Cycle list cleared");
-				jQuery("#contem-ciclo").html("");
-			}
-		} else {
-			if(response)
-				alertify.log("updating cycle list");
-			else
-				alertify.error("Not updated cycle list");	
+
+	function setVal(id, value) {
+		var el = byId(id);
+		if (el) {
+			el.value = (value === undefined || value === null) ? '' : value;
 		}
-	});
-}
+	}
 
-function cycle_list_play() {
-	if(debug)
-		console.log("cycle_start(), autoCycle!="+autoCycle);
+	function text(id) {
+		var el = byId(id);
+		return el ? el.textContent : '';
+	}
 
-	if(autoCycle) {
-		//THEN PAUSE
-		//jQuery("#pomopainel").show(2000);
-		//
-		autoCycle=false;
-		//jQuery("#pomopainel").hide(2000);
-		change_status(auto_cycle_disabled);
-		//
-		//cycle_list_load_model();
-		//
-		jQuery("#cycle_start").html('<span class="fas fa-play" aria-hidden="true"></span>');//play
-		jQuery("#cycle_start").css("background-color", "#CCC");
-		jQuery("#cycle_start").css("color", "#222");
-		//
-		jQuery("#contem-ciclo li").each(function(i){
-			jQuery(this).animate({'background-color': "#FFF", "color" : "#000"}, 500);
+	function checked(id) {
+		var el = byId(id);
+		return !!(el && el.checked);
+	}
+
+	function t(name, fallback) {
+		var value = window[name];
+		return (value === undefined || value === null) ? fallback : value;
+	}
+
+	function themeBase() {
+		return (window.pomodorosData && window.pomodorosData.themeUrl) || '';
+	}
+
+	function isAdmin() {
+		return !!(window.data_from_php && window.data_from_php.is_admin);
+	}
+
+	function debug() {
+		if (isAdmin() && window.console && console.log) {
+			try {
+				console.log.apply(console, arguments);
+			} catch (e) {}
+		}
+	}
+
+	function pad(n) {
+		return (n < 10 ? '0' : '') + n;
+	}
+
+	function formatClock(seconds) {
+		var safe = Math.max(0, Math.floor(seconds));
+		return pad(Math.floor(safe / 60)) + ':' + pad(safe % 60);
+	}
+
+	function escapeHtml(value) {
+		return String(value === undefined || value === null ? '' : value)
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#39;');
+	}
+
+	function announce(message, kind) {
+		if (S.voice) {
+			try {
+				S.voice.shutUp();
+			} catch (e) {}
+			if (S.volume > 1 && checked('voice_enabled') && typeof S.voice.say === 'function') {
+				try {
+					S.voice.say(message, {
+						onStart: function () {
+							if (window.artyom_voice) window.artyom_voice.dontObey();
+						},
+						onEnd: function () {
+							if (window.artyom_voice) window.artyom_voice.obey();
+						}
+					});
+				} catch (e) {}
+			}
+		}
+		if (typeof window.alertify === 'undefined') return;
+		if (kind === 'suc') {
+			alertify.success(message);
+		} else if (kind === 'er') {
+			alertify.error(message);
+		} else {
+			alertify.log(message);
+		}
+	}
+
+	function audioEl(name) {
+		var map = {
+			active: 'active_sound',
+			completed: 'pomodoro_completed_sound',
+			reset: 'session_reseted_sound'
+		};
+		return byId(map[name]);
+	}
+
+	function playSound(name) {
+		if (!checked('soundfx_enabled')) return;
+		var audio = audioEl(name);
+		if (!audio) return;
+		try {
+			audio.currentTime = 0;
+			var promise = audio.play();
+			if (promise && promise.catch) promise.catch(function () {});
+		} catch (e) {}
+	}
+
+	function applyAudioVolume() {
+		['active_sound', 'pomodoro_completed_sound', 'session_reseted_sound'].forEach(function (id) {
+			var audio = byId(id);
+			if (audio) {
+				try {
+					audio.volume = Math.min(1, Math.max(0, S.volume / 100));
+				} catch (e) {}
+			}
 		});
-	} else {
-		if(!jQuery("#contem-ciclo li").length) {
-			change_status("You must add at least one task", "er");//todo: translate
+	}
+
+	function cancelAnimations(element) {
+		if (element && typeof element.getAnimations === 'function') {
+			element.getAnimations().forEach(function (animation) {
+				animation.cancel();
+			});
+		}
+	}
+
+	function flip(upperId, lowerId, digit, pathUpper, pathLower) {
+		var upper = byId(upperId);
+		var lower = byId(lowerId);
+		var upperBack = byId(upperId + 'Back');
+		var lowerBack = byId(lowerId + 'Back');
+		if (!upper || !lower || !upperBack || !lowerBack) return;
+
+		var base = themeBase();
+
+		cancelAnimations(upper);
+		if (upperBack.getAttribute('src')) upper.setAttribute('src', upperBack.getAttribute('src'));
+		upperBack.setAttribute('src', base + pathUpper + digit + '.png');
+		upper.style.height = '64px';
+		if (typeof upper.animate === 'function') {
+			var up = upper.animate(
+				[{ height: '64px' }, { height: '0px' }],
+				{ duration: CONFIG.flipMs, easing: 'ease-in-out' }
+			);
+			up.onfinish = function () {
+				up.cancel();
+				upper.style.height = '0px';
+			};
+		} else {
+			upper.style.height = '0px';
+		}
+
+		cancelAnimations(lower);
+		if (lowerBack.getAttribute('src')) lower.setAttribute('src', lowerBack.getAttribute('src'));
+		lowerBack.setAttribute('src', base + pathLower + digit + '.png');
+		lower.style.height = '64px';
+		lower.style.marginTop = '0px';
+		if (typeof lower.animate === 'function') {
+			var down = lower.animate(
+				[
+					{ height: '64px', marginTop: '0px' },
+					{ height: '0px', marginTop: '50px' }
+				],
+				{ duration: CONFIG.flipMs, easing: 'ease-in-out' }
+			);
+			down.onfinish = function () {
+				down.cancel();
+				lower.style.height = '0px';
+				lower.style.marginTop = '50px';
+			};
+		} else {
+			lower.style.height = '0px';
+			lower.style.marginTop = '50px';
+		}
+	}
+
+	function setDigit(index, digit, upId, downId, upPath, downPath, force) {
+		if (!force && S.digits[index] === digit) return;
+		S.digits[index] = digit;
+		flip(upId, downId, digit, upPath, downPath);
+	}
+
+	function updateDocumentTitle(seconds) {
+		document.title = formatClock(seconds) + ' - ' + val('title_box');
+	}
+
+	function modeLabel() {
+		if (S.mode === 'rest') return t('txt_mode_rest', 'Descanso');
+		if (S.mode === 'bigRest') return t('txt_mode_big_rest', 'Grande descanso');
+		return t('txt_mode_focus', 'Foco');
+	}
+
+	function updateClock(total) {
+		var timeEl = byId('pomodoro-time');
+		if (timeEl) timeEl.textContent = formatClock(total);
+
+		var modeEl = byId('pomodoro-mode');
+		if (modeEl) modeEl.textContent = modeLabel();
+
+		var clock = byId('relogio');
+		if (clock) clock.setAttribute('data-mode', S.mode);
+
+		var ring = byId('pomo-ring');
+		if (ring) {
+			var radius = parseFloat(ring.getAttribute('r')) || 110;
+			var circumference = 2 * Math.PI * radius;
+			var denominator = durationFor(S.mode) || 1;
+			var fraction = Math.min(1, Math.max(0, total / denominator));
+			ring.style.strokeDasharray = circumference + ' ' + circumference;
+			ring.style.strokeDashoffset = String(circumference * (1 - fraction));
+		}
+
+		if (document.body) document.body.classList.toggle('is-running', S.running);
+	}
+
+	function render(seconds, force) {
+		var total = Math.max(0, Math.round(seconds));
+		var minutes = Math.floor(total / 60);
+		var secs = total % 60;
+		var digits = [
+			Math.floor(minutes / 10) % 10,
+			minutes % 10,
+			Math.floor(secs / 10) % 10,
+			secs % 10
+		];
+
+		setDigit(0, digits[0], 'minutesUpLeft', 'minutesDownLeft', CONFIG.images.upLeft, CONFIG.images.downLeft, force);
+		setDigit(1, digits[1], 'minutesUpRight', 'minutesDownRight', CONFIG.images.upRight, CONFIG.images.downRight, force);
+		setDigit(2, digits[2], 'secondsUpLeft', 'secondsDownLeft', CONFIG.images.upLeft, CONFIG.images.downLeft, force);
+		setDigit(3, digits[3], 'secondsUpRight', 'secondsDownRight', CONFIG.images.upRight, CONFIG.images.downRight, force);
+
+		var box = byId('secondsRemaining_box');
+		if (box) box.value = total + 's';
+
+		updateClock(total);
+		updateDocumentTitle(total);
+	}
+
+	function currentSeconds() {
+		if (!S.running) return S.remaining;
+		return Math.max(0, Math.ceil((S.endsAt - Date.now()) / 1000));
+	}
+
+	function durationFor(mode) {
+		if (mode === 'rest') return CONFIG.restSeconds;
+		if (mode === 'bigRest') return CONFIG.bigRestSeconds;
+		return CONFIG.focusSeconds;
+	}
+
+	function tick() {
+		var secs = Math.max(0, Math.ceil((S.endsAt - Date.now()) / 1000));
+		if (secs !== S.lastSecond) {
+			S.lastSecond = secs;
+			render(secs);
+		}
+		if (secs <= 0) {
+			stopTicking();
+			complete();
+		}
+	}
+
+	function startTicking() {
+		if (S.tickTimer) return;
+		S.tickTimer = window.setInterval(tick, CONFIG.tickMs);
+		tick();
+	}
+
+	function stopTicking() {
+		if (S.tickTimer) {
+			window.clearInterval(S.tickTimer);
+			S.tickTimer = null;
+		}
+	}
+
+	function setButton(label, color) {
+		var button = byId('action_button_id');
+		if (!button) return;
+		button.value = label;
+		if ($ && $.fn && typeof $(button).animate === 'function') {
+			$(button).stop(true, false).animate({ backgroundColor: color }, 2000);
+		} else {
+			button.style.backgroundColor = color;
+		}
+	}
+
+	function getTagsValue() {
+		if (S.tagSelect && typeof S.tagSelect.getValue === 'function') {
+			return S.tagSelect.getValue();
+		}
+		var box = byId('tags_box');
+		return box && $ ? $(box).val() : [];
+	}
+
+	function tagsText() {
+		var value = getTagsValue();
+		return value && value.toString ? value.toString().replace(/,/g, ', ') : '';
+	}
+
+	function turnOnIndicator(number) {
+		var el = byId('pomoindi' + number);
+		if (!el) return;
+		el.classList.add('is-done');
+		if ($ && $.fn && typeof $(el).animate === 'function') {
+			$(el).stop(true, false).animate({ 'background-position': '-30px' });
+		}
+	}
+
+	function resetIndicators() {
+		for (var i = 1; i <= CONFIG.pomodorosPerBigRest; i++) {
+			var el = byId('pomoindi' + i);
+			if (!el) continue;
+			el.classList.remove('is-done');
+			if ($ && $.fn && typeof $(el).animate === 'function') {
+				$(el).stop(true, false).animate({ 'background-position': '0px' });
+			}
+		}
+	}
+
+	function start_clock() {
+		if (S.running) return;
+		playSound('active');
+
+		S.running = true;
+		S.remaining = S.remaining > 0 ? S.remaining : durationFor(S.mode);
+		S.endsAt = Date.now() + S.remaining * 1000;
+		S.startedAt = Date.now();
+		S.lastSecond = -1;
+		startTicking();
+
+		if (S.mode === 'focus') {
+			setButton(t('textInterruptFocus', 'INTERROMPER FOCO'), CONFIG.colorFocus);
+			announce(t('txt_started_countdown', 'Iniciar tarefa ') + val('title_box') + ', tags ' + tagsText());
+			if (val('status_box') === 'draft') {
+				setVal('status_box', 'future');
+				save_progress('future');
+			}
+		} else {
+			setButton(t('textInterruptRest', 'PARAR DESCANSO'), CONFIG.colorRest);
+			announce(t('txt_rest_started', 'Tempo de descanso iniciado'));
+		}
+
+		ensureWakeLock();
+	}
+
+	function onPomodoroCompleted() {
+		S.completedInCycle++;
+		turnOnIndicator(S.completedInCycle);
+		setVal('status_box', 'publish');
+		save_progress('publish');
+
+		if (S.completedInCycle >= CONFIG.pomodorosPerBigRest) {
+			S.completedInCycle = 0;
+			S.mode = 'bigRest';
+			S.remaining = CONFIG.bigRestSeconds;
+			S.lastSecond = -1;
+			setButton(t('textBigRest', 'GRANDE DESCANSO'), CONFIG.colorDefault);
+			announce(t('txt_bigrest_countdown', ''));
+			document.title = t('txt_title_big_rest', 'GRANDE DESCANSO');
+			resetIndicators();
+		} else {
+			S.mode = 'rest';
+			S.remaining = CONFIG.restSeconds;
+			S.lastSecond = -1;
+			setButton(t('textRest', 'DESCANSAR!'), CONFIG.colorDefault);
+			announce(t('txt_normalrest_countdown', ''));
+			document.title = t('txt_title_rest', 'Hora do intervalo');
+		}
+
+		if (S.autoCycle) cycle_list_next();
+	}
+
+	function complete() {
+		playSound('completed');
+		stopTicking();
+		S.running = false;
+
+		if (S.mode === 'focus') {
+			onPomodoroCompleted();
+		} else {
+			S.mode = 'focus';
+			S.remaining = CONFIG.focusSeconds;
+			S.lastSecond = -1;
+			setButton(t('textPomodoro', 'FOCAR!'), CONFIG.colorDefault);
+			announce(t('txt_completed_rest', 'Você completou o descanso, hora de pegar pesado!'), 'er');
+			document.title = t('txt_title_done', 'Pomodoro completado!');
+		}
+
+		render(S.remaining, true);
+
+		if (S.autoAction) action_button();
+	}
+
+	function interrupt() {
+		if (S.mode === 'focus' && val('status_box') === 'future') {
+			if (!window.confirm(t('txt_interrupted_ask', 'Deseja interromper a contagem e perder o tempo contabilizado?'))) {
+				return;
+			}
+		}
+
+		playSound('completed');
+		stopTicking();
+		S.running = false;
+		S.mode = 'focus';
+		S.remaining = CONFIG.focusSeconds;
+		S.lastSecond = -1;
+
+		announce(t('txt_interrupted_countdowns', 'Contagem interrompida!'), 'er');
+		setButton(t('textPomodoro', 'FOCAR!'), CONFIG.colorDefault);
+		render(S.remaining, true);
+
+		if (val('status_box') === 'future') {
+			setVal('status_box', 'draft');
+			save_progress('interrupt');
+		}
+	}
+
+	function action_button() {
+		startListenChangesOnTaskForm();
+		if (S.running) {
+			interrupt();
+		} else {
+			start_clock();
+		}
+		ensureWakeLock();
+	}
+
+	function reset_pomodoro_session() {
+		interrupt();
+		S.completedInCycle = 0;
+		announce(t('txt_session_reseted', 'Sessão reiniciada'));
+		playSound('reset');
+		resetIndicators();
+	}
+
+	function set_continuous_session() {
+		S.autoAction = !S.autoAction;
+		var button = byId('resetter_btn');
+		if (S.autoAction) {
+			announce(t('auto_action_enabled', 'Passador automático habilitado'));
+			if (button) {
+				button.style.backgroundColor = '#FFF';
+				button.style.color = '#222';
+			}
+		} else {
+			announce(t('auto_action_disabled', 'Passador automático desabilitado'));
+			if (button) {
+				button.style.backgroundColor = 'transparent';
+				button.style.color = '#B8B8B8';
+			}
+		}
+	}
+
+	function getRadio(name) {
+		var form = document.forms['pomopainel'];
+		if (form && form.elements[name]) {
+			var els = form.elements[name];
+			if (els.length === undefined) return els.checked ? els.value : '';
+			for (var i = 0; i < els.length; i++) {
+				if (els[i].checked) return els[i].value;
+			}
+		}
+		var list = document.getElementsByName(name);
+		for (var j = 0; j < list.length; j++) {
+			if (list[j].checked) return list[j].value;
+		}
+		return '';
+	}
+
+	function save_progress(action) {
+		debug('save_progress', action);
+		var payload = {
+			action: 'save_progress',
+			post_acao: action,
+			post_titulo: val('title_box'),
+			post_descri: val('description_box'),
+			post_tags: getTagsValue(),
+			post_cat: getRadio('cat_vl'),
+			post_priv: getRadio('priv_vl'),
+			post_local_city: text('user_location_city'),
+			post_local_region: text('user_location_region'),
+			post_local_country: text('user_location_country')
+		};
+
+		$.post(window.ajaxurl, payload, function (response) {
+			if (response === 'NOTIN') {
+				window.location.href = '/';
+				return;
+			}
+			if (response) {
+				announce(t('txt_save_success', 'Progresso salvado'), 'suc');
+			} else {
+				announce(t('txt_save_error', 'Problema ao salvar'), 'er');
+			}
+		});
+	}
+
+	function update_pomodoro_clipboard() {
+		debug('update_pomodoro_clipboard');
+		S.ajaxBusy = true;
+		var payload = {
+			action: 'update_session',
+			post_titulo: val('title_box'),
+			post_descri: val('description_box'),
+			post_tags: getTagsValue(),
+			post_cat: getRadio('cat_vl'),
+			post_id: val('post_id_box'),
+			post_priv: getRadio('priv_vl'),
+			range_volume: $(byId('rangeVolume')).val(),
+			soundfx_enabled: checked('soundfx_enabled'),
+			voice_enabled: checked('voice_enabled')
+		};
+		if (S.running) payload.interval_clock = true;
+
+		S.volume = parseInt(payload.range_volume, 10);
+		if (isNaN(S.volume)) S.volume = 100;
+		applyAudioVolume();
+		if (S.voice && S.volume > 1) {
+			try {
+				S.voice.initialize({ volume: S.volume / 100 });
+			} catch (e) {}
+		}
+
+		$.post(window.ajaxurl, payload, function (response) {
+			S.ajaxBusy = false;
+			if (response === 'NOTIN') {
+				window.location.href = '/';
+				return;
+			}
+			announce(t('txt_update_current_task', 'Salvando tarefa atual...'));
+		});
+	}
+
+	function scheduleClipboardUpdate() {
+		if (S.applyingTags) return;
+		if (S.clipboardTimer) window.clearTimeout(S.clipboardTimer);
+		S.clipboardTimer = window.setTimeout(function () {
+			S.clipboardTimer = null;
+			update_pomodoro_clipboard();
+		}, CONFIG.clipboardDebounceMs);
+	}
+
+	function buildTagOptions(box, current, available) {
+		if (current && current.length) {
+			var groupCurrent = document.createElement('optgroup');
+			groupCurrent.label = t('txt_in_use', 'Em Uso');
+			current.forEach(function (name) {
+				var option = document.createElement('option');
+				option.value = name;
+				option.textContent = name;
+				option.selected = true;
+				groupCurrent.appendChild(option);
+			});
+			box.appendChild(groupCurrent);
+		}
+		if (available && available.length) {
+			var groupAvailable = document.createElement('optgroup');
+			groupAvailable.label = t('txt_available', 'Disponível');
+			available.forEach(function (name) {
+				var option = document.createElement('option');
+				option.value = name;
+				option.textContent = name;
+				groupAvailable.appendChild(option);
+			});
+			box.appendChild(groupAvailable);
+		}
+	}
+
+	function isTagsOpen() {
+		if (!S.tagSelect) return false;
+		try {
+			return !!S.tagSelect.isOpen;
+		} catch (e) {
+			return false;
+		}
+	}
+
+	function applyTags(current, available) {
+		var box = byId('tags_box');
+		if (!box || isTagsOpen()) return;
+
+		var signature = JSON.stringify([current || [], available || []]);
+		if (signature === S.lastTagsSignature) return;
+
+		S.applyingTags = true;
+		try {
+			if (S.tagSelect) {
+				try { S.tagSelect.destroy(); } catch (e) {}
+				S.tagSelect = null;
+			}
+			box.innerHTML = '';
+			buildTagOptions(box, current, available);
+			if (window.TomSelect) {
+				S.tagSelect = new window.TomSelect(box, {
+					create: true,
+					createOnBlur: false,
+					persist: false,
+					maxItems: null,
+					delimiter: ',',
+					plugins: ['remove_button'],
+					render: {
+						option: function (data, escape) {
+							return '<div>' + escape(data.text) + '</div>';
+						}
+					}
+				});
+				S.tagSelect.on('change', scheduleClipboardUpdate);
+			}
+			S.lastTagsSignature = signature;
+		} finally {
+			S.applyingTags = false;
+		}
+	}
+
+	function applyCategory(list) {
+		if (!list || !list.length) return;
+		var value = list[0] == 1 ? list[1] : list[0];
+		var radios = document.getElementsByName('cat_vl');
+		for (var i = 0; i < radios.length; i++) {
+			radios[i].checked = String(radios[i].value) === String(value);
+		}
+	}
+
+	function applySettings(volume, soundFx, voice) {
+		S.volume = parseInt(volume, 10);
+		if (isNaN(S.volume) || S.volume < 0 || S.volume > 100) S.volume = 100;
+
+		var range = byId('rangeVolume');
+		if (range) {
+			range.value = S.volume;
+			if ($ && $.fn && $.fn.rangeslider) {
+				try {
+					$(range).rangeslider('update', true);
+				} catch (e) {}
+			}
+		}
+		applyAudioVolume();
+
+		var soundBox = byId('soundfx_enabled');
+		if (soundBox) soundBox.checked = (soundFx === 'true' || soundFx === true);
+		var voiceBox = byId('voice_enabled');
+		if (voiceBox) voiceBox.checked = (voice === 'true' || voice === true);
+
+		if (S.voice && S.volume > 1) {
+			try {
+				S.voice.initialize({ volume: S.volume / 100 });
+			} catch (e) {}
+		}
+	}
+
+	function isEditingTitle() {
+		var active = document.activeElement;
+		return !!active && (active.id === 'title_box' || active.id === 'description_box');
+	}
+
+	function resetAfterServerEnd() {
+		stopTicking();
+		S.running = false;
+		S.mode = 'focus';
+		S.remaining = CONFIG.focusSeconds;
+		S.lastSecond = -1;
+		setButton(t('textPomodoro', 'FOCAR!'), CONFIG.colorDefault);
+		render(S.remaining, true);
+	}
+
+	function reconcile(serverRemaining) {
+		var now = Date.now();
+
+		if (serverRemaining > 0) {
+			var drift = Math.abs(currentSeconds() - serverRemaining);
+			if (S.mode !== 'focus' || !S.running || drift > 2) {
+				S.mode = 'focus';
+				S.remaining = serverRemaining;
+				S.endsAt = now + serverRemaining * 1000;
+				S.startedAt = now;
+				S.lastSecond = -1;
+				S.running = true;
+				setButton(t('textInterruptFocus', 'INTERROMPER FOCO'), CONFIG.colorFocus);
+				startTicking();
+			}
 			return;
 		}
 
-		//THE START (play)
-		//jQuery("#pomopainel").hide(2000);
-		//
-		autoCycle=true;
-		//jQuery("#pomopainel").show(2000);
-		change_status(auto_cycle_enabled);
-		jQuery("#cycle_start").html('<span class="fas fa-stop" aria-hidden="true"></span>');
-		jQuery("#cycle_start").css("background-color", "#222");
-		jQuery("#cycle_start").css("color", "#CCC");
-		//
-		cycle_list_load_model();
-	}
-	//jQuery("#contem-ciclo")
-}
-
-function cycle_list_load_model() {
-	//
-	//jQuery("#current_cycle").val(autoCycleCurrent);
-	//cycle_list_update();
-	//
-	current_model_id = jQuery("#contem-ciclo li:nth-child("+autoCycleCurrent+")").find("div").data("modelid");
-	//jQuery("#contem-ciclo li").each("li").animate({'background-color': "#FFF"}, 2000);
-	jQuery("#contem-ciclo li").each(function(i){
-		//if(i!=autoCycleCurrent)
-		jQuery(this).removeClass('cycleSelectedTask');
-		jQuery(this).animate({'background-color': "#FFF", "color" : "#000"}, 200);
-	});
-	jQuery("#contem-ciclo li:nth-child("+autoCycleCurrent+")").addClass('cycleSelectedTask', 1000, "easeOutBounce");
-	jQuery("#contem-ciclo li:nth-child("+autoCycleCurrent+")").animate({'background-color': "#222",'color': "#CCC"}, 300);//green 5cb85c
-	
-	//jQuery("#contem-ciclo li:nth-child("+autoCycleCurrent+")").animate({'color': "#CCC"}, 200);
-	//autoCyclePrevious = autoCycleCurrent-1;
-	//jQuery("#contem-ciclo li:nth-child("+autoCyclePrevious+")").animate({'background-color': "#FFF"}, 2000);
-	//autoCycleCurrent 
-	load_model(current_model_id);
-}
-
-function cycle_list_next() {
-	if(debug)
-	console.log("cycle_list_next()");
-	qtdd_tasks = jQuery('ul#contem-ciclo li').length;
-	if(qtdd_tasks==autoCycleCurrent)
-		autoCycleCurrent=1;
-	else
-		autoCycleCurrent++;
-	cycle_list_load_model();
-}
-
-function cycle_list_prev() {
-	qtdd_tasks = jQuery('ul#contem-ciclo li').length;
-	if(autoCycleCurrent<=1)
-		autoCycleCurrent=qtdd_tasks;
-	else
-		autoCycleCurrent--;
-	cycle_list_load_model();
-}
-//Load e Save model function
-function save_model() {
-	change_status(txt_salving_model);
-	var data = {
-		action: 'save_or_delete_model',
-		post_titulo: title_box.value,
-		post_descri: description_box.value,
-		post_tags: jQuery("#tags_box").val()
-	};
-	jQuery.post(ajaxurl, data, function(response) {
-		if(response=="NOTIN")window.location.href = "/";
-		if(response) {
-			if(response==0) {
-				change_status(txt_salving_model_task_null);
+		if (S.mode === 'focus' && S.running) {
+			if (now - S.startedAt < CONFIG.syncGraceMs) return;
+			if (currentSeconds() <= 1) {
+				complete();
 			} else {
-				var sessao_atual=parseInt(response);
-				valinsert = data.post_tags.toString().split(",").join(', ');
-				//valinsert = data.post_tags;
-				//primeiro salva o post, para depois pegar o id do mesmo title_box
-				htmlTaskModel = ' \
-					<li id="modelo-carregado-'+sessao_atual+'" class="modelo-carregado ui-draggable ui-draggable-handle"> \
-						<div class="model-container" data-modelid="'+sessao_atual+'"> \
-							<div class="col-xs-6"> \
-							<span class="fas fa-move" aria-hidden="true"></span> &nbsp; \
-							<span id="bxtitle'+sessao_atual+'">'+title_box.value+'</span> \
-							</div> \
-							<div class="col-xs-6"> \
-							<span class="fas fa-tags" aria-hidden="true"></span> &nbsp; \
-							<span id="bxtag'+sessao_atual+'">'+valinsert+' </span> \
-							</div> \
-						</div> \
-						<div class="model-container-extra"><button class="btn btn-xs btn-success delete-task-model-btn" data-modelid="40683"><span class="fas fa-trash" style="color:black"></span></button><button" class="btn btn-xs btn-none remove-task-from-list-btn" data-modelid="40683"><span class="fas fa-trash"></span></button"></div> \
-					</li>';
-					
-					/*<p> \
-							<span id="bxcontent'+sessao_atual+'">'+description_box.value+'</span> \
-							</p> \*/
-				jQuery("#contem-modelos").append(htmlTaskModel);
-				/*jQuery("#botao-salvar-modelo").val("sessão salvada com sucesso");
-				jQuery("#botao-salvar-modelo").attr('disabled', 'disabled');*/
-				//document.getElementById("bxcontent"+sessao_atual).focus();
-				model_task_buttons_functions();
-				change_status(txt_salving_model_success);
+				resetAfterServerEnd();
 			}
 		}
-		else
-		change_status(txt_save_error);
-	});
-}
+	}
 
-function delete_model(task_model_id) {
-	//PHP deletar post task_model_id
-	//Query("#modelo-carregado-"+task_model_id).css("background-color", "#222");
-	jQuery("#modelo-carregado-"+task_model_id).hide(1000);
-	change_status(txt_deleting_model);
-	var data = {
-		action: 'save_or_delete_model',
-		post_para_deletar: task_model_id
-	};
-	jQuery.post(ajaxurl, data, function(response) {
-		if(response=="NOTIN")window.location.href = "/";
-		if(response) {
-			change_status(txt_deleting_model_sucess);
-			//jQuery("#modelo-carregado-"+task_model_id).remove();
+	function applySession(data) {
+		if (!isEditingTitle()) {
+			setVal('title_box', data.post_title);
+			setVal('description_box', data.post_content);
+		}
+		setVal('status_box', data.post_status);
+		setVal('post_id_box', data.ID);
+		if (data.post_data !== undefined) setVal('data_box', data.post_data);
+
+		applyTags(data.post_tags, data.tags_total);
+		applyCategory(data.post_category);
+		applySettings(data.range_volume, data.soundfx_enabled, data.voice_enabled);
+		reconcile(parseInt(data.secondsRemainingFromPHP, 10) || 0);
+
+		var button = byId('action_button_id');
+		if (button && button.disabled) {
+			button.disabled = false;
+			if (!S.running) button.value = t('textPomodoro', 'FOCAR!');
+		}
+	}
+
+	function load_initial_data() {
+		debug('load_initial_data');
+		S.ajaxBusy = true;
+		$.post(window.ajaxurl, { action: 'load_session' }, function (response) {
+			S.ajaxBusy = false;
+			if (response === 'NOTIN') {
+				window.location.href = '/';
+				return;
+			}
+			var data;
+			try {
+				data = JSON.parse(response);
+			} catch (e) {
+				debug('load_session parse error', e);
+				return;
+			}
+			applySession(data);
+		});
+	}
+
+	function startListenChangesOnTaskForm() {
+		if (S.listenTimer) return;
+		S.listenTimer = window.setInterval(function () {
+			if (!S.ajaxBusy && !isEditingTitle() && !isTagsOpen()) {
+				load_initial_data();
+			}
+		}, CONFIG.syncMs);
+	}
+
+	function saveModel() {
+		announce(t('txt_salving_model', 'Salvando'));
+		var title = val('title_box');
+		var tagsValue = getTagsValue();
+		$.post(window.ajaxurl, {
+			action: 'save_or_delete_model',
+			post_titulo: title,
+			post_descri: val('description_box'),
+			post_tags: tagsValue
+		}, function (response) {
+			if (response === 'NOTIN') {
+				window.location.href = '/';
+				return;
+			}
+			if (!response || response == 0) {
+				announce(t('txt_salving_model_task_null', 'Escreva algo no título da tarefa'), 'er');
+				return;
+			}
+			var id = parseInt(response, 10);
+			var tagsLabel = (tagsValue && tagsValue.toString) ? tagsValue.toString().replace(/,/g, ', ') : '';
+			var html = '<li id="modelo-carregado-' + id + '" class="modelo-carregado ui-draggable ui-draggable-handle">' +
+				'<div class="model-container" data-modelid="' + id + '">' +
+					'<div class="col-xs-6"><span class="fas fa-move"></span>&nbsp;' +
+						'<span id="bxtitle' + id + '">' + escapeHtml(title) + '</span></div>' +
+					'<div class="col-xs-6"><span class="fas fa-tags"></span>&nbsp;' +
+						'<span id="bxtag' + id + '">' + escapeHtml(tagsLabel) + '</span></div>' +
+				'</div>' +
+				'<div class="model-container-extra">' +
+					'<button class="btn btn-xs btn-success delete-task-model-btn" data-modelid="' + id + '"><span class="fas fa-trash" style="color:black"></span></button>' +
+					'<button class="btn btn-xs btn-none remove-task-from-list-btn" data-modelid="' + id + '"><span class="fas fa-trash"></span></button>' +
+				'</div></li>';
+			$('#contem-modelos').append(html);
+			modelTaskButtons();
+			announce(t('txt_salving_model_success', 'Tarefa salva'));
+		});
+	}
+
+	function deleteModel(id) {
+		$('#modelo-carregado-' + id).hide(1000);
+		announce(t('txt_deleting_model', 'Completando tarefa...'));
+		$.post(window.ajaxurl, {
+			action: 'save_or_delete_model',
+			post_para_deletar: id
+		}, function (response) {
+			if (response === 'NOTIN') {
+				window.location.href = '/';
+				return;
+			}
+			if (response) {
+				announce(t('txt_deleting_model_sucess', 'Parabéns!'));
+			} else {
+				announce(t('txt_save_error', 'Problema ao salvar'), 'er');
+			}
+		});
+	}
+
+	function loadModel(id) {
+		debug('loadModel', id);
+		announce(t('txt_loading_model', 'Tarefa carregada, hora de produzir!'));
+		var titleEl = byId('bxtitle' + id);
+		if (titleEl) setVal('title_box', titleEl.textContent);
+		var contentEl = byId('bxcontent' + id);
+		setVal('description_box', contentEl ? contentEl.textContent : '');
+
+		var tagEl = byId('bxtag' + id);
+		var tags = [];
+		if (tagEl) {
+			tagEl.textContent.split(',').forEach(function (part) {
+				var clean = part.replace(/\s+/g, '');
+				if (clean) tags.push(clean);
+			});
+		}
+		if (S.tagSelect && tags.length) {
+			S.tagSelect.addOptions(tags.map(function (name) {
+				return { value: name, text: name };
+			}));
+			S.tagSelect.setValue(tags);
+		}
+	}
+
+	function cycle_list_update(clean) {
+		var payload = {
+			action: 'update_cycle_list',
+			list: $('#contem-ciclo').html(),
+			clean: clean
+		};
+		if (clean) announce('Cleaning list...');
+		$.post(window.ajaxurl, payload, function (response) {
+			if (clean) {
+				if (response) {
+					announce('Cycle list cleared');
+					$('#contem-ciclo').html('');
+				}
+			} else if (response) {
+				announce('updating cycle list');
+			} else {
+				announce('Not updated cycle list', 'er');
+			}
+		});
+	}
+
+	function cycle_list_load_model() {
+		var currentModelId = jQuery('#contem-ciclo li:nth-child(' + S.cycleIndex + ')').find('div').data('modelid');
+		jQuery('#contem-ciclo li').each(function () {
+			jQuery(this).removeClass('cycleSelectedTask');
+			jQuery(this).animate({ 'background-color': '#FFF', color: '#000' }, 200);
+		});
+		jQuery('#contem-ciclo li:nth-child(' + S.cycleIndex + ')')
+			.addClass('cycleSelectedTask')
+			.animate({ 'background-color': '#222', color: '#CCC' }, 300);
+		if (currentModelId !== undefined) loadModel(currentModelId);
+	}
+
+	function cycle_list_play() {
+		if (S.autoCycle) {
+			S.autoCycle = false;
+			announce(t('auto_cycle_disabled', 'Ciclo automático desabilitado'));
+			$('#cycle_start').html('<span class="fas fa-play" aria-hidden="true"></span>');
+			$('#cycle_start').css({ 'background-color': '#CCC', color: '#222' });
+			$('#contem-ciclo li').each(function () {
+				jQuery(this).animate({ 'background-color': '#FFF', color: '#000' }, 500);
+			});
 		} else {
-			change_status(txt_save_error);
+			if (!$('#contem-ciclo li').length) {
+				announce('You must add at least one task', 'er');
+				return;
+			}
+			S.autoCycle = true;
+			announce(t('auto_cycle_enabled', 'Ciclo automático habilitado'));
+			$('#cycle_start').html('<span class="fas fa-stop" aria-hidden="true"></span>');
+			$('#cycle_start').css({ 'background-color': '#222', color: '#CCC' });
+			cycle_list_load_model();
+		}
+	}
+
+	function cycle_list_next() {
+		S.qtddTasks = jQuery('ul#contem-ciclo li').length;
+		if (S.qtddTasks === S.cycleIndex) {
+			S.cycleIndex = 1;
+		} else {
+			S.cycleIndex++;
+		}
+		cycle_list_load_model();
+	}
+
+	function cycle_list_prev() {
+		S.qtddTasks = jQuery('ul#contem-ciclo li').length;
+		if (S.cycleIndex <= 1) {
+			S.cycleIndex = S.qtddTasks;
+		} else {
+			S.cycleIndex--;
+		}
+		cycle_list_load_model();
+	}
+
+	function setupSortable() {
+		if (S.sortableReady || !$ || !$.fn || !$.fn.sortable) return;
+		var removeIntent = false;
+
+		$('#contem-ciclo').sortable({
+			revert: true,
+			over: function () {
+				removeIntent = false;
+			},
+			out: function () {
+				removeIntent = true;
+			},
+			beforeStop: function (event, ui) {
+				if (removeIntent === true) ui.item.remove();
+			},
+			receive: function () {
+				cycle_list_update();
+			}
+		}).droppable({
+			out: function () {
+				cycle_list_update();
+			}
+		});
+
+		if ($.fn.draggable) {
+			$('#contem-modelos li').draggable({
+				connectToSortable: '#contem-ciclo',
+				snap: '#contem-ciclo',
+				snapMode: 'outer',
+				helper: 'clone',
+				revert: 'invalid',
+				cursor: 'move'
+			});
+		}
+		if ($.fn.disableSelection) $('ul, li').disableSelection();
+
+		S.sortableReady = true;
+	}
+
+	function modelTaskButtons() {
+		$('#botao-salvar-modelo').off('click.pom').on('click.pom', function (e) {
+			e.preventDefault();
+			saveModel();
+		});
+		$('.delete-task-model-btn').off('click.pom').on('click.pom', function (e) {
+			e.preventDefault();
+			deleteModel($(this).data('modelid'));
+		});
+		$('.remove-task-from-list-btn').off('click.pom').on('click.pom', function (e) {
+			e.preventDefault();
+			$(this).parent().parent().remove();
+			cycle_list_update();
+		});
+		$('#contem-modelos .model-container').off('click.pom').on('click.pom', function (e) {
+			e.preventDefault();
+			loadModel($(this).data('modelid'));
+		});
+		setupSortable();
+		S.qtddTasks = $('ul#contem-ciclo li').length;
+	}
+
+	var grupoDeComandos = [{
+		indexes: ['iniciar', 'focar', 'começar', 'interromper'],
+		action: function () {
+			if (S.voice) S.voice.say('Pois não');
+			action_button();
+		}
+	}];
+
+	var groupOfCommands = [{
+		indexes: ['start', 'focus', 'begin', 'interrupt', 'stop'],
+		action: function () {
+			if (S.voice) S.voice.say('Ok');
+			action_button();
+		}
+	}];
+
+	var groupSwith = [{
+		indexes: ['switch to portuguese', 'switch to english'],
+		action: function (i) {
+			var langs = ['pt-BR', 'en-US'];
+			if (S.voice) S.voice.initialize({ lang: langs[i] || 'en-US' });
+		}
+	}];
+
+	function startContinuousArtyom() {
+		if (typeof window.Artyom === 'undefined') return;
+		try {
+			S.voice = new window.Artyom();
+			window.artyom_voice = S.voice;
+			S.voice.fatality();
+
+			var locale = (window.data_from_php && window.data_from_php.php_locale) || 'pt_BR';
+			var lang = 'pt-BR';
+			var commands = grupoDeComandos;
+			if (locale.indexOf('pt') === 0) {
+				lang = 'pt-BR';
+				commands = grupoDeComandos;
+			} else if (locale.indexOf('es') === 0) {
+				lang = 'es-ES';
+			} else if (locale.indexOf('fr') === 0) {
+				lang = 'fr-FR';
+			} else if (locale.indexOf('zh') === 0) {
+				lang = 'CN';
+			} else if (locale.indexOf('en') === 0) {
+				lang = 'en-US';
+				commands = groupOfCommands;
+			}
+
+			var supported = typeof S.voice.recognizingSupported === 'function' ? S.voice.recognizingSupported() : false;
+			S.voice.initialize({
+				lang: lang,
+				continuous: true,
+				listen: supported,
+				debug: isAdmin(),
+				speed: 1
+			}).then(function () {
+				debug('artyom ready');
+			});
+			if (supported) {
+				S.voice.addCommands(commands);
+				S.voice.addCommands(groupSwith);
+			}
+		} catch (e) {
+			debug('artyom error', e);
+		}
+	}
+
+	function ensureWakeLock() {
+		if ('wakeLock' in navigator) {
+			if (document.visibilityState !== 'visible' || S.wakeLock) return;
+			try {
+				navigator.wakeLock.request('screen').then(function (lock) {
+					S.wakeLock = lock;
+					lock.addEventListener('release', function () {
+						S.wakeLock = null;
+					});
+				}).catch(function () {});
+			} catch (e) {}
+			return;
+		}
+		if (typeof window.NoSleep === 'function') {
+			try {
+				if (!S.noSleep) S.noSleep = new window.NoSleep();
+				S.noSleep.enable();
+			} catch (e) {}
+		}
+	}
+
+	function startNoSleepWakeLock() {
+		if (S.wakeBound) return;
+		S.wakeBound = true;
+		var handler = function () {
+			ensureWakeLock();
+			document.removeEventListener('click', handler, false);
+			document.removeEventListener('touchstart', handler, false);
+		};
+		document.addEventListener('click', handler, false);
+		document.addEventListener('touchstart', handler, false);
+	}
+
+	function atualizarRelogioDigital() {
+		var now = new Date();
+		var hours = byId('relogio-horas');
+		var minutes = byId('relogio-minutos');
+		if (hours) hours.textContent = pad(now.getHours());
+		if (minutes) minutes.textContent = pad(now.getMinutes());
+	}
+
+	function scheduleDigitalClock() {
+		atualizarRelogioDigital();
+		var now = new Date();
+		var wait = (60 - now.getSeconds()) * 1000 - now.getMilliseconds() + 50;
+		S.digitalTimer = window.setTimeout(scheduleDigitalClock, wait);
+	}
+
+	function bindClick(id, handler) {
+		var el = byId(id);
+		if (el) {
+			el.addEventListener('click', function (e) {
+				e.preventDefault();
+				handler();
+			});
+		}
+	}
+
+	function bindFormChange() {
+		['title_box', 'description_box'].forEach(function (id) {
+			var el = byId(id);
+			if (el) {
+				el.addEventListener('change', scheduleClipboardUpdate);
+				el.addEventListener('blur', scheduleClipboardUpdate);
+			}
+		});
+		var tags = byId('tags_box');
+		if (tags) tags.addEventListener('change', scheduleClipboardUpdate);
+
+		['cat_vl', 'priv_vl'].forEach(function (name) {
+			var list = document.getElementsByName(name);
+			for (var i = 0; i < list.length; i++) {
+				list[i].addEventListener('change', scheduleClipboardUpdate);
+			}
+		});
+
+		['rangeVolume', 'soundfx_enabled', 'voice_enabled'].forEach(function (id) {
+			var el = byId(id);
+			if (el) el.addEventListener('change', scheduleClipboardUpdate);
+		});
+	}
+
+	function bindUi() {
+		var action = byId('action_button_id');
+		if (action) {
+			action.disabled = true;
+			action.addEventListener('click', function (e) {
+				e.preventDefault();
+				action_button();
+			});
+		}
+		var clock = byId('relogio');
+		if (clock) {
+			clock.addEventListener('click', function (e) {
+				e.preventDefault();
+				action_button();
+			});
+		}
+
+		bindClick('session-reset-btn', reset_pomodoro_session);
+		bindClick('continuos-session-btn', set_continuous_session);
+		bindClick('cycle_empty', function () {
+			cycle_list_update(true);
+		});
+		bindClick('cycle_start', cycle_list_play);
+		bindClick('cycle_prev', cycle_list_prev);
+		bindClick('cycle_next', cycle_list_next);
+
+		modelTaskButtons();
+
+		if ($ && $.fn && $.fn.rangeslider) {
+			try {
+				$('input[type="range"]').rangeslider();
+			} catch (e) {}
+		}
+	}
+
+	function init() {
+		debug('init');
+		scheduleDigitalClock();
+		bindUi();
+		bindFormChange();
+		startContinuousArtyom();
+		startNoSleepWakeLock();
+		announce(t('txt_loading_initial_data', 'Bem vindo ao Pomodoros.com.br'));
+		S.remaining = CONFIG.focusSeconds;
+		render(S.remaining, true);
+		load_initial_data();
+		startListenChangesOnTaskForm();
+	}
+
+	window.action_button = action_button;
+	window.reset_pomodoro_session = reset_pomodoro_session;
+	window.set_continuous_session = set_continuous_session;
+	window.startNoSleepWakeLock = startNoSleepWakeLock;
+	window.startContinuousArtyom = startContinuousArtyom;
+	window.load_initial_data = load_initial_data;
+	window.update_pomodoro_clipboard = update_pomodoro_clipboard;
+	window.load_model = loadModel;
+	window.delete_model = deleteModel;
+	window.cycle_list_update = cycle_list_update;
+	window.cycle_list_play = cycle_list_play;
+	window.cycle_list_next = cycle_list_next;
+	window.cycle_list_prev = cycle_list_prev;
+	window.getRadioCheckedValue = getRadio;
+
+	document.addEventListener('visibilitychange', function () {
+		if (document.hidden) return;
+		render(currentSeconds());
+		if (S.running) {
+			ensureWakeLock();
+			if (currentSeconds() <= 0) complete();
 		}
 	});
-}
 
-function load_model(task_model_id) {
-	if(debug)
-		console.log("load_model(), task_model_id"+task_model_id);
-	
-	change_status(txt_loading_model);
-	
-	jQuery("#title_box").val(jQuery("#bxtitle"+task_model_id).text());
-	jQuery("#description_box").val(jQuery("#bxcontent"+task_model_id).text());
-	tags_value = jQuery("#bxtag"+task_model_id).text();
-	//a.lert(tags_value);
-	valinsert_item = tags_value.split(", ");
-
-	//valinsert = "["+jQuery("#bxtag"+task_model_id).text()+"]";
-	valinsert = "[";
-	//valinsert = "";
-	i=1;
-	c=valinsert_item.length;
-	valinsert_item.forEach(function(item) {
-		if(i<c)
-			valinsert += "\'"+item.replace(/ /g,'')+"\',";
-		else
-			valinsert += "\'"+item.replace(/ /g,'')+"\'";
-		i++;
-	});
-	valinsert += "]";
-	//valinsert = "['musica', 'teste', 'pomodoros-2']";
-	//alert(valinsert);
-	var has_previous_tags = jQuery("#bxtag"+task_model_id);
-	//alert(has_previous_tags);
-	if(has_previous_tags) {
-		jQuery("#tags_box").val(null);//.trigger('change');
-		jQuery("#tags_box").val(null);
-		jQuery("#tags_box").val(null);
-		//jQuery("#tags_box").empty();
-		jQuery("#tags_box").val(eval(valinsert)).trigger('change');
-		//jQuery("#tags_box").val(["itapemapa", "franciscomat"]).trigger('change');;
-		//jQuery("#tags_box").value(jQuery("#bxtag"+task_model_id).text());
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', init);
 	} else {
-		//jQuery("#tags_box").empty();
-		jQuery("#tags_box").val("").trigger('change');
-		//jQuery("#tags_box").value("");
+		init();
 	}
-	//jQuery("#tags_box").val(['contabilidade', ]).trigger('change');
-	//jQuery("#action_button_id").focus();
-}
-
-//Change the <title> of the document
-function changeTitle (newtit) {
-	if(!newtit) {
-		var task_name = document.getElementById('title_box');
-		secondsToClock();
-		document.title = secondsRemainingClockFormat + " - " + task_name.value;
-	} else {
-		document.title = newtit;
-	}
-}
-function secondsToClock(secs) {
-	secondsRemainingClockFormat = new Date(secondsRemaining * 1000).toISOString().substring(14, 19)
-}
-
-function getRadioCheckedValue(radio_name){
-   var oRadio = document.forms["pomopainel"].elements[radio_name];
-	//alert(oRadio.length);
-   for(var i = 0; i < oRadio.length; i++)
-   {
-      if(oRadio[i].checked)
-      {
-         return oRadio[i].value;
-      }
-   }
-   return '';
-}
-
-
-//Sound configuration
-function startSoundMan() {
-	console.log("startSoundMan()");
-	/*soundManager.url = 'https://www.pomodoros.com.br/wp-content/themes/sistema-focalizador-javascript/pomodoro/assets/soundmanager2.swf';
-	soundManager.preferFlash = false;
-	soundManager.useHTML5Audio = true;
-	soundManager.onready(function() {
-		console.log("soundManager.onready()");
-		// Ready to use; soundManager.createSound() etc. can now be called.
-		active_sound = soundManager.createSound({id: 'mySound2',url: 'https://www.pomodoros.com.br/wp-content/themes/sistema-focalizador-javascript/pomodoro/sounds/crank-2.mp3',});
-		//active_sound = soundManager.createSound({id: 'mySound2',url: 'https://pomodoros.com.br/wp-content/themes/sistema-focalizador-javascript/pomodoro/sounds/77711__sorohanro__solo-trumpet-06in-f-90bpm.mp3',});
-		pomodoro_completed_sound = soundManager.createSound({id:'mySound3',url: 'https://www.pomodoros.com.br/wp-content/themes/sistema-focalizador-javascript/pomodoro/sounds/23193__kaponja__10trump-tel.mp3',});
-		session_reseted_sound = soundManager.createSound({id:'mySound4',url: 'https://www.pomodoros.com.br/wp-content/themes/sistema-focalizador-javascript/pomodoro/sounds/magic-chime-02.mp3',});
-	});
-	//soundManager.volume(volumeLevel);
-	soundManager.onerror = function() {alert(txt_sound_error+"...");}*/
-	active_sound = document.getElementById('active_sound').play();
-	pomodoro_completed_sound = document.getElementById('pomodoro_completed_sound').play();
-	session_reseted_sound =  document.getElementById('session_reseted_sound').play();
-}
-//
-var grupoDeComandos = [{
-	    indexes:["iniciar", "focar", "começar", "interromper"], // These spoken words will trigger the execution of the command
-	    action:function(){ // Action to be executed when a index match with spoken word
-	        artyom_voice.say("Pois não");//era: comando recebido
-	        action_button();
-	    }
-	},
-];
-
-var groupOfCommands = [{
-	    indexes:["start", "focus", "begin", "interrupt", "stop"], // These spoken words will trigger the execution of the command
-	    action:function(){ // Action to be executed when a index match with spoken word
-	        artyom_voice.say("Ok");
-	        action_button();
-	    }
-	},
-];
-
-var groupSwith = [{
-    // note that if you're in spanish for example
-    // the command should be instead : "Iniciar en ingles, Iniciar en alemán" etc...
-    indexes:["switch to english","switch to portuguese","switch to spanish","switch to french","switch to chinese"],
-    action: function(i){
-        switch(i){
-            case 0: start("en-US"); break;
-            case 1: start("pt-PT"); break;
-            case 2: start("es-ES"); break;
-            case 2: start("fr-FR"); break;
-            case 2: start("CN"); break;
-        }
-    }
-}];
-
-// This function activates artyom and will listen all that you say forever (requires https conection, otherwise a dialog will request if you allow the use of the microphone)
-function startContinuousArtyom(){
-	if (typeof Artyom != "undefined") {
-		artyom_voice = new Artyom();
-		//
-	    artyom_voice.fatality();// use this to stop any of
-	    //
-	    //a.lert(data_from_php.php_locale);
-	    if(data_from_php.php_locale=="pt_BR" || data_from_php.php_locale=="pt") {
-	    	gcommands = grupoDeComandos;
-	    	artyom_lang = "pt-PT";
-	    } else if(data_from_php.php_locale=="es_ES" || data_from_php.php_locale=="es") {
-	    	gcommands = groupOfCommands;
-	    	artyom_lang = "es-ES";
-	    } else if(data_from_php.php_locale=="fr_FR" || data_from_php.php_locale=="fr") {
-	    	gcommands = groupOfCommands;
-	    	artyom_lang = "fr-FR";
-	    } else if(data_from_php.php_locale=="zh_CN" || data_from_php.php_locale=="zh") {
-	    	gcommands = groupOfCommands;
-	    	artyom_lang = "CN";
-	    } else {
-	    	gcommands = groupOfCommands;
-	    	artyom_lang = "en-US";
-	    }
-	    //console.log("artyom_lang" + artyom_voice.recognizingSupported());
-	    //
-	    //setTimeout(function(){// if you use artyom.fatality , wait 250 ms to initialize again.
-	         artyom_voice.initialize({
-	            lang:artyom_lang,// A lot of languages are supported. Read the docs !
-	            continuous:true,// Artyom will listen forever
-	            listen: artyom_voice.recognizingSupported(), // Start recognizing
-	            debug:true, // Show everything in the console
-	            speed:1, // talk normally
-	            //volume: volumeLevel/100,
-	            //volume: 0,
-	            //name: "pomodoro",
-	        }).then(function(){
-	            console.log("Artyin ready to work !");
-	        });
-	    //},250);
-	    //
-	    //if(data_from_php.php_locale=="pt_BR")
-	    	//artyom_voice.addCommands(grupoDeComandos);
-	    //else
-	    if(artyom_voice.recognizingSupported()) {
-		    artyom_voice.addCommands(gcommands);
-		    artyom_voice.addCommands(groupSwith);
-	    }
-
-	    /*artyom_voice.when("COMMAND_RECOGNITION_END",function(status){
-		          startContinuousArtyom();
-		   
-		});
-		artyom_voice.when("SPEECH_SYNTHESIS_END",function(){
-		          startContinuousArtyom();
-		    
-		});*/
-	}	
-}
-
-function startNoSleepWakeLock() {
-	noSleep = new NoSleep();
-	function enableNoSleep() {
-	  noSleep.enable();
-	  document.removeEventListener('touchstart', enableNoSleep, false);
-	  document.removeEventListener('click', enableNoSleep, false);
-	}
-	document.addEventListener('touchstart', enableNoSleep, false);
-	document.addEventListener('click', enableNoSleep, false);
-}
+})();

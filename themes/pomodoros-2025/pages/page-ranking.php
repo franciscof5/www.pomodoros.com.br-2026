@@ -1,11 +1,15 @@
 <script>
 	document.title = "Pomodoros <?php global $title_apendix; echo $title_apendix.' » ';_e('Ranking', 'sis-foca-js'); ?>";
 </script>
-<div id="page-ranking" class="content_nosidebar col-12">
+<div id="page-ranking" class="pomo-page">
+	<header class="pomo-page__head">
+		<h1 class="pomo-page__title"><span class="fas fa-sort-amount-up" aria-hidden="true"></span> <?php _e('Ranking', 'sis-foca-js'); ?></h1>
+		<p class="pomo-page__subtitle"><?php _e('Top 100 most productive pomodorers', 'sis-foca-js'); ?></p>
+	</header>
 	<?php 
 	#style="width: 104%;left: -2%;"
 	$instance = array(
-		"title" => "Ranking (top 100) 2025",
+		"title" => "Ranking (top 100) " . date_i18n('Y'),
 		"count" => "100",
 		"exclude_roles" => array("administrator"),#
 		"include_post_types" => array("projectimer_focus"),
@@ -18,7 +22,7 @@
 		"archive_specific" => false); 
 	the_widget("Top_Authors_Widget", $instance, "");
 	$current_user = wp_get_current_user();
-	echo "<p style='color: #999;'>Ranking gerado em: ".get_the_time('j \d\e F \d\e Y').", via www.pomodoros.com.br/ranking. Usuário: ".$current_user->display_name.", ".$current_user->user_email. "</p>";
+	echo "<p style='color: #999;'>Ranking gerado em: ".date_i18n('j \d\e F \d\e Y').", via www.pomodoros.com.br/ranking. Usuário: ".$current_user->display_name.", ".$current_user->user_email. "</p>";
 	?>
 <script>
 jQuery( document ).ready(function() {
@@ -50,10 +54,8 @@ jQuery( document ).ready(function() {
 		qtddpomo= parseInt(matches[1]);
 		percentage_in_relation_to_first = (qtddpomo/ranking_page_first_qtddpomo);
 		resizing = min_width_percentage + (percentage_in_relation_to_first*min_width_percentage_negative);
-		//alert(res);
-		jQuery( this ).width( (resizing) + "%" );
-		jQuery( this ).find('a').width( (resizing-15) + "%" );
-		//jQuery( this ).css('backgroundColor', "CCC");
+		// Proportional bar: first place 100%, the rest scale down to 50%.
+		jQuery( this ).width( resizing + "%" );
 		/*if(i>0) {
 			jQuery( this ).before( '<span style="float: left;font-family: Lilita One, cursive;width: 30px;font-size: 20px;line-height: 30px;text-align: center;background: #009933;color: #FFF;border-radius: 50px;padding: 0;margin: 20px 10px;">'+i+"</span" );
 		}*/

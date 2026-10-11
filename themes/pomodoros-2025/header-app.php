@@ -1,4 +1,5 @@
 <?php global $user_prefered_language_prefix; ?>
+<?php $pomo_is_focus_page = ( 'focus' === get_query_var( 'custom_page' ) ); ?>
 <!DOCTYPE html>
 
 <head lang="<?php echo isset($user_prefered_language) ? $user_prefered_language : 'pt_BR'; ?>">
@@ -52,13 +53,19 @@
 </head>
 
 
-<body <?php ?>>
+<body class="pomo-app<?php echo $pomo_is_focus_page ? ' pomo-app--focus' : ''; ?>">
 
 	<?php do_action('bp_before_header') ?>
 
 	<div id="main-cotainer-app" class="main-cotainer-app container-fluid content">
 
-		<nav class="navbar navbar-dark">
+		<?php get_template_part('part', 'appbar'); ?>
+
+		<?php if (is_user_logged_in()) : ?>
+			<input type="hidden" id="pomo-user-id" value="<?php echo (int) get_current_user_id(); ?>">
+		<?php endif; ?>
+
+		<nav class="navbar navbar-dark pomo-legacy-nav">
 			<a class="navbar-brand" title="<?php _e('Go to Pomodoros Blog', 'sis-foca-js'); ?>" href="/">
 				<img src="<?php bloginfo('stylesheet_directory'); ?>/images/pomodoro-logo-topo.png" id="pomodoros-topo"
 					alt="Pomodoros">
@@ -214,6 +221,27 @@
 				</div>
 			</div>
 		<?php } ?>
+
+		<?php
+		global $user_prefered_language;
+		$pomo_settings_volume = 100;
+		$pomo_settings_soundfx = 'true';
+		$pomo_settings_voice = 'true';
+		if (is_user_logged_in()) {
+			$pomo_volume_meta = get_user_meta(get_current_user_id(), 'rangeVolume', true);
+			if ($pomo_volume_meta !== '' && $pomo_volume_meta !== false && $pomo_volume_meta !== null) {
+				$pomo_settings_volume = intval($pomo_volume_meta);
+			}
+			$pomo_soundfx_meta = get_user_meta(get_current_user_id(), 'soundfx_enabled', true);
+			if ($pomo_soundfx_meta !== '' && $pomo_soundfx_meta !== false && $pomo_soundfx_meta !== null) {
+				$pomo_settings_soundfx = ($pomo_soundfx_meta === 'false' || $pomo_soundfx_meta === '0') ? 'false' : 'true';
+			}
+			$pomo_voice_meta = get_user_meta(get_current_user_id(), 'voice_enabled', true);
+			if ($pomo_voice_meta !== '' && $pomo_voice_meta !== false && $pomo_voice_meta !== null) {
+				$pomo_settings_voice = ($pomo_voice_meta === 'false' || $pomo_voice_meta === '0') ? 'false' : 'true';
+			}
+		}
+		?>
 		
 		<div id="settingsbox" class="row">
 			<h2 class="forte">
@@ -226,7 +254,7 @@
 					<span class="fas fa-volume-up" aria-hidden="true"></span>
 				</div> -->
 				<div class="col-12">
-					<input type="range" id="rangeVolume" style="100%">
+					<input type="range" id="rangeVolume" min="0" max="100" step="1" value="<?php echo esc_attr($pomo_settings_volume); ?>" style="width:100%">
 				</div>
 				<!-- <div class="col-1">
 					<span class="fas fa-volume-up" aria-hidden="true"></span>
@@ -238,7 +266,7 @@
 					<p>Sound FX</p>
 				</div>
 				<div class="col-4">
-					<input style="float:right" id="soundfx_enabled" name="someSwitchOption001" type="checkbox" checked="checked">
+					<input style="float:right" id="soundfx_enabled" name="someSwitchOption001" type="checkbox" value="true" <?php checked($pomo_settings_soundfx, 'true'); ?>>
 					<!-- <div class="material-switch pull-right" style="float: right;">
 						<input id="soundfx_enabled" name="someSwitchOption001" type="checkbox" checked="checked" />
 						<label for="sound-switcher" class="label-success"></label>
@@ -251,7 +279,7 @@
 					<p><?php _e('Voice', 'sis-foca-js'); ?></p>
 				</div>
 				<div class="col-4">
-					<input style="float:right" id="voice_enabled" name="someSwitchOption002" type="checkbox" checked="checked">
+					<input style="float:right" id="voice_enabled" name="someSwitchOption002" type="checkbox" value="true" <?php checked($pomo_settings_voice, 'true'); ?>>
 					<!--div class="material-switch pull-right" style="float: right;">
 					<input id="voice_enabled" name="someSwitchOption002" type="checkbox" checked="checked" />
 					<label for="voice-switcher" class="label-success"></label>
@@ -259,12 +287,19 @@
 				</div>
 			</div>
 			<hr />
-			<?php if (function_exists('smartlang_show_lang_options')) { ?>
-				<h3>Change Language</h3>
-				<div class="">
-					<p><?php smartlang_show_lang_options(true); ?></p>
-				</div>
-			<?php } ?>
+			<h3><?php _e('Idioma', 'sis-foca-js'); ?> / <?php _e('Language', 'sis-foca-js'); ?></h3>
+			<div class="">
+				<form method="get" action="" class="pomo-lang-form">
+					<select name="lang" class="pomo-lang-select" onchange="this.form.submit()" aria-label="<?php esc_attr_e('Escolher idioma', 'sis-foca-js'); ?>">
+						<option value="pt_BR"<?php selected($user_prefered_language, 'pt_BR'); ?>>Português (Brasil)</option>
+						<option value="en_US"<?php selected($user_prefered_language, 'en_US'); ?>>English</option>
+						<option value="es_ES"<?php selected($user_prefered_language, 'es_ES'); ?>>Español</option>
+						<option value="fr_FR"<?php selected($user_prefered_language, 'fr_FR'); ?>>Français</option>
+						<option value="zh_CN"<?php selected($user_prefered_language, 'zh_CN'); ?>>中文</option>
+					</select>
+					<noscript><button type="submit" class="btn btn-primary"><?php _e('Aplicar', 'sis-foca-js'); ?></button></noscript>
+				</form>
+			</div>
 			<?php if (bp_is_active('messages')) { ?>
 				<div class="">
 					<?php bp_message_get_notices(); /* Site wide notices to all users */ ?>

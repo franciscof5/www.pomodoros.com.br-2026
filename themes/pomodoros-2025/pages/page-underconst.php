@@ -1,10 +1,10 @@
-<script>
-	document.title = "Pomodoros <?php global $title_apendix; echo $title_apendix.' » ';_e('Under Construct', 'sis-foca-js'); ?>";
-</script>
-<div class="content_nosidebar col-xs-12" style="width: 104%;left: -2%;" >
-	<h3  style="margin:50px;"><?php _e('Under Construct', 'sis-foca-js'); ?></h3>
-	<p class="bg-warning" style="margin:50px; font-size: 14px; padding:20px;"><?php _e('Content under development, come back soon', 'sis-foca-js'); ?>
-		<br>
-		<a href="#" class="abrir_login"><?php _e('Login', 'sis-foca-js'); ?></a>
-	</p>
-</div>
+<div class="pomo-page">
+	<header class="pomo-page__head">
+		<h1 class="pomo-page__title"><span class="fas fa-person-digging" aria-hidden="true"></span> <?php _e('Under Construction', 'sis-foca-js'); ?></h1>
+	</header>
+
+	<div class="pomo-card">
+		<p class="bg-warning"><?php _e('Content under development, come back soon', 'sis-foca-js'); ?></p>
+		<p><a href="#" class="abrir_login"><?php _e('Login', 'sis-foca-js'); ?></a></p>
+	</div>
+</div><!-- .pomo-page -->
