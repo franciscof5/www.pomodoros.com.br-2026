@@ -601,6 +601,11 @@
 		}, CONFIG.clipboardDebounceMs);
 	}
 
+	function toTagArray(value) {
+		if (value === undefined || value === null || value === '') return [];
+		return Array.isArray(value) ? value : [value];
+	}
+
 	function buildTagOptions(box, current, available) {
 		if (current && current.length) {
 			var groupCurrent = document.createElement('optgroup');
@@ -640,7 +645,10 @@
 		var box = byId('tags_box');
 		if (!box || isTagsOpen()) return;
 
-		var signature = JSON.stringify([current || [], available || []]);
+		current = toTagArray(current);
+		available = toTagArray(available);
+
+		var signature = JSON.stringify([current, available]);
 		if (signature === S.lastTagsSignature) return;
 
 		S.applyingTags = true;

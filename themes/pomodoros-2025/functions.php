@@ -639,7 +639,7 @@ function get_projectimer_tags_COPY($excludeTags=NULL) {
 	if($terms)
 		return $terms;
 	else
-		return "projeto-inicial";
+		return array("projeto-inicial");
 }
 
 #
