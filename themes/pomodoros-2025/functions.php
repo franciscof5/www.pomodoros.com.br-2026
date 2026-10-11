@@ -4,6 +4,8 @@ Vamos lá 2025
 Lógica mais louca usa a página 404 como central de tudo kkk
 */
 //
+require_once get_stylesheet_directory() . '/inc/pomodoro-push.php';
+
 add_action('wp_enqueue_scripts', 'load_scritps');
 add_action('login_form_middle', 'add_lost_password_link' );
 add_action('wp_ajax_save_progress', 'save_progress');
@@ -12,6 +14,8 @@ add_action('wp_ajax_load_session', 'load_session');
 add_action('wp_ajax_nopriv_load_session', 'load_session');
 add_action('wp_ajax_update_session', 'update_session');
 add_action('wp_ajax_nopriv_update_session', 'update_session');
+add_action('wp_ajax_save_user_settings', 'save_user_settings');
+add_action('wp_ajax_nopriv_save_user_settings', 'save_user_settings');
 add_action('wp_ajax_save_or_delete_model', 'save_or_delete_model');
 add_action('wp_ajax_nopriv_save_or_delete_model', 'save_or_delete_model');
 add_action('wp_ajax_update_cycle_list', 'update_cycle_list');
@@ -323,27 +327,43 @@ function load_scritps() {
 
 	
 	global $user_prefered_language;
-	if(isset($_SESSION["user_prefered_language"])) {
-		$user_prefered_language==$_SESSION["user_prefered_language"];
-	} else {
-		if($user_prefered_language=="" || $user_prefered_language)
-			$user_prefered_language="en_US";
+
+	$pomodoros_allowed_langs = array('pt_BR', 'en_US', 'es_ES', 'fr_FR', 'zh_CN');
+
+	// An explicit choice (?lang=xx) wins and is remembered for next visits.
+	if (isset($_GET['lang'])) {
+		$pomodoros_requested_lang = sanitize_text_field(wp_unslash($_GET['lang']));
+		if (in_array($pomodoros_requested_lang, $pomodoros_allowed_langs, true)) {
+			if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+				@session_start();
+			}
+			$_SESSION['user_prefered_language'] = $pomodoros_requested_lang;
+			if (is_user_logged_in()) {
+				update_user_meta(get_current_user_id(), 'pomodoros_lang', $pomodoros_requested_lang);
+			}
+		}
 	}
-	if($user_prefered_language=="US")
-		$user_prefered_language="en_US";
-	
-	$filelang = $user_prefered_language.".js";
-	//var_dump($filelang);die;
-	//if(qtranxf_getLanguage() == "en")
-		//$filelang="en.js";
-	   //else if(qtranxf_getLanguage() == "pt")
-		//$filelang="pt-br.js";
-	//} else {
-		//If the function doesnt exists then call the default language
-		//$filelang="pt-br.js";
-	//}
-	$filelang = ($filelang=="" || !isset($filelang)) ? "pt_BR.js" : $filelang;
-	$filelang = "pt_BR.js";
+
+	// Priority: session -> saved user preference -> Brazilian Portuguese.
+	if (isset($_SESSION['user_prefered_language']) && $_SESSION['user_prefered_language'] != '') {
+		$user_prefered_language = $_SESSION['user_prefered_language'];
+	} elseif (is_user_logged_in()) {
+		$pomodoros_saved_lang = get_user_meta(get_current_user_id(), 'pomodoros_lang', true);
+		$user_prefered_language = $pomodoros_saved_lang ? $pomodoros_saved_lang : 'pt_BR';
+	} else {
+		$user_prefered_language = 'pt_BR';
+	}
+	if ($user_prefered_language == 'US') {
+		$user_prefered_language = 'en_US';
+	}
+	if (!in_array($user_prefered_language, $pomodoros_allowed_langs, true)) {
+		$user_prefered_language = 'pt_BR';
+	}
+
+	$filelang = $user_prefered_language . ".js";
+	if (!file_exists(get_stylesheet_directory() . "/languages/js/" . $filelang)) {
+		$filelang = "pt_BR.js";
+	}
 	wp_enqueue_script("pomodoros-language", get_bloginfo("stylesheet_directory")."/languages/js/".$filelang, __FILE__, time());
 	#var_dump(get_bloginfo("stylesheet_directory")."/languages/".$filelang);die;
 	// Register the script
@@ -380,6 +400,93 @@ function load_scritps() {
 	
 	//nao precisa ja tem setInterval com load_session
 	#wp_enqueue_script("heartbeat");
+
+	// Modern dark app UI (scoped to body.pomo-app) for every app page.
+	if ( function_exists('pomodoro_is_app_shell_request') && pomodoro_is_app_shell_request() ) {
+		wp_enqueue_style('pomodoro-focus-css', get_bloginfo("stylesheet_directory")."/pomodoro/focus-modern.css", __FILE__, time());
+		wp_enqueue_script('pomodoro-focus-ui-js', get_bloginfo("stylesheet_directory")."/pomodoro/focus-ui.js", array('jquery'), time(), true);
+
+		// If the OneSignal plugin is not active but an App ID is configured,
+		// load the SDK ourselves so the "enable notifications" button works.
+		if ( ! class_exists('OneSignal_Public') ) {
+			$pomo_onesignal = get_option('OneSignalWPSetting');
+			if ( is_array($pomo_onesignal) && ! empty($pomo_onesignal['app_id']) ) {
+				$pomo_app_id   = trim($pomo_onesignal['app_id']);
+				$pomo_sdk_base = content_url('plugins/onesignal-free-web-push-notifications/sdk_files/');
+				wp_enqueue_script('pomodoro-onesignal-sdk', 'https://cdn.onesignal.com/sdks/OneSignalSDK.js', array(), null, false);
+				$pomo_os_init = sprintf(
+					'window.OneSignal=window.OneSignal||[];OneSignal.push(function(){OneSignal.SERVICE_WORKER_UPDATER_PATH="OneSignalSDKUpdaterWorker.js";OneSignal.SERVICE_WORKER_PATH="OneSignalSDKWorker.js";OneSignal.SERVICE_WORKER_PARAM={scope:"/"};OneSignal.setDefaultNotificationUrl(%1$s);OneSignal.init({appId:%2$s,allowLocalhostAsSecureOrigin:true,path:%3$s});});',
+					wp_json_encode(home_url('/focus/')),
+					wp_json_encode($pomo_app_id),
+					wp_json_encode($pomo_sdk_base)
+				);
+				wp_add_inline_script('pomodoro-onesignal-sdk', $pomo_os_init);
+			}
+		}
+	}
+}
+
+if ( ! function_exists('pomodoro_is_app_shell_request') ) {
+	function pomodoro_is_app_shell_request() {
+		$page = get_query_var('custom_page');
+		if ( $page && get_query_var('template') !== 'open' ) {
+			return true;
+		}
+		if ( $page === 'focus' ) {
+			return true;
+		}
+		// BuddyPress pages (members directory, profiles, activity) render the
+		// modern shell through header-buddypress.php.
+		if ( function_exists('bp_is_active') ) {
+			if ( ( function_exists('bp_is_members_component') && bp_is_members_component() )
+				|| ( function_exists('bp_is_user') && bp_is_user() )
+				|| ( function_exists('bp_is_activity_component') && bp_is_activity_component() ) ) {
+				return true;
+			}
+		}
+		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+		return (bool) preg_match('#/(focus|ranking|calendar|produtividade|stats|csv|metas|premios|game|invite|help|tag|users|members|activity)/?(\?|$)#', $uri);
+	}
+}
+
+if ( ! function_exists('pomodoro_is_focus_request') ) {
+	function pomodoro_is_focus_request() {
+		if ( get_query_var('custom_page') === 'focus' ) {
+			return true;
+		}
+		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+		return (bool) preg_match('#/focus/?(\?|$)#', $uri);
+	}
+}
+
+// BuddyPress "friends" wording -> "colleagues" (colegas) across the app.
+if ( ! function_exists('pomodoro_bp_colleague_terms') ) {
+	function pomodoro_bp_colleague_terms($translated, $text, $domain) {
+		if ( 'buddypress' !== $domain ) {
+			return $translated;
+		}
+		$is_pt = ( strpos( get_locale(), 'pt' ) === 0 );
+		$map = array(
+			'Add Friend'                      => $is_pt ? 'Adicionar colega' : 'Add Colleague',
+			'Remove Friend'                   => $is_pt ? 'Remover colega' : 'Remove Colleague',
+			'All Members <span>%s</span>'     => $is_pt ? 'Todos os colegas <span>%s</span>' : 'All Colleagues <span>%s</span>',
+			'My Friends <span>%s</span>'      => $is_pt ? 'Meus colegas <span>%s</span>' : 'My Colleagues <span>%s</span>',
+			'Members Directory'               => $is_pt ? 'Diretório de colegas' : 'Colleagues Directory',
+		);
+		return isset( $map[ $text ] ) ? $map[ $text ] : $translated;
+	}
+	add_filter( 'gettext', 'pomodoro_bp_colleague_terms', 10, 3 );
+}
+
+// Members search box text -> colleagues.
+if ( ! function_exists('pomodoro_bp_members_search_text') ) {
+	function pomodoro_bp_members_search_text($text, $component = '') {
+		if ( 'members' === $component ) {
+			return ( strpos( get_locale(), 'pt' ) === 0 ) ? 'Pesquisar colegas...' : 'Search colleagues...';
+		}
+		return $text;
+	}
+	add_filter( 'bp_get_search_default_text', 'pomodoro_bp_members_search_text', 10, 2 );
 }
 
 function myplugin_remove_type_attr($tag, $handle) {
@@ -841,6 +948,48 @@ function update_session () {
 
 	header('Content-type: application/json');//CRUCIAL
 	echo json_encode($postReturned);
+	die;
+}
+
+/**
+ * Persist the user's preferences (volume, sound, voice, language).
+ *
+ * Unlike update_session, this does not touch the current draft/scheduled post,
+ * so it is safe to call from any app page (settings drawer lives in the shared
+ * header). The focus screen keeps using update_session.
+ */
+function save_user_settings () {
+	checkLogin();
+	$user_id = get_current_user_id();
+
+	if (isset($_POST['range_volume'])) {
+		$volume = intval($_POST['range_volume']);
+		if ($volume < 0) $volume = 0;
+		if ($volume > 100) $volume = 100;
+		update_user_meta($user_id, 'rangeVolume', $volume);
+	}
+	if (isset($_POST['soundfx_enabled'])) {
+		$soundfx = ( $_POST['soundfx_enabled'] === 'true' || $_POST['soundfx_enabled'] === '1' ) ? 'true' : 'false';
+		update_user_meta($user_id, 'soundfx_enabled', $soundfx);
+	}
+	if (isset($_POST['voice_enabled'])) {
+		$voice = ( $_POST['voice_enabled'] === 'true' || $_POST['voice_enabled'] === '1' ) ? 'true' : 'false';
+		update_user_meta($user_id, 'voice_enabled', $voice);
+	}
+	if (isset($_POST['pomodoros_lang'])) {
+		$allowed = array('pt_BR', 'en_US', 'es_ES', 'fr_FR', 'zh_CN');
+		$lang = sanitize_text_field(wp_unslash($_POST['pomodoros_lang']));
+		if (in_array($lang, $allowed, true)) {
+			update_user_meta($user_id, 'pomodoros_lang', $lang);
+			if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+				@session_start();
+			}
+			$_SESSION['user_prefered_language'] = $lang;
+		}
+	}
+
+	header('Content-type: application/json');
+	echo json_encode(array('saved' => true));
 	die;
 }
 

@@ -2,12 +2,13 @@
 	document.title = "Pomodoros <?php global $title_apendix; echo $title_apendix.' » ';_e('Calendar', 'sis-foca-js'); ?>";
 </script>
 
-<div class="content_nosidebar">
-	<!--todo: chanve view to MENSAL and YEAR
-	todo:put button show only my records
-	todo:put on configuration optionS above
-	h2>Calenario mensal</h2>
-	<p>Visualizar <a>calendario anual</a></p-->
+<div class="pomo-page">
+	<header class="pomo-page__head">
+		<h1 class="pomo-page__title"><span class="fas fa-calendar-alt" aria-hidden="true"></span> <?php _e('Calendar', 'sis-foca-js'); ?></h1>
+		<p class="pomo-page__subtitle"><?php _e('Your productivity calendar', 'sis-foca-js'); ?></p>
+	</header>
 
-	<?php echo do_shortcode("[ranking-calendar]"); ?>
-</div><!-- #content -->
+	<div class="pomo-section">
+		<?php echo do_shortcode("[ranking-calendar]"); ?>
+	</div>
+</div><!-- .pomo-page -->

@@ -45,13 +45,6 @@
 			<div class="item">
 				<div class="item-title">
 					<a href="<?php bp_member_permalink(); ?>"><?php bp_member_name(); ?></a>
-
-					<?php if ( bp_get_member_latest_update() ) : ?>
-
-						<span class="update"> <?php bp_member_latest_update(); ?></span>
-
-					<?php endif; ?>
-
 				</div>
 
 				<div class="item-meta"><span class="activity"><?php bp_member_last_active(); ?></span></div>
@@ -74,6 +67,13 @@
 				<?php do_action( 'bp_directory_members_actions' ); ?>
 
 			</div>
+
+			<?php $pomo_member_update = bp_get_member_latest_update(); ?>
+			<?php if ( $pomo_member_update ) : ?>
+				<div class="member-update">
+					<span class="update"><?php echo $pomo_member_update; ?></span>
+				</div>
+			<?php endif; ?>
 
 			<div class="clear"></div>
 		</li>

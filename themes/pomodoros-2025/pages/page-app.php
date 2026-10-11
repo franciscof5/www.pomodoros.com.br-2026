@@ -2,34 +2,32 @@
 	document.title = "Pomodoros <?php global $title_apendix; echo $title_apendix.' » ';_e('Mobile', 'sis-foca-js'); ?>";
 </script>
 
-<div id="center_layout" class="col-md-8 col-md-offset-2">
-	
-	<?php 
-	if(is_user_logged_in()) { ?>
-		<script>
-			window.location = "https://www.pomodoros.com.br/focus";
-		</script>
-	<?php }	?>
-	<h2 class="forte"><?php _e("Pomodoros Mobile", "sis-foca-js"); ?></h2>
-	<p class="bg-dangerD"><?php _e("Login to access app", "sis-foca-js"); ?></p>
+<div class="bg-gray-900 text-gray-100 min-h-screen pt-24 pb-16">
+	<div class="mx-auto max-w-md px-4 sm:px-6">
+		<?php if (is_user_logged_in()) { ?>
+			<script>
+				window.location = "https://www.pomodoros.com.br/focus";
+			</script>
+		<?php } ?>
 
-	<div id="">
-		<?php wp_login_form(); ?>
-		<div style="margin-top:-40px;">
-			<?php do_action( 'wordpress_social_login' ); ?> 
-			<div style="margin-top: -40px;">
-				<?php do_action( 'bp_after_sidebar_login_form' ); ?>
+		<header class="mb-8 text-center">
+			<h1 class="text-2xl sm:text-3xl font-bold text-white"><?php _e("Pomodoros Mobile", "sis-foca-js"); ?></h1>
+			<p class="mt-2 text-sm text-amber-300"><?php _e("Login to access the app", "sis-foca-js"); ?></p>
+		</header>
+
+		<div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 sm:p-8">
+			<?php wp_login_form(); ?>
+			<div class="mt-4">
+				<?php do_action('wordpress_social_login'); ?>
 			</div>
 		</div>
-	</div>
-	<br style="clear:both; margin-top: 30px;">
-	<p>
-		<?php 
-		if(function_exists("show_lang_options"))
-			show_lang_options(); ?>
-	</p>
 
-	<center>		
-		<?php echo show_sponsor("onlythumb"); ?>
-	</center>
+		<?php if (function_exists("show_lang_options")) { ?>
+			<div class="mt-6 text-center text-gray-400"><?php show_lang_options(); ?></div>
+		<?php } ?>
+
+		<div class="mt-8 text-center">
+			<?php echo show_sponsor("onlythumb"); ?>
+		</div>
+	</div>
 </div>
