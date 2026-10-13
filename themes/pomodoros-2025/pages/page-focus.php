@@ -118,7 +118,7 @@ $pomo_r_in  = 100;
 					<circle class="pomo-session__marker" id="pomo-session-marker" cx="<?php echo $pomo_cx; ?>" cy="<?php echo ( $pomo_cy - $pomo_r_out ); ?>" r="5"></circle>
 					<!-- Inner ring: current pomodoro countdown (clockwise). -->
 					<circle class="pomo-clock__track" cx="<?php echo $pomo_cx; ?>" cy="<?php echo $pomo_cy; ?>" r="<?php echo $pomo_r_in; ?>"></circle>
-					<circle class="pomo-clock__progress" id="pomo-ring" cx="<?php echo $pomo_cx; ?>" cy="<?php echo $pomo_cy; ?>" r="<?php echo $pomo_r_in; ?>" transform="rotate(-90 <?php echo $pomo_cx; ?> <?php echo $pomo_cy; ?>) translate(0,260) scale(1,-1)"></circle>
+					<circle class="pomo-clock__progress" id="pomo-ring" cx="<?php echo $pomo_cx; ?>" cy="<?php echo $pomo_cy; ?>" r="<?php echo $pomo_r_in; ?>" transform="rotate(-90 <?php echo $pomo_cx; ?> <?php echo $pomo_cy; ?>)"></circle>
 				</svg>
 				<div class="pomo-clock__readout">
 					<div class="pomo-clock__time" id="pomodoro-time" role="timer">25:00</div>

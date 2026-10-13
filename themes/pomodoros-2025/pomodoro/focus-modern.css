@@ -235,6 +235,7 @@ body.pomo-app .navbar.pomo-legacy-nav {
 
 .pomo-clock__track {
 	stroke: rgba(255, 255, 255, 0.08);
+	stroke: color-mix(in srgb, var(--accent) 24%, transparent);
 }
 
 .pomo-clock__progress {

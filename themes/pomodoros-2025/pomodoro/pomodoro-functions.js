@@ -309,10 +309,12 @@
 
 		var ring = byId('pomo-ring');
 		if (ring) {
-			var radius = parseFloat(ring.getAttribute('r')) || 110;
+			var radius = parseFloat(ring.getAttribute('r')) || 100;
 			var circumference = 2 * Math.PI * radius;
 			var denominator = durationFor(S.mode) || 1;
-			var fraction = Math.min(1, Math.max(0, total / denominator));
+			// Bright arc = already elapsed (from the top, clockwise);
+			// the remaining time stays on the dim track.
+			var fraction = Math.min(1, Math.max(0, (denominator - total) / denominator));
 			ring.style.strokeDasharray = circumference + ' ' + circumference;
 			ring.style.strokeDashoffset = String(circumference * (1 - fraction));
 		}
