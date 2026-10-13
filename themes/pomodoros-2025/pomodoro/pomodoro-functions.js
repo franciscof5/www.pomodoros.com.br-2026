@@ -149,13 +149,19 @@
 	// The cycle list is stored as raw HTML in user meta. Older sessions saved
 	// inline colors (white background / black text and icons) from animations
 	// that no longer exist and made the list unreadable on the dark theme.
+	// We also mirror the TODO item classes so both lists share the same look.
 	function cleanCycleInlineStyles() {
 		var root = byId('contem-ciclo');
 		if (!root) return;
-		var items = root.querySelectorAll('li, li *');
+		var items = root.querySelectorAll('li');
 		for (var i = 0; i < items.length; i++) {
-			if (items[i].hasAttribute('style')) items[i].removeAttribute('style');
+			items[i].removeAttribute('style');
+			items[i].classList.add('modelo-carregado');
+			items[i].classList.add('ui-draggable');
+			items[i].classList.add('ui-draggable-handle');
 		}
+		var styled = root.querySelectorAll('li *[style]');
+		for (var j = 0; j < styled.length; j++) styled[j].removeAttribute('style');
 	}
 
 	function announce(message, kind) {

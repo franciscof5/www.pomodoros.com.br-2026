@@ -1989,20 +1989,19 @@ body.pomo-app #contem-ciclo {
 	flex-direction: column;
 	gap: 8px;
 	min-height: 54px;
-	counter-reset: pomo-cycle;
 }
 
 body.pomo-app #contem-ciclo li {
-	counter-increment: pomo-cycle;
 	position: relative;
 	display: flex;
 	align-items: flex-start;
 	gap: 10px;
-	padding: 10px 12px 10px 10px;
+	padding: 10px 10px 10px 12px;
 	background: var(--pomo-bg-soft) !important;
 	border: 1px solid var(--pomo-border);
 	border-radius: var(--pomo-radius-sm);
 	color: var(--pomo-text) !important;
+	transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.12s ease;
 }
 
 body.pomo-app #contem-ciclo li .model-container {
@@ -2029,34 +2028,10 @@ body.pomo-app #contem-ciclo li .model-container-extra .btn {
 	color: var(--pomo-text);
 }
 
-body.pomo-app #contem-ciclo li::before {
-	content: counter(pomo-cycle);
-	flex: 0 0 auto;
-	width: 24px;
-	height: 24px;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	border-radius: 999px;
-	background: var(--pomo-surface-2);
-	color: var(--pomo-muted);
-	font-size: 12px;
-	font-weight: 700;
-}
-
-body.pomo-app #contem-ciclo li .pomo-task__handle {
-	display: none;
-}
-
 body.pomo-app #contem-ciclo li.cycleSelectedTask {
 	background: rgba(34, 197, 94, 0.14) !important;
-	border-color: rgba(34, 197, 94, 0.45);
+	border-color: rgba(34, 197, 94, 0.45) !important;
 	color: #d1fae5 !important;
-}
-
-body.pomo-app #contem-ciclo li.cycleSelectedTask::before {
-	background: var(--pomo-accent);
-	color: #04140a;
 }
 
 /* TODO list */
@@ -2071,7 +2046,7 @@ body.pomo-app #contem-modelos {
 
 body.pomo-app #contem-modelos li.modelo-carregado {
 	position: relative;
-	display: inline-table;
+	display: flex;
 	align-items: flex-start;
 	gap: 10px;
 	padding: 10px 10px 10px 12px;
@@ -2082,12 +2057,14 @@ body.pomo-app #contem-modelos li.modelo-carregado {
 	transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.12s ease;
 }
 
+body.pomo-app #contem-ciclo li:hover,
 body.pomo-app #contem-modelos li.modelo-carregado:hover {
 	border-color: var(--pomo-border-strong);
-	background: var(--pomo-surface-2);
+	background: var(--pomo-surface-2) !important;
 	transform: translateY(-1px);
 }
 
+body.pomo-app #contem-ciclo li.ui-draggable-dragging,
 body.pomo-app #contem-modelos li.modelo-carregado.ui-draggable-dragging {
 	box-shadow: 0 18px 34px -18px rgba(0, 0, 0, 0.95);
 	border-color: var(--pomo-accent);
