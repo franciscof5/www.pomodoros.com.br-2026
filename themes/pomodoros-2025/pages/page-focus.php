@@ -85,22 +85,36 @@ $pomo_r_in  = 100;
 				aria-label="<?php _e('Start or stop the timer', 'sis-foca-js'); ?>">
 				<svg class="pomo-clock__ring" viewBox="0 0 260 260" aria-hidden="true">
 					<!-- Outer session ring: 4 pomodoros, each = 25min focus (green) + 5min rest (orange).
-					     Progress runs counterclockwise, so segments go from the top into negative angles. -->
-					<circle class="pomo-session__track" cx="<?php echo $pomo_cx; ?>" cy="<?php echo $pomo_cy; ?>" r="<?php echo $pomo_r_out; ?>"></circle>
-					<?php for ( $pomo_q = 0; $pomo_q < 4; $pomo_q++ ) :
+					     Progress runs counterclockwise; the completed part is revealed ("lit") by a
+					     wedge mask that follows the marker. -->
+					<defs>
+						<mask id="pomo-session-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="260" height="260">
+							<path id="pomo-session-wedge" d="" fill="#ffffff"></path>
+						</mask>
+					</defs>
+					<?php
+					$pomo_segments = array();
+					for ( $pomo_q = 0; $pomo_q < 4; $pomo_q++ ) {
 						$pomo_start = -$pomo_q * 90;
 						$pomo_focus_end = $pomo_start - 75;
 						$pomo_rest_end  = $pomo_start - 90;
+						$pomo_segments[] = array( 'focus', pomo_arc_path( $pomo_cx, $pomo_cy, $pomo_r_out, $pomo_start, $pomo_focus_end ) );
+						$pomo_segments[] = array( 'rest',  pomo_arc_path( $pomo_cx, $pomo_cy, $pomo_r_out, $pomo_focus_end, $pomo_rest_end ) );
+					}
 					?>
-						<path class="pomo-session__seg pomo-session__seg--focus"
-							data-a1="<?php echo esc_attr( $pomo_start ); ?>"
-							data-a2="<?php echo esc_attr( $pomo_focus_end ); ?>"
-							d="<?php echo esc_attr( pomo_arc_path( $pomo_cx, $pomo_cy, $pomo_r_out, $pomo_start, $pomo_focus_end ) ); ?>"></path>
-						<path class="pomo-session__seg pomo-session__seg--rest"
-							data-a1="<?php echo esc_attr( $pomo_focus_end ); ?>"
-							data-a2="<?php echo esc_attr( $pomo_rest_end ); ?>"
-							d="<?php echo esc_attr( pomo_arc_path( $pomo_cx, $pomo_cy, $pomo_r_out, $pomo_focus_end, $pomo_rest_end ) ); ?>"></path>
-					<?php endfor; ?>
+					<circle class="pomo-session__track" cx="<?php echo $pomo_cx; ?>" cy="<?php echo $pomo_cy; ?>" r="<?php echo $pomo_r_out; ?>"></circle>
+					<!-- Upcoming (dim) -->
+					<g class="pomo-session__base">
+						<?php foreach ( $pomo_segments as $pomo_seg ) : ?>
+							<path class="pomo-session__seg pomo-session__seg--<?php echo esc_attr( $pomo_seg[0] ); ?>" d="<?php echo esc_attr( $pomo_seg[1] ); ?>"></path>
+						<?php endforeach; ?>
+					</g>
+					<!-- Completed (bright), revealed by the wedge mask -->
+					<g class="pomo-session__bright" mask="url(#pomo-session-mask)">
+						<?php foreach ( $pomo_segments as $pomo_seg ) : ?>
+							<path class="pomo-session__seg pomo-session__seg--<?php echo esc_attr( $pomo_seg[0] ); ?>" d="<?php echo esc_attr( $pomo_seg[1] ); ?>"></path>
+						<?php endforeach; ?>
+					</g>
 					<circle class="pomo-session__marker" id="pomo-session-marker" cx="<?php echo $pomo_cx; ?>" cy="<?php echo ( $pomo_cy - $pomo_r_out ); ?>" r="5"></circle>
 					<!-- Inner ring: current pomodoro countdown (clockwise). -->
 					<circle class="pomo-clock__track" cx="<?php echo $pomo_cx; ?>" cy="<?php echo $pomo_cy; ?>" r="<?php echo $pomo_r_in; ?>"></circle>

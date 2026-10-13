@@ -382,6 +382,17 @@
 		return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
 	}
 
+	function sessionWedgePath(cx, cy, r, p) {
+		var sweep = Math.min(359.99, p * 360);
+		var start = polarPoint(cx, cy, r, 0);
+		var end = polarPoint(cx, cy, r, -sweep);
+		var large = sweep > 180 ? 1 : 0;
+		return 'M ' + cx + ' ' + cy +
+			' L ' + start.x.toFixed(2) + ' ' + start.y.toFixed(2) +
+			' A ' + r + ' ' + r + ' 0 ' + large + ' 0 ' + end.x.toFixed(2) + ' ' + end.y.toFixed(2) +
+			' Z';
+	}
+
 	function updateSessionRing() {
 		var track = document.querySelector('.pomo-session__track');
 		var cx = track ? parseFloat(track.getAttribute('cx')) : 130;
@@ -400,12 +411,9 @@
 			marker.classList.toggle('is-bigrest', S.mode === 'bigRest');
 		}
 
-		var done = p * 360;
-		var segs = document.querySelectorAll('.pomo-session__seg');
-		for (var i = 0; i < segs.length; i++) {
-			var a2 = parseFloat(segs[i].getAttribute('data-a2'));
-			if (isNaN(a2)) continue;
-			segs[i].classList.toggle('is-done', (-a2) <= done + 0.01);
+		var wedge = byId('pomo-session-wedge');
+		if (wedge) {
+			wedge.setAttribute('d', sessionWedgePath(cx, cy, r + 6, p));
 		}
 	}
 

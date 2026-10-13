@@ -254,8 +254,7 @@ body.pomo-app .navbar.pomo-legacy-nav {
 	fill: none;
 	stroke-width: 8;
 	stroke-linecap: butt;
-	opacity: 0.26;
-	transition: opacity 0.35s ease;
+	opacity: 0.15;
 }
 
 .pomo-session__seg--focus {
@@ -266,7 +265,8 @@ body.pomo-app .navbar.pomo-legacy-nav {
 	stroke: #f59e0b;
 }
 
-.pomo-session__seg.is-done {
+/* Completed part, revealed by the wedge mask following the marker. */
+.pomo-session__bright .pomo-session__seg {
 	opacity: 1;
 }
 
