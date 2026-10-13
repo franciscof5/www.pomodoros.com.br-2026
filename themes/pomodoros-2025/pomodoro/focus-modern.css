@@ -1775,3 +1775,363 @@ body.pomo-app #item-header div.generic-button {
 	float: none !important;
 }
 
+/* ================================================================== */
+/* Focus - wide 3-column layout: panel | timer | tasks                 */
+/* ================================================================== */
+@media (min-width: 1080px) {
+	.pomo-focus {
+		max-width: 1360px;
+		display: grid;
+		grid-template-columns: minmax(300px, 1fr) minmax(340px, 1.05fr) minmax(320px, 1fr);
+		grid-template-areas: "panel timer tasks";
+		gap: 22px;
+		align-items: start;
+	}
+
+	/* both panels are visible side by side, so the tabs are redundant */
+	.pomo-focus .pomo-tabs {
+		display: none;
+	}
+
+	/* dissolve the tab wrappers so the three blocks become grid items */
+	.pomo-focus #tab-focus.pomo-panels,
+	.pomo-focus .pomo-panel {
+		display: contents;
+	}
+
+	.pomo-focus .pomo-timer {
+		grid-area: timer;
+		margin-top: 0;
+	}
+
+	.pomo-focus #pomopainel {
+		grid-area: panel;
+		margin-top: 0;
+	}
+
+	.pomo-focus #buzz > .pomo-card {
+		grid-area: tasks;
+		margin-top: 0;
+	}
+}
+
+/* ------------------------------------------------------------------ */
+/* Tasks column (right): cycler + TODO list                            */
+/* ------------------------------------------------------------------ */
+body.pomo-app .pomo-tasks {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+body.pomo-app .pomo-tasks__block {
+	padding: 0;
+}
+
+body.pomo-app .pomo-tasks__block + .pomo-tasks__block {
+	margin-top: 16px;
+	padding-top: 16px;
+	border-top: 1px solid var(--pomo-border);
+}
+
+body.pomo-app .pomo-tasks__head {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 12px;
+}
+
+body.pomo-app .pomo-tasks__title {
+	margin: 0;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	color: var(--pomo-muted);
+}
+
+body.pomo-app .pomo-tasks__count {
+	margin-left: auto;
+	min-width: 26px;
+	height: 22px;
+	padding: 0 8px;
+	border-radius: 999px;
+	background: var(--pomo-surface-2);
+	border: 1px solid var(--pomo-border);
+	color: var(--pomo-text);
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 20px;
+	text-align: center;
+}
+
+body.pomo-app .pomo-tasks__actions {
+	display: inline-flex;
+	gap: 6px;
+}
+
+body.pomo-app .pomo-tasks__actions + .pomo-tasks__count,
+body.pomo-app .pomo-tasks__count + .pomo-tasks__actions {
+	margin-left: 0;
+}
+
+body.pomo-app .pomo-tasks__actions .pomo-tasks__count {
+	margin-left: 0;
+}
+
+/* Cycle controls */
+body.pomo-app #cycle_start,
+body.pomo-app #cycle_prev,
+body.pomo-app #cycle_next,
+body.pomo-app #cycle_empty {
+	width: 36px;
+	height: 36px;
+	margin: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 10px;
+	border: 1px solid var(--pomo-border);
+	background: var(--pomo-surface-2);
+	color: var(--pomo-text);
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+}
+
+body.pomo-app #cycle_start:hover,
+body.pomo-app #cycle_prev:hover,
+body.pomo-app #cycle_next:hover,
+body.pomo-app #cycle_empty:hover {
+	background: #263140;
+}
+
+body.pomo-app #cycle_start:active,
+body.pomo-app #cycle_prev:active,
+body.pomo-app #cycle_next:active,
+body.pomo-app #cycle_empty:active {
+	transform: scale(0.94);
+}
+
+body.pomo-app #cycle_empty:hover {
+	background: var(--pomo-danger);
+	border-color: transparent;
+	color: #fff;
+}
+
+/* Empty states */
+body.pomo-app #contem-ciclo.is-empty::after,
+body.pomo-app #contem-modelos.is-empty::after {
+	content: attr(data-empty);
+	display: block;
+	padding: 16px 12px;
+	text-align: center;
+	color: var(--pomo-muted);
+	font-size: 13px;
+	line-height: 1.4;
+	border: 1px dashed var(--pomo-border);
+	border-radius: var(--pomo-radius-sm);
+	background: rgba(255, 255, 255, 0.015);
+}
+
+/* Cycle list */
+body.pomo-app #contem-ciclo {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-height: 54px;
+	counter-reset: pomo-cycle;
+}
+
+body.pomo-app #contem-ciclo li {
+	counter-increment: pomo-cycle;
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 12px 10px 10px;
+	background: var(--pomo-bg-soft);
+	border: 1px solid var(--pomo-border);
+	border-radius: var(--pomo-radius-sm);
+	color: var(--pomo-text);
+}
+
+body.pomo-app #contem-ciclo li::before {
+	content: counter(pomo-cycle);
+	flex: 0 0 auto;
+	width: 24px;
+	height: 24px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 999px;
+	background: var(--pomo-surface-2);
+	color: var(--pomo-muted);
+	font-size: 12px;
+	font-weight: 700;
+}
+
+body.pomo-app #contem-ciclo li .pomo-task__handle {
+	display: none;
+}
+
+body.pomo-app #contem-ciclo li.cycleSelectedTask {
+	background: rgba(34, 197, 94, 0.14);
+	border-color: rgba(34, 197, 94, 0.45);
+	color: #d1fae5;
+}
+
+body.pomo-app #contem-ciclo li.cycleSelectedTask::before {
+	background: var(--pomo-accent);
+	color: #04140a;
+}
+
+/* TODO list */
+body.pomo-app #contem-modelos {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+body.pomo-app #contem-modelos li.modelo-carregado {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 10px 10px 12px;
+	background: var(--pomo-bg-soft);
+	border: 1px solid var(--pomo-border);
+	border-radius: var(--pomo-radius-sm);
+	color: var(--pomo-text);
+	transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.12s ease;
+}
+
+body.pomo-app #contem-modelos li.modelo-carregado:hover {
+	border-color: var(--pomo-border-strong);
+	background: var(--pomo-surface-2);
+	transform: translateY(-1px);
+}
+
+body.pomo-app #contem-modelos li.modelo-carregado.ui-draggable-dragging {
+	box-shadow: 0 18px 34px -18px rgba(0, 0, 0, 0.95);
+	border-color: var(--pomo-accent);
+	opacity: 0.95;
+}
+
+body.pomo-app .model-container {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex: 1;
+	min-width: 0;
+}
+
+body.pomo-app .pomo-task__handle {
+	flex: 0 0 auto;
+	color: var(--pomo-muted);
+	opacity: 0.65;
+	cursor: grab;
+}
+
+body.pomo-app .pomo-task__handle:active {
+	cursor: grabbing;
+}
+
+body.pomo-app .pomo-task__body {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+	flex: 1;
+}
+
+body.pomo-app .pomo-task__title,
+body.pomo-app .model-container span[id^="bxtitle"] {
+	display: block;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--pomo-text);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+body.pomo-app .pomo-task__tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+}
+
+body.pomo-app .pomo-task__tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	max-width: 160px;
+	padding: 1px 8px;
+	border-radius: 999px;
+	background: rgba(34, 197, 94, 0.14);
+	border: 1px solid rgba(34, 197, 94, 0.35);
+	color: #bbf7d0;
+	font-size: 11px;
+	line-height: 1.6;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+body.pomo-app .pomo-task__tag .fas {
+	font-size: 9px;
+	opacity: 0.85;
+}
+
+body.pomo-app .model-container-extra {
+	display: inline-flex;
+	gap: 6px;
+	flex: 0 0 auto;
+}
+
+body.pomo-app .delete-task-model-btn,
+body.pomo-app .remove-task-from-list-btn {
+	width: 34px;
+	height: 34px;
+	padding: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid var(--pomo-border);
+	border-radius: 10px;
+	background: var(--pomo-surface-2);
+	color: var(--pomo-text);
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+}
+
+body.pomo-app .delete-task-model-btn {
+	color: var(--pomo-accent);
+}
+
+body.pomo-app .delete-task-model-btn:hover {
+	background: var(--pomo-accent);
+	border-color: transparent;
+	color: #04140a;
+}
+
+body.pomo-app .remove-task-from-list-btn:hover {
+	background: var(--pomo-danger);
+	border-color: transparent;
+	color: #fff;
+}
+
+body.pomo-app .delete-task-model-btn:active,
+body.pomo-app .remove-task-from-list-btn:active {
+	transform: scale(0.94);
+}
+

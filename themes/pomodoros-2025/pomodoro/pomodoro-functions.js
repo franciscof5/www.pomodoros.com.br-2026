@@ -119,6 +119,33 @@
 			.replace(/'/g, '&#39;');
 	}
 
+	function taskTagsHtml(tags) {
+		if (!tags || !tags.length) return '';
+		var out = '';
+		for (var i = 0; i < tags.length; i++) {
+			out += '<span class="pomo-task__tag"><span class="fas fa-tags" aria-hidden="true"></span>' +
+				escapeHtml(tags[i]) + '</span>';
+		}
+		return out;
+	}
+
+	function refreshTasksUI() {
+		var todo = byId('contem-modelos');
+		if (todo) {
+			var todoCount = todo.querySelectorAll('li.modelo-carregado').length;
+			var todoBadge = byId('pomo-todo-count');
+			if (todoBadge) todoBadge.textContent = todoCount;
+			todo.classList.toggle('is-empty', todoCount === 0);
+		}
+		var cycle = byId('contem-ciclo');
+		if (cycle) {
+			var cycleCount = cycle.querySelectorAll('li').length;
+			var cycleBadge = byId('pomo-cycle-count');
+			if (cycleBadge) cycleBadge.textContent = cycleCount;
+			cycle.classList.toggle('is-empty', cycleCount === 0);
+		}
+	}
+
 	function announce(message, kind) {
 		if (S.voice) {
 			try {
@@ -829,26 +856,29 @@
 				return;
 			}
 			var id = parseInt(response, 10);
-			var tagsLabel = (tagsValue && tagsValue.toString) ? tagsValue.toString().replace(/,/g, ', ') : '';
+			var tagsArray = (tagsValue && tagsValue.length) ? tagsValue : [];
+			var tagsLabel = tagsArray.join(', ');
 			var html = '<li id="modelo-carregado-' + id + '" class="modelo-carregado ui-draggable ui-draggable-handle">' +
 				'<div class="model-container" data-modelid="' + id + '">' +
-					'<div class="col-xs-6"><span class="fas fa-move"></span>&nbsp;' +
-						'<span id="bxtitle' + id + '">' + escapeHtml(title) + '</span></div>' +
-					'<div class="col-xs-6"><span class="fas fa-tags"></span>&nbsp;' +
-						'<span id="bxtag' + id + '">' + escapeHtml(tagsLabel) + '</span></div>' +
+					'<span class="pomo-task__handle fas fa-grip-vertical" aria-hidden="true"></span>' +
+					'<div class="pomo-task__body">' +
+						'<span class="pomo-task__title" id="bxtitle' + id + '">' + escapeHtml(title) + '</span>' +
+						'<span class="pomo-task__tags">' + taskTagsHtml(tagsArray) + '</span>' +
+						'<span id="bxtag' + id + '" hidden>' + escapeHtml(tagsLabel) + '</span>' +
+					'</div>' +
 				'</div>' +
 				'<div class="model-container-extra">' +
-					'<button class="btn btn-xs btn-success delete-task-model-btn" data-modelid="' + id + '"><span class="fas fa-trash" style="color:black"></span></button>' +
-					'<button class="btn btn-xs btn-none remove-task-from-list-btn" data-modelid="' + id + '"><span class="fas fa-trash"></span></button>' +
+					'<button type="button" class="delete-task-model-btn" data-modelid="' + id + '" title="' + escapeHtml(t('txt_task_done', 'Concluir')) + '"><span class="fas fa-check"></span></button>' +
+					'<button type="button" class="remove-task-from-list-btn" data-modelid="' + id + '" title="' + escapeHtml(t('txt_task_remove', 'Remover')) + '"><span class="fas fa-trash"></span></button>' +
 				'</div></li>';
 			$('#contem-modelos').append(html);
 			modelTaskButtons();
+			refreshTasksUI();
 			announce(t('txt_salving_model_success', 'Tarefa salva'));
 		});
 	}
 
 	function deleteModel(id) {
-		$('#modelo-carregado-' + id).hide(1000);
 		announce(t('txt_deleting_model', 'Completando tarefa...'));
 		$.post(window.ajaxurl, {
 			action: 'save_or_delete_model',
@@ -859,6 +889,8 @@
 				return;
 			}
 			if (response) {
+				$('#modelo-carregado-' + id).remove();
+				refreshTasksUI();
 				announce(t('txt_deleting_model_sucess', 'Parabéns!'));
 			} else {
 				announce(t('txt_save_error', 'Problema ao salvar'), 'er');
@@ -891,6 +923,7 @@
 	}
 
 	function cycle_list_update(clean) {
+		refreshTasksUI();
 		var payload = {
 			action: 'update_cycle_list',
 			list: $('#contem-ciclo').html(),
@@ -902,6 +935,7 @@
 				if (response) {
 					announce('Cycle list cleared');
 					$('#contem-ciclo').html('');
+					refreshTasksUI();
 				}
 			} else if (response) {
 				announce('updating cycle list');
@@ -912,14 +946,9 @@
 	}
 
 	function cycle_list_load_model() {
-		var currentModelId = jQuery('#contem-ciclo li:nth-child(' + S.cycleIndex + ')').find('div').data('modelid');
-		jQuery('#contem-ciclo li').each(function () {
-			jQuery(this).removeClass('cycleSelectedTask');
-			jQuery(this).animate({ 'background-color': '#FFF', color: '#000' }, 200);
-		});
-		jQuery('#contem-ciclo li:nth-child(' + S.cycleIndex + ')')
-			.addClass('cycleSelectedTask')
-			.animate({ 'background-color': '#222', color: '#CCC' }, 300);
+		var currentModelId = jQuery('#contem-ciclo li:nth-child(' + S.cycleIndex + ')').find('[data-modelid]').data('modelid');
+		jQuery('#contem-ciclo li').removeClass('cycleSelectedTask');
+		jQuery('#contem-ciclo li:nth-child(' + S.cycleIndex + ')').addClass('cycleSelectedTask');
 		if (currentModelId !== undefined) loadModel(currentModelId);
 	}
 
@@ -928,10 +957,8 @@
 			S.autoCycle = false;
 			announce(t('auto_cycle_disabled', 'Ciclo automático desabilitado'));
 			$('#cycle_start').html('<span class="fas fa-play" aria-hidden="true"></span>');
-			$('#cycle_start').css({ 'background-color': '#CCC', color: '#222' });
-			$('#contem-ciclo li').each(function () {
-				jQuery(this).animate({ 'background-color': '#FFF', color: '#000' }, 500);
-			});
+			$('#cycle_start').css({ 'background-color': '', color: '' });
+			$('#contem-ciclo li').removeClass('cycleSelectedTask');
 		} else {
 			if (!$('#contem-ciclo li').length) {
 				announce('You must add at least one task', 'er');
@@ -966,31 +993,38 @@
 	}
 
 	function setupSortable() {
-		if (S.sortableReady || !$ || !$.fn || !$.fn.sortable) return;
-		var removeIntent = false;
+		if (!$ || !$.fn || !$.fn.sortable) return;
 
-		$('#contem-ciclo').sortable({
-			revert: true,
-			over: function () {
-				removeIntent = false;
-			},
-			out: function () {
-				removeIntent = true;
-			},
-			beforeStop: function (event, ui) {
-				if (removeIntent === true) ui.item.remove();
-			},
-			receive: function () {
-				cycle_list_update();
-			}
-		}).droppable({
-			out: function () {
-				cycle_list_update();
-			}
-		});
+		if (!S.sortableReady) {
+			var removeIntent = false;
 
+			$('#contem-ciclo').sortable({
+				revert: true,
+				over: function () {
+					removeIntent = false;
+				},
+				out: function () {
+					removeIntent = true;
+				},
+				beforeStop: function (event, ui) {
+					if (removeIntent === true) ui.item.remove();
+				},
+				receive: function () {
+					cycle_list_update();
+				}
+			}).droppable({
+				out: function () {
+					cycle_list_update();
+				}
+			});
+
+			S.sortableReady = true;
+		}
+
+		// (Re)apply draggable so tasks added after page load can also be
+		// dragged into the automatic cycle.
 		if ($.fn.draggable) {
-			$('#contem-modelos li').draggable({
+			$('#contem-modelos li').not('.ui-draggable').draggable({
 				connectToSortable: '#contem-ciclo',
 				snap: '#contem-ciclo',
 				snapMode: 'outer',
@@ -1000,8 +1034,6 @@
 			});
 		}
 		if ($.fn.disableSelection) $('ul, li').disableSelection();
-
-		S.sortableReady = true;
 	}
 
 	function modelTaskButtons() {
@@ -1024,6 +1056,7 @@
 		});
 		setupSortable();
 		S.qtddTasks = $('ul#contem-ciclo li').length;
+		refreshTasksUI();
 	}
 
 	var grupoDeComandos = [{

@@ -148,65 +148,82 @@ $current_user = wp_get_current_user();
 			</section>
 
 			<section class="pomo-panel" id="buzz" role="tabpanel">
-				<div class="pomo-card">
-					<div id="auto_cicler">
-						<label><span class="fas fa-arrows-spin" aria-hidden="true"></span> <?php _e('Automatic cycle', 'sis-foca-js'); ?></label>
-						<div>
-							<button type="button" id="cycle_start" title="<?php _e('Start cycler', 'sis-foca-js'); ?>"><span class="fas fa-play" aria-hidden="true"></span></button>
-							<button type="button" id="cycle_prev" title="<?php _e('Previous task', 'sis-foca-js'); ?>"><span class="fas fa-backward" aria-hidden="true"></span></button>
-							<button type="button" id="cycle_next" title="<?php _e('Next task', 'sis-foca-js'); ?>"><span class="fas fa-forward" aria-hidden="true"></span></button>
-							<button type="button" id="cycle_empty" title="<?php _e('Clear cycler', 'sis-foca-js'); ?>"><span class="fas fa-trash" aria-hidden="true"></span></button>
+				<div class="pomo-card pomo-tasks">
+					<div id="auto_cicler" class="pomo-tasks__block">
+						<div class="pomo-tasks__head">
+							<h3 class="pomo-tasks__title">
+								<span class="fas fa-arrows-spin" aria-hidden="true"></span>
+								<?php _e('Automatic cycle', 'sis-foca-js'); ?>
+							</h3>
+							<span class="pomo-tasks__count" id="pomo-cycle-count">0</span>
+							<div class="pomo-tasks__actions">
+								<button type="button" id="cycle_start" title="<?php esc_attr_e('Start cycler', 'sis-foca-js'); ?>" aria-label="<?php esc_attr_e('Start cycler', 'sis-foca-js'); ?>"><span class="fas fa-play" aria-hidden="true"></span></button>
+								<button type="button" id="cycle_prev" title="<?php esc_attr_e('Previous task', 'sis-foca-js'); ?>" aria-label="<?php esc_attr_e('Previous task', 'sis-foca-js'); ?>"><span class="fas fa-backward" aria-hidden="true"></span></button>
+								<button type="button" id="cycle_next" title="<?php esc_attr_e('Next task', 'sis-foca-js'); ?>" aria-label="<?php esc_attr_e('Next task', 'sis-foca-js'); ?>"><span class="fas fa-forward" aria-hidden="true"></span></button>
+								<button type="button" id="cycle_empty" title="<?php esc_attr_e('Clear cycler', 'sis-foca-js'); ?>" aria-label="<?php esc_attr_e('Clear cycler', 'sis-foca-js'); ?>"><span class="fas fa-trash" aria-hidden="true"></span></button>
+							</div>
 						</div>
-						<p><small><?php _e('Drop tasks below', 'sis-foca-js'); ?></small></p>
-						<ul id="contem-ciclo">
+						<ul id="contem-ciclo" data-empty="<?php esc_attr_e('Drag tasks here to build an automatic cycle', 'sis-foca-js'); ?>">
 							<?php echo get_user_meta(get_current_user_id(), "cycle_list", true); ?>
 						</ul>
 					</div>
 
-					<label style="display:block;margin-top:18px;"><span class="fas fa-list" aria-hidden="true"></span> <?php _e('TODO list', 'sis-foca-js'); ?></label>
-					<ul id="contem-modelos">
-						<?php
-						$args = array(
-							'post_type' => 'projectimer_focus',
-							'post_status' => 'pending',
-							'author' => get_current_user_id(),
-							'order' => 'ASC',
-							'posts_per_page' => -1,
-						);
-						$the_query = new WP_Query($args);
+					<div class="pomo-tasks__block">
+						<div class="pomo-tasks__head">
+							<h3 class="pomo-tasks__title">
+								<span class="fas fa-list-check" aria-hidden="true"></span>
+								<?php _e('TODO list', 'sis-foca-js'); ?>
+							</h3>
+							<span class="pomo-tasks__count" id="pomo-todo-count">0</span>
+						</div>
+						<ul id="contem-modelos" data-empty="<?php esc_attr_e('No tasks yet. Create one on the left.', 'sis-foca-js'); ?>">
+							<?php
+							$args = array(
+								'post_type' => 'projectimer_focus',
+								'post_status' => 'pending',
+								'author' => get_current_user_id(),
+								'order' => 'ASC',
+								'posts_per_page' => -1,
+							);
+							$the_query = new WP_Query($args);
 
-						while ($the_query->have_posts()) : $the_query->the_post();
-							$counter = $post->ID;
-							$taglist = "";
-							$posttags = get_the_tags();
-							if ($posttags) {
-								$i = 1;
-								$c = count($posttags);
-								foreach ($posttags as $tag) {
-									if ($i < $c) {
-										$taglist .= "<span class='fas fa-tags' aria-hidden='true'></span>" . $tag->slug . ", ";
-									} else {
-										$taglist .= "<span class='fas fa-tags' aria-hidden='true'></span>" . $tag->slug . " ";
+							while ($the_query->have_posts()) : $the_query->the_post();
+								$counter = $post->ID;
+								$tags_plain = "";
+								$tags_html = "";
+								$posttags = get_the_tags();
+								if ($posttags) {
+									$slugs = array();
+									foreach ($posttags as $tag) {
+										$slugs[] = $tag->slug;
 									}
-									$i++;
+									$tags_plain = implode(", ", $slugs);
+									foreach ($slugs as $slug) {
+										$tags_html .= '<span class="pomo-task__tag"><span class="fas fa-tags" aria-hidden="true"></span>' . esc_html($slug) . '</span>';
+									}
 								}
-							}
+								?>
+								<li class="modelo-carregado" id="modelo-carregado-<?php echo $counter; ?>">
+									<div class="model-container" data-modelid="<?php echo $counter ?>">
+										<span class="pomo-task__handle fas fa-grip-vertical" aria-hidden="true"></span>
+										<div class="pomo-task__body">
+											<span class="pomo-task__title" id="bxtitle<?php echo $counter; ?>"><?php echo esc_html(get_the_title()); ?></span>
+											<?php if ($tags_html) : ?>
+												<span class="pomo-task__tags"><?php echo $tags_html; ?></span>
+											<?php endif; ?>
+											<span id="bxtag<?php echo $counter; ?>" hidden><?php echo esc_html($tags_plain); ?></span>
+										</div>
+									</div>
+									<div class="model-container-extra">
+										<button type="button" class="delete-task-model-btn" data-modelid="<?php echo $counter ?>" title="<?php esc_attr_e('Mark as done', 'sis-foca-js'); ?>" aria-label="<?php esc_attr_e('Mark as done', 'sis-foca-js'); ?>"><span class="fas fa-check"></span></button>
+										<button type="button" class="remove-task-from-list-btn" data-modelid="<?php echo $counter ?>" title="<?php esc_attr_e('Remove from list', 'sis-foca-js'); ?>" aria-label="<?php esc_attr_e('Remove from list', 'sis-foca-js'); ?>"><span class="fas fa-trash"></span></button>
+									</div>
+								</li>
+							<?php endwhile;
+							wp_reset_postdata();
 							?>
-							<li class="modelo-carregado" id="modelo-carregado-<?php echo $counter; ?>">
-								<div class="model-container" data-modelid="<?php echo $counter ?>">
-									<span class="fas fa-move" aria-hidden="true"></span>
-									<?php echo '<span id="bxtitle' . $counter . '">' . esc_html(get_the_title()) . "</span>"; ?>
-									<span id="bxtag<?php echo $counter; ?>" hidden><?php echo wp_kses_post($taglist); ?></span>
-								</div>
-								<div class="model-container-extra">
-									<button type="button" class="btn btn-xs btn-success delete-task-model-btn" data-modelid="<?php echo $counter ?>"><span class="fas fa-check"></span></button>
-									<button type="button" class="btn btn-xs btn-none remove-task-from-list-btn" data-modelid="<?php echo $counter ?>"><span class="fas fa-trash" style="color:black"></span></button>
-								</div>
-							</li>
-						<?php endwhile;
-						wp_reset_postdata();
-						?>
-					</ul>
+						</ul>
+					</div>
 				</div>
 			</section>
 		</div>
