@@ -51,7 +51,8 @@
 		sortableReady: false,
 		applyingTags: false,
 		lastTagsSignature: '',
-		qtddTasks: 0
+		qtddTasks: 0,
+		sessionStartedAt: 0
 	};
 
 	function byId(id) {
@@ -419,6 +420,89 @@
 		}
 	}
 
+	function sessionNowSeconds() {
+		return Math.round(Date.now() / 1000);
+	}
+
+	// Persist the session (cycle count, mode, running timer) in user meta so a
+	// page refresh restores the count and the current focus/rest timer.
+	function persistSession() {
+		if (!$ || !window.ajaxurl) return;
+		$.post(window.ajaxurl, {
+			action: 'save_session_state',
+			cycle: S.completedInCycle,
+			mode: S.mode,
+			running: S.running ? 'true' : 'false',
+			ends_at: S.running ? Math.round(S.endsAt / 1000) : 0,
+			started_at: S.sessionStartedAt || 0
+		});
+	}
+
+	// Rest posts: scheduled when the rest starts, published when it completes.
+	function saveRest(acao, seconds, bigRest) {
+		if (!$ || !window.ajaxurl) return;
+		var payload = { action: 'save_rest', rest_acao: acao };
+		if (seconds !== undefined) payload.rest_seconds = seconds;
+		if (bigRest !== undefined) payload.big_rest = bigRest ? 'true' : 'false';
+		$.post(window.ajaxurl, payload);
+	}
+
+	function resume_timer(remaining, mode) {
+		S.mode = mode;
+		S.running = true;
+		S.remaining = remaining;
+		S.endsAt = Date.now() + remaining * 1000;
+		S.startedAt = Date.now();
+		S.lastSecond = -1;
+		if (mode === 'focus') {
+			setButton(t('textInterruptFocus', 'INTERROMPER FOCO'), CONFIG.colorFocus);
+		} else if (mode === 'bigRest') {
+			setButton(t('textBigRest', 'GRANDE DESCANSO'), CONFIG.colorDefault);
+		} else {
+			setButton(t('textInterruptRest', 'PARAR DESCANSO'), CONFIG.colorRest);
+		}
+		render(remaining, true);
+		startTicking();
+	}
+
+	function applyPomoSession(state) {
+		if (!state || typeof state !== 'object') return false;
+
+		var cycle = parseInt(state.cycle, 10) || 0;
+		cycle = Math.max(0, Math.min(CONFIG.pomodorosPerBigRest, cycle));
+		if (cycle !== S.completedInCycle) {
+			S.completedInCycle = cycle;
+			resetIndicators();
+			for (var i = 1; i <= cycle; i++) turnOnIndicator(i);
+		}
+		S.sessionStartedAt = parseInt(state.started_at, 10) || S.sessionStartedAt || 0;
+
+		var running = (state.running === true || state.running === 'true' || state.running === 1);
+		var endsAt = parseInt(state.ends_at, 10) || 0;
+		var remaining = (running && endsAt) ? Math.round(endsAt - sessionNowSeconds()) : 0;
+		var mode = (state.mode === 'rest' || state.mode === 'bigRest') ? state.mode : 'focus';
+
+		if (remaining > 0) {
+			var drift = Math.abs(currentSeconds() - remaining);
+			if (!S.running || S.mode !== mode || drift > 5) {
+				resume_timer(remaining, mode);
+			}
+			return true;
+		}
+
+		// Rest that finished but was not started yet: keep showing it.
+		if (mode === 'rest' || mode === 'bigRest') {
+			S.mode = mode;
+			S.running = false;
+			S.remaining = durationFor(mode);
+			S.lastSecond = -1;
+			setButton(mode === 'bigRest' ? t('textBigRest', 'GRANDE DESCANSO') : t('textRest', 'DESCANSAR!'), CONFIG.colorDefault);
+			render(S.remaining, true);
+			return true;
+		}
+		return false;
+	}
+
 	function tick() {
 		var secs = Math.max(0, Math.ceil((S.endsAt - Date.now()) / 1000));
 		if (secs !== S.lastSecond) {
@@ -501,17 +585,26 @@
 		startTicking();
 
 		if (S.mode === 'focus') {
+			if (S.completedInCycle === 0 && !S.sessionStartedAt) {
+				S.sessionStartedAt = sessionNowSeconds();
+			}
 			setButton(t('textInterruptFocus', 'INTERROMPER FOCO'), CONFIG.colorFocus);
 			announce(t('txt_started_countdown', 'Iniciar tarefa ') + val('title_box') + ', tags ' + tagsText());
 			if (val('status_box') === 'draft') {
 				setVal('status_box', 'future');
 				save_progress('future');
 			}
+		} else if (S.mode === 'bigRest') {
+			setButton(t('textInterruptRest', 'PARAR DESCANSO'), CONFIG.colorRest);
+			announce(t('txt_rest_started', 'Tempo de descanso iniciado'));
+			saveRest('start', CONFIG.bigRestSeconds, true);
 		} else {
 			setButton(t('textInterruptRest', 'PARAR DESCANSO'), CONFIG.colorRest);
 			announce(t('txt_rest_started', 'Tempo de descanso iniciado'));
+			saveRest('start', CONFIG.restSeconds, false);
 		}
 
+		persistSession();
 		ensureWakeLock();
 	}
 
@@ -523,6 +616,7 @@
 
 		if (S.completedInCycle >= CONFIG.pomodorosPerBigRest) {
 			S.completedInCycle = 0;
+			S.sessionStartedAt = 0;
 			S.mode = 'bigRest';
 			S.remaining = CONFIG.bigRestSeconds;
 			S.lastSecond = -1;
@@ -539,6 +633,7 @@
 			document.title = t('txt_title_rest', 'Hora do intervalo');
 		}
 
+		persistSession();
 		if (S.autoCycle) cycle_list_next();
 	}
 
@@ -550,12 +645,14 @@
 		if (S.mode === 'focus') {
 			onPomodoroCompleted();
 		} else {
+			saveRest('complete');
 			S.mode = 'focus';
 			S.remaining = CONFIG.focusSeconds;
 			S.lastSecond = -1;
 			setButton(t('textPomodoro', 'FOCAR!'), CONFIG.colorDefault);
 			announce(t('txt_completed_rest', 'Você completou o descanso, hora de pegar pesado!'), 'er');
 			document.title = t('txt_title_done', 'Pomodoro completado!');
+			persistSession();
 		}
 
 		render(S.remaining, true);
@@ -570,6 +667,7 @@
 			}
 		}
 
+		var wasRest = (S.mode === 'rest' || S.mode === 'bigRest');
 		playSound('completed');
 		stopTicking();
 		S.running = false;
@@ -580,6 +678,9 @@
 		announce(t('txt_interrupted_countdowns', 'Contagem interrompida!'), 'er');
 		setButton(t('textPomodoro', 'FOCAR!'), CONFIG.colorDefault);
 		render(S.remaining, true);
+
+		if (wasRest) saveRest('cancel');
+		persistSession();
 
 		if (val('status_box') === 'future') {
 			setVal('status_box', 'draft');
@@ -600,9 +701,12 @@
 	function reset_pomodoro_session() {
 		interrupt();
 		S.completedInCycle = 0;
+		S.sessionStartedAt = 0;
 		announce(t('txt_session_reseted', 'Sessão reiniciada'));
 		playSound('reset');
 		resetIndicators();
+		saveRest('cancel');
+		persistSession();
 	}
 
 	function set_continuous_session() {
@@ -884,11 +988,12 @@
 		applyCategory(data.post_category);
 		applySettings(data.range_volume, data.soundfx_enabled, data.voice_enabled);
 		reconcile(parseInt(data.secondsRemainingFromPHP, 10) || 0);
+		applyPomoSession(data.pomo_session);
 
 		var button = byId('action_button_id');
 		if (button && button.disabled) {
 			button.disabled = false;
-			if (!S.running) button.value = t('textPomodoro', 'FOCAR!');
+			if (!S.running && S.mode === 'focus') button.value = t('textPomodoro', 'FOCAR!');
 		}
 	}
 

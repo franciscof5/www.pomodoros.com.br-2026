@@ -16,6 +16,10 @@ add_action('wp_ajax_update_session', 'update_session');
 add_action('wp_ajax_nopriv_update_session', 'update_session');
 add_action('wp_ajax_save_user_settings', 'save_user_settings');
 add_action('wp_ajax_nopriv_save_user_settings', 'save_user_settings');
+add_action('wp_ajax_save_session_state', 'save_session_state');
+add_action('wp_ajax_nopriv_save_session_state', 'save_session_state');
+add_action('wp_ajax_save_rest', 'save_rest');
+add_action('wp_ajax_nopriv_save_rest', 'save_rest');
 add_action('wp_ajax_save_or_delete_model', 'save_or_delete_model');
 add_action('wp_ajax_nopriv_save_or_delete_model', 'save_or_delete_model');
 add_action('wp_ajax_update_cycle_list', 'update_cycle_list');
@@ -904,6 +908,37 @@ function load_session () {
 		$voice_enabled=true;
 	$postReturned['voice_enabled'] = $voice_enabled;
 
+	// Timer session state (cycle count, mode, running timer) so a refresh
+	// does not lose the completed pomodoros count or the current rest timer.
+	$pomo_session = get_user_meta(get_current_user_id(), 'pomo_session', true);
+	if (!is_array($pomo_session)) {
+		$pomo_session = array(
+			'cycle'      => 0,
+			'mode'       => 'focus',
+			'running'    => false,
+			'ends_at'    => 0,
+			'started_at' => 0,
+		);
+	}
+	// If a rest was running but its scheduled projectimer_rest post is gone
+	// (published by cron while the page was closed), the rest already ended:
+	// go back to focus so we do not restart an already completed rest.
+	if ( ! empty( $pomo_session['running'] ) && in_array( $pomo_session['mode'], array( 'rest', 'bigRest' ), true ) ) {
+		$rest_pending = get_posts(array(
+			'post_type'      => 'projectimer_rest',
+			'post_status'    => 'future',
+			'author'         => get_current_user_id(),
+			'posts_per_page' => 1,
+		));
+		if ( ! $rest_pending ) {
+			$pomo_session['mode']    = 'focus';
+			$pomo_session['running'] = false;
+			$pomo_session['ends_at'] = 0;
+			update_user_meta(get_current_user_id(), 'pomo_session', $pomo_session);
+		}
+	}
+	$postReturned['pomo_session'] = $pomo_session;
+
 	echo json_encode($postReturned);
 	die();
 }
@@ -994,6 +1029,101 @@ function save_user_settings () {
 
 	header('Content-type: application/json');
 	echo json_encode(array('saved' => true));
+	die;
+}
+
+/**
+ * Persist the timer session (current cycle, mode and running timer) so a
+ * page refresh does not lose the completed pomodoros count or the rest timer.
+ */
+function save_session_state () {
+	checkLogin();
+	$user_id = get_current_user_id();
+	$state = array(
+		'cycle'      => isset($_POST['cycle']) ? max(0, intval($_POST['cycle'])) : 0,
+		'mode'       => isset($_POST['mode']) ? sanitize_text_field(wp_unslash($_POST['mode'])) : 'focus',
+		'running'    => ( isset($_POST['running']) && $_POST['running'] === 'true' ) ? true : false,
+		'ends_at'    => isset($_POST['ends_at']) ? intval($_POST['ends_at']) : 0,
+		'started_at' => isset($_POST['started_at']) ? intval($_POST['started_at']) : 0,
+		'updated'    => time(),
+	);
+	if ( ! in_array( $state['mode'], array( 'focus', 'rest', 'bigRest' ), true ) ) {
+		$state['mode'] = 'focus';
+	}
+	update_user_meta($user_id, 'pomo_session', $state);
+	header('Content-type: application/json');
+	echo json_encode(array('saved' => true));
+	die;
+}
+
+/**
+ * Track rest intervals as `projectimer_rest` posts, mirroring the focus flow:
+ * a scheduled (future) post is created when the rest starts and published when
+ * the rest time completes, so the rest time is accounted.
+ */
+function save_rest () {
+	checkLogin();
+	$user_id = get_current_user_id();
+	$acao = isset($_POST['rest_acao']) ? sanitize_text_field(wp_unslash($_POST['rest_acao'])) : '';
+
+	$pending = get_posts(array(
+		'post_type'      => 'projectimer_rest',
+		'post_status'    => array('future', 'draft'),
+		'author'         => $user_id,
+		'posts_per_page' => -1,
+	));
+
+	if ($acao === 'start') {
+		foreach ($pending as $p) {
+			wp_delete_post($p->ID, true);
+		}
+		$seconds = isset($_POST['rest_seconds']) ? intval($_POST['rest_seconds']) : 300;
+		if ($seconds <= 0) {
+			$seconds = 300;
+		}
+		$is_big = ( isset($_POST['big_rest']) && $_POST['big_rest'] === 'true' );
+		$end = time() + $seconds;
+		$pid = wp_insert_post(array(
+			'post_type'     => 'projectimer_rest',
+			'post_title'    => $is_big ? __('Big rest', 'sis-foca-js') : __('Rest', 'sis-foca-js'),
+			'post_status'   => 'future',
+			'post_author'   => $user_id,
+			'post_date'     => date('Y-m-d H:i:s', $end),
+			'post_date_gmt' => gmdate('Y-m-d H:i:s', $end),
+		));
+		if ($pid) {
+			update_post_meta($pid, '_pomo_rest_seconds', $seconds);
+			update_post_meta($pid, '_pomo_big_rest', $is_big ? 1 : 0);
+		}
+		header('Content-type: application/json');
+		echo json_encode(array('rest_id' => $pid ? $pid : 0));
+		die;
+	}
+
+	if ($acao === 'complete') {
+		$rest_id = 0;
+		foreach ($pending as $p) {
+			if ('future' === $p->post_status) {
+				wp_update_post(array('ID' => $p->ID, 'post_status' => 'publish'));
+				$rest_id = $p->ID;
+				break;
+			}
+		}
+		header('Content-type: application/json');
+		echo json_encode(array('rest_id' => $rest_id));
+		die;
+	}
+
+	if ($acao === 'cancel') {
+		foreach ($pending as $p) {
+			wp_delete_post($p->ID, true);
+		}
+		header('Content-type: application/json');
+		echo json_encode(array('canceled' => true));
+		die;
+	}
+
+	echo json_encode(array('error' => 'unknown action'));
 	die;
 }
 
@@ -1091,6 +1221,45 @@ function createPostTypeCOPY_FROM_PROJECTIMER_PLUGIN() {
 		#register_taxonomy_for_object_type("categories", "projectimer_focus");
 		#register_taxonomy_for_object_type('category', 'projectimer_focus');
 		#register_taxonomy_for_object_type('post_tag', 'projectimer_focus');
+	}
+
+	// Rest intervals, mirroring the focus post type. A rest post is created
+	// (scheduled) when the rest starts and is published when the rest time
+	// completes, so the rest time is accounted just like a focus pomodoro.
+	if ( ! post_type_exists( "projectimer_rest" ) ) {
+		$labelRest = array(
+			'name'  => __( 'Rest', 'projectimer-plugin' ),
+			'singular_name' => __( 'Rest', 'projectimer-plugin' ),
+			'add_new'    => __( 'Add New', 'projectimer-plugin' ),
+			'add_new_item'  => __( 'Add New Rest', 'projectimer-plugin' ),
+			'edit'  => __( 'Edit', 'projectimer-plugin' ),
+			'edit_item'  => __( 'Edit Rest', 'projectimer-plugin' ),
+			'new_item'   => __( 'New Rest', 'projectimer-plugin' ),
+			'view'  => __( 'View Rest', 'projectimer-plugin' ),
+			'view_item'  => __( 'View Rest', 'projectimer-plugin' ),
+			'search_items'  => __( 'Search Rest', 'projectimer-plugin' ),
+			'not_found'  => __( 'No Rest found', 'projectimer-plugin' ),
+			'not_found_in_trash' => __( 'No Rest found in Trash', 'projectimer-plugin' ),
+			'parent'     => __( 'Parent Rest', 'projectimer-plugin' ),
+		);
+		$postTypeRestParams = array(
+			'labels'  => $labelRest,
+			'singular_label'  => __( 'Rest', 'projectimer-plugin' ),
+			'public'  => true,
+			'menu_icon' => get_bloginfo('stylesheet_directory').'/images/projectimer_post_type_icon.png',
+			'description' => 'Rest post type for Projectimer Plugin',
+			'menu_position'   => 21,
+			'can_export' => true,
+			'hierarchical'    => false,
+			'capability_type' => 'post',
+			'rewrite' => array( 'slug' => 'rest' ),
+			'has_archive' => true,
+			'query_var'  => true,
+			'show_in_rest' => true,
+			'taxonomies' => array('post_tag', 'category'),
+			'supports'   => array( 'title', 'content', 'editor', 'author', 'thumbnail', 'comments', 'revisions', 'custom-fields' )
+		);
+		register_post_type("projectimer_rest", $postTypeRestParams);
 	}
 }
 
