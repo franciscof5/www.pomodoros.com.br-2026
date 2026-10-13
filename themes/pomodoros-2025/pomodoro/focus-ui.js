@@ -165,7 +165,9 @@
 		function realOneSignal() {
 			var sdk = window.OneSignal;
 			if (!sdk || Array.isArray(sdk)) return null;
-			if (typeof sdk.init === 'function' || typeof sdk.showNativePrompt === 'function' || typeof sdk.registerForPushNotifications === 'function') {
+			if (typeof sdk.init === 'function' || sdk.User || sdk.Notifications ||
+				typeof sdk.registerForPushNotifications === 'function' ||
+				typeof sdk.showNativePrompt === 'function') {
 				return sdk;
 			}
 			return null;
@@ -178,7 +180,7 @@
 				callback(sdk);
 				return;
 			}
-			if (attempt >= 48) {
+			if (attempt >= 40) {
 				callback(null);
 				return;
 			}
@@ -187,37 +189,114 @@
 			}, 250);
 		}
 
+		function linkUser(sdk) {
+			if (!userId || !sdk) return;
+			try {
+				if (typeof sdk.login === 'function') { sdk.login(String(userId)); return; }
+				if (sdk.User && typeof sdk.User.login === 'function') { sdk.User.login(String(userId)); return; }
+				if (typeof sdk.setExternalUserId === 'function') { sdk.setExternalUserId(String(userId)); return; }
+				if (typeof sdk.push === 'function') {
+					sdk.push(function () {
+						var one = window.OneSignal;
+						try {
+							if (one && typeof one.setExternalUserId === 'function') one.setExternalUserId(String(userId));
+							else if (one && typeof one.login === 'function') one.login(String(userId));
+						} catch (e) {}
+					});
+				}
+			} catch (e) {}
+		}
+
+		function subscribe(sdk) {
+			if (!sdk) return;
+			linkUser(sdk);
+			try {
+				if (sdk.User && sdk.User.PushSubscription && typeof sdk.User.PushSubscription.optIn === 'function') {
+					sdk.User.PushSubscription.optIn();
+					return;
+				}
+				if (typeof sdk.registerForPushNotifications === 'function') {
+					sdk.registerForPushNotifications();
+					return;
+				}
+				if (typeof sdk.setSubscription === 'function') {
+					sdk.setSubscription(true);
+				}
+			} catch (e) {}
+		}
+
+		function unsubscribe(sdk) {
+			if (!sdk) return;
+			try {
+				if (sdk.User && sdk.User.PushSubscription && typeof sdk.User.PushSubscription.optOut === 'function') {
+					sdk.User.PushSubscription.optOut();
+					return;
+				}
+				if (typeof sdk.setSubscription === 'function') {
+					sdk.setSubscription(false);
+				}
+			} catch (e) {}
+		}
+
+		// Ask the browser directly (native prompt), bypassing the OneSignal
+		// prompt UI which does not always show on Firefox mobile. This also
+		// overrides any previous OneSignal opt-out.
+		function requestPermission(callback) {
+			var done = false;
+			function finish(permission) {
+				if (done) return;
+				done = true;
+				callback(permission || 'default');
+			}
+
+			if ('Notification' in window && typeof Notification.requestPermission === 'function') {
+				try {
+					var result = Notification.requestPermission(finish);
+					if (result && typeof result.then === 'function') {
+						result.then(finish);
+					}
+					return;
+				} catch (e) {}
+			}
+
+			var sdk = realOneSignal();
+			if (sdk && sdk.Notifications && typeof sdk.Notifications.requestPermission === 'function') {
+				try {
+					var p = sdk.Notifications.requestPermission();
+					if (p && typeof p.then === 'function') {
+						p.then(function (granted) { finish(granted ? 'granted' : 'denied'); });
+						return;
+					}
+				} catch (e) {}
+			}
+			finish('denied');
+		}
+
 		function refreshNotifyState() {
 			if (!notifyButton) return;
 
-			if ('Notification' in window && Notification.permission === 'granted') {
-				setNotifyState(true);
+			var granted = ('Notification' in window) && Notification.permission === 'granted';
+			if (!granted) {
+				setNotifyState(false);
+				return;
 			}
+			setNotifyState(true);
 
 			whenOneSignalReady(function (sdk) {
-				if (!sdk || typeof sdk.isPushNotificationsEnabled !== 'function') return;
+				if (!sdk) return;
 				try {
-					var result = sdk.isPushNotificationsEnabled(function (enabled) {
-						setNotifyState(enabled);
-					});
-					if (result && typeof result.then === 'function') {
-						result.then(function (enabled) {
-							setNotifyState(enabled);
-						});
+					if (sdk.User && sdk.User.PushSubscription) {
+						var ps = sdk.User.PushSubscription;
+						if (typeof ps.optedIn === 'boolean') setNotifyState(ps.optedIn);
+						return;
 					}
-				} catch (e) {}
-			});
-		}
-
-		function linkUser(sdk) {
-			if (!userId) return;
-			sdk.push(function () {
-				var one = window.OneSignal;
-				try {
-					if (typeof one.setExternalUserId === 'function') {
-						one.setExternalUserId(String(userId));
-					} else if (typeof one.login === 'function') {
-						one.login(String(userId));
+					if (typeof sdk.isPushNotificationsEnabled === 'function') {
+						var result = sdk.isPushNotificationsEnabled(function (enabled) {
+							setNotifyState(!!enabled);
+						});
+						if (result && typeof result.then === 'function') {
+							result.then(function (enabled) { setNotifyState(!!enabled); });
+						}
 					}
 				} catch (e) {}
 			});
@@ -225,40 +304,30 @@
 
 		if (notifyButton) {
 			notifyButton.addEventListener('click', function () {
-				whenOneSignalReady(function (sdk) {
-					if (sdk) {
-						linkUser(sdk);
-						try {
-							if (typeof sdk.showNativePrompt === 'function') {
-								sdk.showNativePrompt();
-							} else if (typeof sdk.registerForPushNotifications === 'function') {
-								sdk.registerForPushNotifications();
-							} else if (typeof sdk.showHttpPrompt === 'function') {
-								sdk.showHttpPrompt();
-							} else if (sdk.Notifications && typeof sdk.Notifications.requestPermission === 'function') {
-								sdk.Notifications.requestPermission();
-							}
-						} catch (e) {}
-						window.setTimeout(refreshNotifyState, 900);
+				// Toggle: if already active, turn it off; otherwise ask the
+				// browser permission (directly) and opt the user in.
+				if (notifyButton.classList.contains('is-on')) {
+					whenOneSignalReady(function (sdk) { unsubscribe(sdk); });
+					setNotifyState(false);
+					toast('Notificações desativadas', 'log');
+					return;
+				}
+
+				requestPermission(function (permission) {
+					if (permission !== 'granted') {
+						if (permission === 'denied') {
+							toast('Notificações bloqueadas. Habilite para este site nas configurações do navegador.', 'er');
+						} else {
+							toast('Permissão de notificações não concedida', 'er');
+						}
+						setNotifyState(false);
 						return;
 					}
-
-					// OneSignal SDK not available: fall back to the native API so
-					// the button still gives clear feedback instead of doing nothing.
-					if ('Notification' in window) {
-						toast('OneSignal não está configurado; pedindo permissão do navegador', 'log');
-						try {
-							Notification.requestPermission().then(function (permission) {
-								var granted = permission === 'granted';
-								setNotifyState(granted);
-								toast(granted ? 'Permissão de notificações concedida' : 'Permissão de notificações negada', granted ? 'suc' : 'er');
-							});
-						} catch (e) {
-							toast('Não foi possível pedir permissão de notificação', 'er');
-						}
-					} else {
-						toast('Este navegador não suporta notificações', 'er');
-					}
+					setNotifyState(true);
+					toast('Notificações ativadas', 'suc');
+					whenOneSignalReady(function (sdk) {
+						if (sdk) subscribe(sdk);
+					});
 				});
 			});
 		}

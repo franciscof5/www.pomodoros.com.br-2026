@@ -39,6 +39,34 @@ wp_enqueue_script("artyom-js");
 $theme_uri = get_stylesheet_directory_uri();
 $pomo_user_id = is_user_logged_in() ? get_current_user_id() : 0;
 $current_user = wp_get_current_user();
+
+if ( ! function_exists( 'pomo_arc_path' ) ) {
+	/**
+	 * Build an SVG arc path for a ring.
+	 * Angles in degrees: 0 = top (12h), positive = clockwise.
+	 */
+	function pomo_arc_path( $cx, $cy, $r, $start_deg, $end_deg ) {
+		$point = function ( $deg ) use ( $cx, $cy, $r ) {
+			$rad = deg2rad( $deg - 90 );
+			return array( $cx + $r * cos( $rad ), $cy + $r * sin( $rad ) );
+		};
+		list( $x1, $y1 ) = $point( $start_deg );
+		list( $x2, $y2 ) = $point( $end_deg );
+		$delta = $end_deg - $start_deg;
+		$large = abs( $delta ) > 180 ? 1 : 0;
+		$sweep = $delta >= 0 ? 1 : 0;
+		return sprintf(
+			'M %.3f %.3f A %.3f %.3f 0 %d %d %.3f %.3f',
+			$x1, $y1, $r, $r, $large, $sweep, $x2, $y2
+		);
+	}
+}
+
+// Session ring geometry (4 pomodoros; time runs counterclockwise).
+$pomo_cx    = 130;
+$pomo_cy    = 130;
+$pomo_r_out = 120;
+$pomo_r_in  = 100;
 ?>
 	<script>
 		document.title = "Pomodoros <?php global $title_apendix;
@@ -55,9 +83,42 @@ $current_user = wp_get_current_user();
 		<section class="pomo-timer">
 			<div class="pomo-clock" id="relogio" data-mode="focus" role="button" tabindex="0"
 				aria-label="<?php _e('Start or stop the timer', 'sis-foca-js'); ?>">
-				<svg class="pomo-clock__ring" viewBox="0 0 240 240" aria-hidden="true">
-					<circle class="pomo-clock__track" cx="120" cy="120" r="110"></circle>
-					<circle class="pomo-clock__progress" id="pomo-ring" cx="120" cy="120" r="110"></circle>
+				<svg class="pomo-clock__ring" viewBox="0 0 260 260" aria-hidden="true">
+					<!-- Outer session ring: 4 pomodoros, each = 25min focus (green) + 5min rest (orange).
+					     Progress runs counterclockwise; the completed part is revealed ("lit") by a
+					     wedge mask that follows the marker. -->
+					<defs>
+						<mask id="pomo-session-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="260" height="260">
+							<path id="pomo-session-wedge" d="" fill="#ffffff"></path>
+						</mask>
+					</defs>
+					<?php
+					$pomo_segments = array();
+					for ( $pomo_q = 0; $pomo_q < 4; $pomo_q++ ) {
+						$pomo_start = -$pomo_q * 90;
+						$pomo_focus_end = $pomo_start - 75;
+						$pomo_rest_end  = $pomo_start - 90;
+						$pomo_segments[] = array( 'focus', pomo_arc_path( $pomo_cx, $pomo_cy, $pomo_r_out, $pomo_start, $pomo_focus_end ) );
+						$pomo_segments[] = array( 'rest',  pomo_arc_path( $pomo_cx, $pomo_cy, $pomo_r_out, $pomo_focus_end, $pomo_rest_end ) );
+					}
+					?>
+					<circle class="pomo-session__track" cx="<?php echo $pomo_cx; ?>" cy="<?php echo $pomo_cy; ?>" r="<?php echo $pomo_r_out; ?>"></circle>
+					<!-- Upcoming (dim) -->
+					<g class="pomo-session__base">
+						<?php foreach ( $pomo_segments as $pomo_seg ) : ?>
+							<path class="pomo-session__seg pomo-session__seg--<?php echo esc_attr( $pomo_seg[0] ); ?>" d="<?php echo esc_attr( $pomo_seg[1] ); ?>"></path>
+						<?php endforeach; ?>
+					</g>
+					<!-- Completed (bright), revealed by the wedge mask -->
+					<g class="pomo-session__bright" mask="url(#pomo-session-mask)">
+						<?php foreach ( $pomo_segments as $pomo_seg ) : ?>
+							<path class="pomo-session__seg pomo-session__seg--<?php echo esc_attr( $pomo_seg[0] ); ?>" d="<?php echo esc_attr( $pomo_seg[1] ); ?>"></path>
+						<?php endforeach; ?>
+					</g>
+					<circle class="pomo-session__marker" id="pomo-session-marker" cx="<?php echo $pomo_cx; ?>" cy="<?php echo ( $pomo_cy - $pomo_r_out ); ?>" r="5"></circle>
+					<!-- Inner ring: current pomodoro countdown (clockwise). -->
+					<circle class="pomo-clock__track" cx="<?php echo $pomo_cx; ?>" cy="<?php echo $pomo_cy; ?>" r="<?php echo $pomo_r_in; ?>"></circle>
+					<circle class="pomo-clock__progress" id="pomo-ring" cx="<?php echo $pomo_cx; ?>" cy="<?php echo $pomo_cy; ?>" r="<?php echo $pomo_r_in; ?>" transform="rotate(-90 <?php echo $pomo_cx; ?> <?php echo $pomo_cy; ?>)"></circle>
 				</svg>
 				<div class="pomo-clock__readout">
 					<div class="pomo-clock__time" id="pomodoro-time" role="timer">25:00</div>
@@ -148,65 +209,82 @@ $current_user = wp_get_current_user();
 			</section>
 
 			<section class="pomo-panel" id="buzz" role="tabpanel">
-				<div class="pomo-card">
-					<div id="auto_cicler">
-						<label><span class="fas fa-arrows-spin" aria-hidden="true"></span> <?php _e('Automatic cycle', 'sis-foca-js'); ?></label>
-						<div>
-							<button type="button" id="cycle_start" title="<?php _e('Start cycler', 'sis-foca-js'); ?>"><span class="fas fa-play" aria-hidden="true"></span></button>
-							<button type="button" id="cycle_prev" title="<?php _e('Previous task', 'sis-foca-js'); ?>"><span class="fas fa-backward" aria-hidden="true"></span></button>
-							<button type="button" id="cycle_next" title="<?php _e('Next task', 'sis-foca-js'); ?>"><span class="fas fa-forward" aria-hidden="true"></span></button>
-							<button type="button" id="cycle_empty" title="<?php _e('Clear cycler', 'sis-foca-js'); ?>"><span class="fas fa-trash" aria-hidden="true"></span></button>
+				<div class="pomo-card pomo-tasks">
+					<div id="auto_cicler" class="pomo-tasks__block">
+						<div class="pomo-tasks__head">
+							<h3 class="pomo-tasks__title">
+								<span class="fas fa-arrows-spin" aria-hidden="true"></span>
+								<?php _e('Automatic cycle', 'sis-foca-js'); ?>
+							</h3>
+							<span class="pomo-tasks__count" id="pomo-cycle-count">0</span>
+							<div class="pomo-tasks__actions">
+								<button type="button" id="cycle_start" title="<?php esc_attr_e('Start cycler', 'sis-foca-js'); ?>" aria-label="<?php esc_attr_e('Start cycler', 'sis-foca-js'); ?>"><span class="fas fa-play" aria-hidden="true"></span></button>
+								<button type="button" id="cycle_prev" title="<?php esc_attr_e('Previous task', 'sis-foca-js'); ?>" aria-label="<?php esc_attr_e('Previous task', 'sis-foca-js'); ?>"><span class="fas fa-backward" aria-hidden="true"></span></button>
+								<button type="button" id="cycle_next" title="<?php esc_attr_e('Next task', 'sis-foca-js'); ?>" aria-label="<?php esc_attr_e('Next task', 'sis-foca-js'); ?>"><span class="fas fa-forward" aria-hidden="true"></span></button>
+								<button type="button" id="cycle_empty" title="<?php esc_attr_e('Clear cycler', 'sis-foca-js'); ?>" aria-label="<?php esc_attr_e('Clear cycler', 'sis-foca-js'); ?>"><span class="fas fa-trash" aria-hidden="true"></span></button>
+							</div>
 						</div>
-						<p><small><?php _e('Drop tasks below', 'sis-foca-js'); ?></small></p>
-						<ul id="contem-ciclo">
+						<ul id="contem-ciclo" data-empty="<?php esc_attr_e('Drag tasks here to build an automatic cycle', 'sis-foca-js'); ?>">
 							<?php echo get_user_meta(get_current_user_id(), "cycle_list", true); ?>
 						</ul>
 					</div>
 
-					<label style="display:block;margin-top:18px;"><span class="fas fa-list" aria-hidden="true"></span> <?php _e('TODO list', 'sis-foca-js'); ?></label>
-					<ul id="contem-modelos">
-						<?php
-						$args = array(
-							'post_type' => 'projectimer_focus',
-							'post_status' => 'pending',
-							'author' => get_current_user_id(),
-							'order' => 'ASC',
-							'posts_per_page' => -1,
-						);
-						$the_query = new WP_Query($args);
+					<div class="pomo-tasks__block">
+						<div class="pomo-tasks__head">
+							<h3 class="pomo-tasks__title">
+								<span class="fas fa-list-check" aria-hidden="true"></span>
+								<?php _e('TODO list', 'sis-foca-js'); ?>
+							</h3>
+							<span class="pomo-tasks__count" id="pomo-todo-count">0</span>
+						</div>
+						<ul id="contem-modelos" data-empty="<?php esc_attr_e('No tasks yet. Create one on the left.', 'sis-foca-js'); ?>">
+							<?php
+							$args = array(
+								'post_type' => 'projectimer_focus',
+								'post_status' => 'pending',
+								'author' => get_current_user_id(),
+								'order' => 'ASC',
+								'posts_per_page' => -1,
+							);
+							$the_query = new WP_Query($args);
 
-						while ($the_query->have_posts()) : $the_query->the_post();
-							$counter = $post->ID;
-							$taglist = "";
-							$posttags = get_the_tags();
-							if ($posttags) {
-								$i = 1;
-								$c = count($posttags);
-								foreach ($posttags as $tag) {
-									if ($i < $c) {
-										$taglist .= "<span class='fas fa-tags' aria-hidden='true'></span>" . $tag->slug . ", ";
-									} else {
-										$taglist .= "<span class='fas fa-tags' aria-hidden='true'></span>" . $tag->slug . " ";
+							while ($the_query->have_posts()) : $the_query->the_post();
+								$counter = $post->ID;
+								$tags_plain = "";
+								$tags_html = "";
+								$posttags = get_the_tags();
+								if ($posttags) {
+									$slugs = array();
+									foreach ($posttags as $tag) {
+										$slugs[] = $tag->slug;
 									}
-									$i++;
+									$tags_plain = implode(", ", $slugs);
+									foreach ($slugs as $slug) {
+										$tags_html .= '<span class="pomo-task__tag"><span class="fas fa-tags" aria-hidden="true"></span>' . esc_html($slug) . '</span>';
+									}
 								}
-							}
+								?>
+								<li class="modelo-carregado" id="modelo-carregado-<?php echo $counter; ?>">
+									<div class="model-container" data-modelid="<?php echo $counter ?>">
+										<span class="pomo-task__handle fas fa-grip-vertical" aria-hidden="true"></span>
+										<div class="pomo-task__body">
+											<span class="pomo-task__title" id="bxtitle<?php echo $counter; ?>"><?php echo esc_html(get_the_title()); ?></span>
+											<?php if ($tags_html) : ?>
+												<span class="pomo-task__tags"><?php echo $tags_html; ?></span>
+											<?php endif; ?>
+											<span id="bxtag<?php echo $counter; ?>" hidden><?php echo esc_html($tags_plain); ?></span>
+										</div>
+									</div>
+									<div class="model-container-extra">
+										<button type="button" class="delete-task-model-btn" data-modelid="<?php echo $counter ?>" title="<?php esc_attr_e('Mark as done', 'sis-foca-js'); ?>" aria-label="<?php esc_attr_e('Mark as done', 'sis-foca-js'); ?>"><span class="fas fa-check"></span></button>
+										<button type="button" class="remove-task-from-list-btn" data-modelid="<?php echo $counter ?>" title="<?php esc_attr_e('Remove from list', 'sis-foca-js'); ?>" aria-label="<?php esc_attr_e('Remove from list', 'sis-foca-js'); ?>"><span class="fas fa-trash"></span></button>
+									</div>
+								</li>
+							<?php endwhile;
+							wp_reset_postdata();
 							?>
-							<li class="modelo-carregado" id="modelo-carregado-<?php echo $counter; ?>">
-								<div class="model-container" data-modelid="<?php echo $counter ?>">
-									<span class="fas fa-move" aria-hidden="true"></span>
-									<?php echo '<span id="bxtitle' . $counter . '">' . esc_html(get_the_title()) . "</span>"; ?>
-									<span id="bxtag<?php echo $counter; ?>" hidden><?php echo wp_kses_post($taglist); ?></span>
-								</div>
-								<div class="model-container-extra">
-									<button type="button" class="btn btn-xs btn-success delete-task-model-btn" data-modelid="<?php echo $counter ?>"><span class="fas fa-check"></span></button>
-									<button type="button" class="btn btn-xs btn-none remove-task-from-list-btn" data-modelid="<?php echo $counter ?>"><span class="fas fa-trash" style="color:black"></span></button>
-								</div>
-							</li>
-						<?php endwhile;
-						wp_reset_postdata();
-						?>
-					</ul>
+						</ul>
+					</div>
 				</div>
 			</section>
 		</div>

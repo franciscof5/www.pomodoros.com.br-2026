@@ -51,7 +51,8 @@
 		sortableReady: false,
 		applyingTags: false,
 		lastTagsSignature: '',
-		qtddTasks: 0
+		qtddTasks: 0,
+		sessionStartedAt: 0
 	};
 
 	function byId(id) {
@@ -117,6 +118,51 @@
 			.replace(/>/g, '&gt;')
 			.replace(/"/g, '&quot;')
 			.replace(/'/g, '&#39;');
+	}
+
+	function taskTagsHtml(tags) {
+		if (!tags || !tags.length) return '';
+		var out = '';
+		for (var i = 0; i < tags.length; i++) {
+			out += '<span class="pomo-task__tag"><span class="fas fa-tags" aria-hidden="true"></span>' +
+				escapeHtml(tags[i]) + '</span>';
+		}
+		return out;
+	}
+
+	function refreshTasksUI() {
+		var todo = byId('contem-modelos');
+		if (todo) {
+			var todoCount = todo.querySelectorAll('li.modelo-carregado').length;
+			var todoBadge = byId('pomo-todo-count');
+			if (todoBadge) todoBadge.textContent = todoCount;
+			todo.classList.toggle('is-empty', todoCount === 0);
+		}
+		var cycle = byId('contem-ciclo');
+		if (cycle) {
+			var cycleCount = cycle.querySelectorAll('li').length;
+			var cycleBadge = byId('pomo-cycle-count');
+			if (cycleBadge) cycleBadge.textContent = cycleCount;
+			cycle.classList.toggle('is-empty', cycleCount === 0);
+		}
+	}
+
+	// The cycle list is stored as raw HTML in user meta. Older sessions saved
+	// inline colors (white background / black text and icons) from animations
+	// that no longer exist and made the list unreadable on the dark theme.
+	// We also mirror the TODO item classes so both lists share the same look.
+	function cleanCycleInlineStyles() {
+		var root = byId('contem-ciclo');
+		if (!root) return;
+		var items = root.querySelectorAll('li');
+		for (var i = 0; i < items.length; i++) {
+			items[i].removeAttribute('style');
+			items[i].classList.add('modelo-carregado');
+			items[i].classList.add('ui-draggable');
+			items[i].classList.add('ui-draggable-handle');
+		}
+		var styled = root.querySelectorAll('li *[style]');
+		for (var j = 0; j < styled.length; j++) styled[j].removeAttribute('style');
 	}
 
 	function announce(message, kind) {
@@ -264,15 +310,19 @@
 
 		var ring = byId('pomo-ring');
 		if (ring) {
-			var radius = parseFloat(ring.getAttribute('r')) || 110;
+			var radius = parseFloat(ring.getAttribute('r')) || 100;
 			var circumference = 2 * Math.PI * radius;
 			var denominator = durationFor(S.mode) || 1;
-			var fraction = Math.min(1, Math.max(0, total / denominator));
+			// Bright arc = already elapsed (from the top, clockwise);
+			// the remaining time stays on the dim track.
+			var fraction = Math.min(1, Math.max(0, (denominator - total) / denominator));
 			ring.style.strokeDasharray = circumference + ' ' + circumference;
 			ring.style.strokeDashoffset = String(circumference * (1 - fraction));
 		}
 
 		if (document.body) document.body.classList.toggle('is-running', S.running);
+
+		updateSessionRing();
 	}
 
 	function render(seconds, force) {
@@ -309,12 +359,157 @@
 		return CONFIG.focusSeconds;
 	}
 
+	function sessionFraction() {
+		var cycle = CONFIG.focusSeconds + CONFIG.restSeconds;
+		var total = cycle * CONFIG.pomodorosPerBigRest;
+		var p;
+		if (S.mode === 'bigRest') {
+			p = 1;
+		} else {
+			var c = S.completedInCycle;
+			var remain = currentSeconds();
+			var elapsed;
+			if (S.mode === 'rest') {
+				elapsed = c * cycle - remain;
+			} else {
+				elapsed = c * cycle + (CONFIG.focusSeconds - remain);
+			}
+			p = elapsed / total;
+		}
+		if (isNaN(p)) p = 0;
+		return Math.min(1, Math.max(0, p));
+	}
+
+	function polarPoint(cx, cy, r, deg) {
+		var a = (deg - 90) * Math.PI / 180;
+		return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+	}
+
+	function sessionWedgePath(cx, cy, r, p) {
+		var sweep = Math.min(359.99, p * 360);
+		var start = polarPoint(cx, cy, r, 0);
+		var end = polarPoint(cx, cy, r, -sweep);
+		var large = sweep > 180 ? 1 : 0;
+		return 'M ' + cx + ' ' + cy +
+			' L ' + start.x.toFixed(2) + ' ' + start.y.toFixed(2) +
+			' A ' + r + ' ' + r + ' 0 ' + large + ' 0 ' + end.x.toFixed(2) + ' ' + end.y.toFixed(2) +
+			' Z';
+	}
+
+	function updateSessionRing() {
+		var track = document.querySelector('.pomo-session__track');
+		var cx = track ? parseFloat(track.getAttribute('cx')) : 130;
+		var cy = track ? parseFloat(track.getAttribute('cy')) : 130;
+		var r = track ? parseFloat(track.getAttribute('r')) : 120;
+		var p = sessionFraction();
+		var angle = -p * 360; // counterclockwise from the top
+
+		var marker = byId('pomo-session-marker');
+		if (marker) {
+			var pt = polarPoint(cx, cy, r, angle);
+			marker.setAttribute('cx', pt.x.toFixed(2));
+			marker.setAttribute('cy', pt.y.toFixed(2));
+			marker.classList.toggle('is-focus', S.mode === 'focus');
+			marker.classList.toggle('is-rest', S.mode === 'rest');
+			marker.classList.toggle('is-bigrest', S.mode === 'bigRest');
+		}
+
+		var wedge = byId('pomo-session-wedge');
+		if (wedge) {
+			wedge.setAttribute('d', sessionWedgePath(cx, cy, r + 6, p));
+		}
+	}
+
+	function sessionNowSeconds() {
+		return Math.round(Date.now() / 1000);
+	}
+
+	// Persist the session (cycle count, mode, running timer) in user meta so a
+	// page refresh restores the count and the current focus/rest timer.
+	function persistSession() {
+		if (!$ || !window.ajaxurl) return;
+		$.post(window.ajaxurl, {
+			action: 'save_session_state',
+			cycle: S.completedInCycle,
+			mode: S.mode,
+			running: S.running ? 'true' : 'false',
+			ends_at: S.running ? Math.round(S.endsAt / 1000) : 0,
+			started_at: S.sessionStartedAt || 0
+		});
+	}
+
+	// Rest posts: scheduled when the rest starts, published when it completes.
+	function saveRest(acao, seconds, bigRest) {
+		if (!$ || !window.ajaxurl) return;
+		var payload = { action: 'save_rest', rest_acao: acao };
+		if (seconds !== undefined) payload.rest_seconds = seconds;
+		if (bigRest !== undefined) payload.big_rest = bigRest ? 'true' : 'false';
+		$.post(window.ajaxurl, payload);
+	}
+
+	function resume_timer(remaining, mode) {
+		S.mode = mode;
+		S.running = true;
+		S.remaining = remaining;
+		S.endsAt = Date.now() + remaining * 1000;
+		S.startedAt = Date.now();
+		S.lastSecond = -1;
+		if (mode === 'focus') {
+			setButton(t('textInterruptFocus', 'INTERROMPER FOCO'), CONFIG.colorFocus);
+		} else if (mode === 'bigRest') {
+			setButton(t('textBigRest', 'GRANDE DESCANSO'), CONFIG.colorDefault);
+		} else {
+			setButton(t('textInterruptRest', 'PARAR DESCANSO'), CONFIG.colorRest);
+		}
+		render(remaining, true);
+		startTicking();
+	}
+
+	function applyPomoSession(state) {
+		if (!state || typeof state !== 'object') return false;
+
+		var cycle = parseInt(state.cycle, 10) || 0;
+		cycle = Math.max(0, Math.min(CONFIG.pomodorosPerBigRest, cycle));
+		if (cycle !== S.completedInCycle) {
+			S.completedInCycle = cycle;
+			resetIndicators();
+			for (var i = 1; i <= cycle; i++) turnOnIndicator(i);
+		}
+		S.sessionStartedAt = parseInt(state.started_at, 10) || S.sessionStartedAt || 0;
+
+		var running = (state.running === true || state.running === 'true' || state.running === 1);
+		var endsAt = parseInt(state.ends_at, 10) || 0;
+		var remaining = (running && endsAt) ? Math.round(endsAt - sessionNowSeconds()) : 0;
+		var mode = (state.mode === 'rest' || state.mode === 'bigRest') ? state.mode : 'focus';
+
+		if (remaining > 0) {
+			var drift = Math.abs(currentSeconds() - remaining);
+			if (!S.running || S.mode !== mode || drift > 5) {
+				resume_timer(remaining, mode);
+			}
+			return true;
+		}
+
+		// Rest that finished but was not started yet: keep showing it.
+		if (mode === 'rest' || mode === 'bigRest') {
+			S.mode = mode;
+			S.running = false;
+			S.remaining = durationFor(mode);
+			S.lastSecond = -1;
+			setButton(mode === 'bigRest' ? t('textBigRest', 'GRANDE DESCANSO') : t('textRest', 'DESCANSAR!'), CONFIG.colorDefault);
+			render(S.remaining, true);
+			return true;
+		}
+		return false;
+	}
+
 	function tick() {
 		var secs = Math.max(0, Math.ceil((S.endsAt - Date.now()) / 1000));
 		if (secs !== S.lastSecond) {
 			S.lastSecond = secs;
 			render(secs);
 		}
+		updateSessionRing();
 		if (secs <= 0) {
 			stopTicking();
 			complete();
@@ -390,17 +585,26 @@
 		startTicking();
 
 		if (S.mode === 'focus') {
+			if (S.completedInCycle === 0 && !S.sessionStartedAt) {
+				S.sessionStartedAt = sessionNowSeconds();
+			}
 			setButton(t('textInterruptFocus', 'INTERROMPER FOCO'), CONFIG.colorFocus);
 			announce(t('txt_started_countdown', 'Iniciar tarefa ') + val('title_box') + ', tags ' + tagsText());
 			if (val('status_box') === 'draft') {
 				setVal('status_box', 'future');
 				save_progress('future');
 			}
+		} else if (S.mode === 'bigRest') {
+			setButton(t('textInterruptRest', 'PARAR DESCANSO'), CONFIG.colorRest);
+			announce(t('txt_rest_started', 'Tempo de descanso iniciado'));
+			saveRest('start', CONFIG.bigRestSeconds, true);
 		} else {
 			setButton(t('textInterruptRest', 'PARAR DESCANSO'), CONFIG.colorRest);
 			announce(t('txt_rest_started', 'Tempo de descanso iniciado'));
+			saveRest('start', CONFIG.restSeconds, false);
 		}
 
+		persistSession();
 		ensureWakeLock();
 	}
 
@@ -412,6 +616,7 @@
 
 		if (S.completedInCycle >= CONFIG.pomodorosPerBigRest) {
 			S.completedInCycle = 0;
+			S.sessionStartedAt = 0;
 			S.mode = 'bigRest';
 			S.remaining = CONFIG.bigRestSeconds;
 			S.lastSecond = -1;
@@ -428,6 +633,7 @@
 			document.title = t('txt_title_rest', 'Hora do intervalo');
 		}
 
+		persistSession();
 		if (S.autoCycle) cycle_list_next();
 	}
 
@@ -439,12 +645,14 @@
 		if (S.mode === 'focus') {
 			onPomodoroCompleted();
 		} else {
+			saveRest('complete');
 			S.mode = 'focus';
 			S.remaining = CONFIG.focusSeconds;
 			S.lastSecond = -1;
 			setButton(t('textPomodoro', 'FOCAR!'), CONFIG.colorDefault);
 			announce(t('txt_completed_rest', 'Você completou o descanso, hora de pegar pesado!'), 'er');
 			document.title = t('txt_title_done', 'Pomodoro completado!');
+			persistSession();
 		}
 
 		render(S.remaining, true);
@@ -459,6 +667,7 @@
 			}
 		}
 
+		var wasRest = (S.mode === 'rest' || S.mode === 'bigRest');
 		playSound('completed');
 		stopTicking();
 		S.running = false;
@@ -469,6 +678,9 @@
 		announce(t('txt_interrupted_countdowns', 'Contagem interrompida!'), 'er');
 		setButton(t('textPomodoro', 'FOCAR!'), CONFIG.colorDefault);
 		render(S.remaining, true);
+
+		if (wasRest) saveRest('cancel');
+		persistSession();
 
 		if (val('status_box') === 'future') {
 			setVal('status_box', 'draft');
@@ -489,9 +701,12 @@
 	function reset_pomodoro_session() {
 		interrupt();
 		S.completedInCycle = 0;
+		S.sessionStartedAt = 0;
 		announce(t('txt_session_reseted', 'Sessão reiniciada'));
 		playSound('reset');
 		resetIndicators();
+		saveRest('cancel');
+		persistSession();
 	}
 
 	function set_continuous_session() {
@@ -773,11 +988,12 @@
 		applyCategory(data.post_category);
 		applySettings(data.range_volume, data.soundfx_enabled, data.voice_enabled);
 		reconcile(parseInt(data.secondsRemainingFromPHP, 10) || 0);
+		applyPomoSession(data.pomo_session);
 
 		var button = byId('action_button_id');
 		if (button && button.disabled) {
 			button.disabled = false;
-			if (!S.running) button.value = t('textPomodoro', 'FOCAR!');
+			if (!S.running && S.mode === 'focus') button.value = t('textPomodoro', 'FOCAR!');
 		}
 	}
 
@@ -829,26 +1045,29 @@
 				return;
 			}
 			var id = parseInt(response, 10);
-			var tagsLabel = (tagsValue && tagsValue.toString) ? tagsValue.toString().replace(/,/g, ', ') : '';
+			var tagsArray = (tagsValue && tagsValue.length) ? tagsValue : [];
+			var tagsLabel = tagsArray.join(', ');
 			var html = '<li id="modelo-carregado-' + id + '" class="modelo-carregado ui-draggable ui-draggable-handle">' +
 				'<div class="model-container" data-modelid="' + id + '">' +
-					'<div class="col-xs-6"><span class="fas fa-move"></span>&nbsp;' +
-						'<span id="bxtitle' + id + '">' + escapeHtml(title) + '</span></div>' +
-					'<div class="col-xs-6"><span class="fas fa-tags"></span>&nbsp;' +
-						'<span id="bxtag' + id + '">' + escapeHtml(tagsLabel) + '</span></div>' +
+					'<span class="pomo-task__handle fas fa-grip-vertical" aria-hidden="true"></span>' +
+					'<div class="pomo-task__body">' +
+						'<span class="pomo-task__title" id="bxtitle' + id + '">' + escapeHtml(title) + '</span>' +
+						'<span class="pomo-task__tags">' + taskTagsHtml(tagsArray) + '</span>' +
+						'<span id="bxtag' + id + '" hidden>' + escapeHtml(tagsLabel) + '</span>' +
+					'</div>' +
 				'</div>' +
 				'<div class="model-container-extra">' +
-					'<button class="btn btn-xs btn-success delete-task-model-btn" data-modelid="' + id + '"><span class="fas fa-trash" style="color:black"></span></button>' +
-					'<button class="btn btn-xs btn-none remove-task-from-list-btn" data-modelid="' + id + '"><span class="fas fa-trash"></span></button>' +
+					'<button type="button" class="delete-task-model-btn" data-modelid="' + id + '" title="' + escapeHtml(t('txt_task_done', 'Concluir')) + '"><span class="fas fa-check"></span></button>' +
+					'<button type="button" class="remove-task-from-list-btn" data-modelid="' + id + '" title="' + escapeHtml(t('txt_task_remove', 'Remover')) + '"><span class="fas fa-trash"></span></button>' +
 				'</div></li>';
 			$('#contem-modelos').append(html);
 			modelTaskButtons();
+			refreshTasksUI();
 			announce(t('txt_salving_model_success', 'Tarefa salva'));
 		});
 	}
 
 	function deleteModel(id) {
-		$('#modelo-carregado-' + id).hide(1000);
 		announce(t('txt_deleting_model', 'Completando tarefa...'));
 		$.post(window.ajaxurl, {
 			action: 'save_or_delete_model',
@@ -859,6 +1078,8 @@
 				return;
 			}
 			if (response) {
+				$('#modelo-carregado-' + id).remove();
+				refreshTasksUI();
 				announce(t('txt_deleting_model_sucess', 'Parabéns!'));
 			} else {
 				announce(t('txt_save_error', 'Problema ao salvar'), 'er');
@@ -891,6 +1112,7 @@
 	}
 
 	function cycle_list_update(clean) {
+		refreshTasksUI();
 		var payload = {
 			action: 'update_cycle_list',
 			list: $('#contem-ciclo').html(),
@@ -902,6 +1124,7 @@
 				if (response) {
 					announce('Cycle list cleared');
 					$('#contem-ciclo').html('');
+					refreshTasksUI();
 				}
 			} else if (response) {
 				announce('updating cycle list');
@@ -912,14 +1135,9 @@
 	}
 
 	function cycle_list_load_model() {
-		var currentModelId = jQuery('#contem-ciclo li:nth-child(' + S.cycleIndex + ')').find('div').data('modelid');
-		jQuery('#contem-ciclo li').each(function () {
-			jQuery(this).removeClass('cycleSelectedTask');
-			jQuery(this).animate({ 'background-color': '#FFF', color: '#000' }, 200);
-		});
-		jQuery('#contem-ciclo li:nth-child(' + S.cycleIndex + ')')
-			.addClass('cycleSelectedTask')
-			.animate({ 'background-color': '#222', color: '#CCC' }, 300);
+		var currentModelId = jQuery('#contem-ciclo li:nth-child(' + S.cycleIndex + ')').find('[data-modelid]').data('modelid');
+		jQuery('#contem-ciclo li').removeClass('cycleSelectedTask');
+		jQuery('#contem-ciclo li:nth-child(' + S.cycleIndex + ')').addClass('cycleSelectedTask');
 		if (currentModelId !== undefined) loadModel(currentModelId);
 	}
 
@@ -928,10 +1146,8 @@
 			S.autoCycle = false;
 			announce(t('auto_cycle_disabled', 'Ciclo automático desabilitado'));
 			$('#cycle_start').html('<span class="fas fa-play" aria-hidden="true"></span>');
-			$('#cycle_start').css({ 'background-color': '#CCC', color: '#222' });
-			$('#contem-ciclo li').each(function () {
-				jQuery(this).animate({ 'background-color': '#FFF', color: '#000' }, 500);
-			});
+			$('#cycle_start').css({ 'background-color': '', color: '' });
+			$('#contem-ciclo li').removeClass('cycleSelectedTask');
 		} else {
 			if (!$('#contem-ciclo li').length) {
 				announce('You must add at least one task', 'er');
@@ -966,31 +1182,38 @@
 	}
 
 	function setupSortable() {
-		if (S.sortableReady || !$ || !$.fn || !$.fn.sortable) return;
-		var removeIntent = false;
+		if (!$ || !$.fn || !$.fn.sortable) return;
 
-		$('#contem-ciclo').sortable({
-			revert: true,
-			over: function () {
-				removeIntent = false;
-			},
-			out: function () {
-				removeIntent = true;
-			},
-			beforeStop: function (event, ui) {
-				if (removeIntent === true) ui.item.remove();
-			},
-			receive: function () {
-				cycle_list_update();
-			}
-		}).droppable({
-			out: function () {
-				cycle_list_update();
-			}
-		});
+		if (!S.sortableReady) {
+			var removeIntent = false;
 
+			$('#contem-ciclo').sortable({
+				revert: true,
+				over: function () {
+					removeIntent = false;
+				},
+				out: function () {
+					removeIntent = true;
+				},
+				beforeStop: function (event, ui) {
+					if (removeIntent === true) ui.item.remove();
+				},
+				receive: function () {
+					cycle_list_update();
+				}
+			}).droppable({
+				out: function () {
+					cycle_list_update();
+				}
+			});
+
+			S.sortableReady = true;
+		}
+
+		// (Re)apply draggable so tasks added after page load can also be
+		// dragged into the automatic cycle.
 		if ($.fn.draggable) {
-			$('#contem-modelos li').draggable({
+			$('#contem-modelos li').not('.ui-draggable').draggable({
 				connectToSortable: '#contem-ciclo',
 				snap: '#contem-ciclo',
 				snapMode: 'outer',
@@ -1000,8 +1223,6 @@
 			});
 		}
 		if ($.fn.disableSelection) $('ul, li').disableSelection();
-
-		S.sortableReady = true;
 	}
 
 	function modelTaskButtons() {
@@ -1024,6 +1245,7 @@
 		});
 		setupSortable();
 		S.qtddTasks = $('ul#contem-ciclo li').length;
+		refreshTasksUI();
 	}
 
 	var grupoDeComandos = [{
@@ -1215,6 +1437,7 @@
 		scheduleDigitalClock();
 		bindUi();
 		bindFormChange();
+		cleanCycleInlineStyles();
 		startContinuousArtyom();
 		startNoSleepWakeLock();
 		announce(t('txt_loading_initial_data', 'Bem vindo ao Pomodoros.com.br'));
