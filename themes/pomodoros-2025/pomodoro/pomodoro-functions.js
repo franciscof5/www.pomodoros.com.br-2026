@@ -146,6 +146,18 @@
 		}
 	}
 
+	// The cycle list is stored as raw HTML in user meta. Older sessions saved
+	// inline colors (white background / black text and icons) from animations
+	// that no longer exist and made the list unreadable on the dark theme.
+	function cleanCycleInlineStyles() {
+		var root = byId('contem-ciclo');
+		if (!root) return;
+		var items = root.querySelectorAll('li, li *');
+		for (var i = 0; i < items.length; i++) {
+			if (items[i].hasAttribute('style')) items[i].removeAttribute('style');
+		}
+	}
+
 	function announce(message, kind) {
 		if (S.voice) {
 			try {
@@ -1304,6 +1316,7 @@
 		scheduleDigitalClock();
 		bindUi();
 		bindFormChange();
+		cleanCycleInlineStyles();
 		startContinuousArtyom();
 		startNoSleepWakeLock();
 		announce(t('txt_loading_initial_data', 'Bem vindo ao Pomodoros.com.br'));
