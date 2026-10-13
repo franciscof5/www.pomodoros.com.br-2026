@@ -223,7 +223,6 @@ body.pomo-app .navbar.pomo-legacy-nav {
 .pomo-clock__ring {
 	width: 100%;
 	height: 100%;
-	transform: rotate(-90deg);
 	overflow: visible;
 }
 
@@ -242,6 +241,51 @@ body.pomo-app .navbar.pomo-legacy-nav {
 	stroke: var(--accent);
 	transition: stroke-dashoffset 0.25s linear, stroke 0.3s ease;
 	filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 55%, transparent));
+}
+
+/* Outer session ring (4 pomodoros: focus green + rest orange, counterclockwise) */
+.pomo-session__track {
+	fill: none;
+	stroke: rgba(255, 255, 255, 0.07);
+	stroke-width: 8;
+}
+
+.pomo-session__seg {
+	fill: none;
+	stroke-width: 8;
+	stroke-linecap: butt;
+	opacity: 0.26;
+	transition: opacity 0.35s ease;
+}
+
+.pomo-session__seg--focus {
+	stroke: #22c55e;
+}
+
+.pomo-session__seg--rest {
+	stroke: #f59e0b;
+}
+
+.pomo-session__seg.is-done {
+	opacity: 1;
+}
+
+.pomo-session__marker {
+	fill: #22c55e;
+	stroke: rgba(11, 15, 20, 0.9);
+	stroke-width: 2;
+	transition: fill 0.3s ease;
+	filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.7));
+}
+
+.pomo-session__marker.is-rest {
+	fill: #f59e0b;
+	filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.7));
+}
+
+.pomo-session__marker.is-bigrest {
+	fill: #6366f1;
+	filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.7));
 }
 
 .pomo-clock__readout {
@@ -2003,7 +2047,7 @@ body.pomo-app #contem-modelos {
 
 body.pomo-app #contem-modelos li.modelo-carregado {
 	position: relative;
-	display: flex;
+	display: inline-table;
 	align-items: flex-start;
 	gap: 10px;
 	padding: 10px 10px 10px 12px;

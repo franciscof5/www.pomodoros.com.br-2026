@@ -300,6 +300,8 @@
 		}
 
 		if (document.body) document.body.classList.toggle('is-running', S.running);
+
+		updateSessionRing();
 	}
 
 	function render(seconds, force) {
@@ -336,12 +338,66 @@
 		return CONFIG.focusSeconds;
 	}
 
+	function sessionFraction() {
+		var cycle = CONFIG.focusSeconds + CONFIG.restSeconds;
+		var total = cycle * CONFIG.pomodorosPerBigRest;
+		var p;
+		if (S.mode === 'bigRest') {
+			p = 1;
+		} else {
+			var c = S.completedInCycle;
+			var remain = currentSeconds();
+			var elapsed;
+			if (S.mode === 'rest') {
+				elapsed = c * cycle - remain;
+			} else {
+				elapsed = c * cycle + (CONFIG.focusSeconds - remain);
+			}
+			p = elapsed / total;
+		}
+		if (isNaN(p)) p = 0;
+		return Math.min(1, Math.max(0, p));
+	}
+
+	function polarPoint(cx, cy, r, deg) {
+		var a = (deg - 90) * Math.PI / 180;
+		return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+	}
+
+	function updateSessionRing() {
+		var track = document.querySelector('.pomo-session__track');
+		var cx = track ? parseFloat(track.getAttribute('cx')) : 130;
+		var cy = track ? parseFloat(track.getAttribute('cy')) : 130;
+		var r = track ? parseFloat(track.getAttribute('r')) : 120;
+		var p = sessionFraction();
+		var angle = -p * 360; // counterclockwise from the top
+
+		var marker = byId('pomo-session-marker');
+		if (marker) {
+			var pt = polarPoint(cx, cy, r, angle);
+			marker.setAttribute('cx', pt.x.toFixed(2));
+			marker.setAttribute('cy', pt.y.toFixed(2));
+			marker.classList.toggle('is-focus', S.mode === 'focus');
+			marker.classList.toggle('is-rest', S.mode === 'rest');
+			marker.classList.toggle('is-bigrest', S.mode === 'bigRest');
+		}
+
+		var done = p * 360;
+		var segs = document.querySelectorAll('.pomo-session__seg');
+		for (var i = 0; i < segs.length; i++) {
+			var a2 = parseFloat(segs[i].getAttribute('data-a2'));
+			if (isNaN(a2)) continue;
+			segs[i].classList.toggle('is-done', (-a2) <= done + 0.01);
+		}
+	}
+
 	function tick() {
 		var secs = Math.max(0, Math.ceil((S.endsAt - Date.now()) / 1000));
 		if (secs !== S.lastSecond) {
 			S.lastSecond = secs;
 			render(secs);
 		}
+		updateSessionRing();
 		if (secs <= 0) {
 			stopTicking();
 			complete();

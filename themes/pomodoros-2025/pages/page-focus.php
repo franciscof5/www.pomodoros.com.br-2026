@@ -39,6 +39,34 @@ wp_enqueue_script("artyom-js");
 $theme_uri = get_stylesheet_directory_uri();
 $pomo_user_id = is_user_logged_in() ? get_current_user_id() : 0;
 $current_user = wp_get_current_user();
+
+if ( ! function_exists( 'pomo_arc_path' ) ) {
+	/**
+	 * Build an SVG arc path for a ring.
+	 * Angles in degrees: 0 = top (12h), positive = clockwise.
+	 */
+	function pomo_arc_path( $cx, $cy, $r, $start_deg, $end_deg ) {
+		$point = function ( $deg ) use ( $cx, $cy, $r ) {
+			$rad = deg2rad( $deg - 90 );
+			return array( $cx + $r * cos( $rad ), $cy + $r * sin( $rad ) );
+		};
+		list( $x1, $y1 ) = $point( $start_deg );
+		list( $x2, $y2 ) = $point( $end_deg );
+		$delta = $end_deg - $start_deg;
+		$large = abs( $delta ) > 180 ? 1 : 0;
+		$sweep = $delta >= 0 ? 1 : 0;
+		return sprintf(
+			'M %.3f %.3f A %.3f %.3f 0 %d %d %.3f %.3f',
+			$x1, $y1, $r, $r, $large, $sweep, $x2, $y2
+		);
+	}
+}
+
+// Session ring geometry (4 pomodoros; time runs counterclockwise).
+$pomo_cx    = 130;
+$pomo_cy    = 130;
+$pomo_r_out = 120;
+$pomo_r_in  = 100;
 ?>
 	<script>
 		document.title = "Pomodoros <?php global $title_apendix;
@@ -55,9 +83,28 @@ $current_user = wp_get_current_user();
 		<section class="pomo-timer">
 			<div class="pomo-clock" id="relogio" data-mode="focus" role="button" tabindex="0"
 				aria-label="<?php _e('Start or stop the timer', 'sis-foca-js'); ?>">
-				<svg class="pomo-clock__ring" viewBox="0 0 240 240" aria-hidden="true">
-					<circle class="pomo-clock__track" cx="120" cy="120" r="110"></circle>
-					<circle class="pomo-clock__progress" id="pomo-ring" cx="120" cy="120" r="110"></circle>
+				<svg class="pomo-clock__ring" viewBox="0 0 260 260" aria-hidden="true">
+					<!-- Outer session ring: 4 pomodoros, each = 25min focus (green) + 5min rest (orange).
+					     Progress runs counterclockwise, so segments go from the top into negative angles. -->
+					<circle class="pomo-session__track" cx="<?php echo $pomo_cx; ?>" cy="<?php echo $pomo_cy; ?>" r="<?php echo $pomo_r_out; ?>"></circle>
+					<?php for ( $pomo_q = 0; $pomo_q < 4; $pomo_q++ ) :
+						$pomo_start = -$pomo_q * 90;
+						$pomo_focus_end = $pomo_start - 75;
+						$pomo_rest_end  = $pomo_start - 90;
+					?>
+						<path class="pomo-session__seg pomo-session__seg--focus"
+							data-a1="<?php echo esc_attr( $pomo_start ); ?>"
+							data-a2="<?php echo esc_attr( $pomo_focus_end ); ?>"
+							d="<?php echo esc_attr( pomo_arc_path( $pomo_cx, $pomo_cy, $pomo_r_out, $pomo_start, $pomo_focus_end ) ); ?>"></path>
+						<path class="pomo-session__seg pomo-session__seg--rest"
+							data-a1="<?php echo esc_attr( $pomo_focus_end ); ?>"
+							data-a2="<?php echo esc_attr( $pomo_rest_end ); ?>"
+							d="<?php echo esc_attr( pomo_arc_path( $pomo_cx, $pomo_cy, $pomo_r_out, $pomo_focus_end, $pomo_rest_end ) ); ?>"></path>
+					<?php endfor; ?>
+					<circle class="pomo-session__marker" id="pomo-session-marker" cx="<?php echo $pomo_cx; ?>" cy="<?php echo ( $pomo_cy - $pomo_r_out ); ?>" r="5"></circle>
+					<!-- Inner ring: current pomodoro countdown (clockwise). -->
+					<circle class="pomo-clock__track" cx="<?php echo $pomo_cx; ?>" cy="<?php echo $pomo_cy; ?>" r="<?php echo $pomo_r_in; ?>"></circle>
+					<circle class="pomo-clock__progress" id="pomo-ring" cx="<?php echo $pomo_cx; ?>" cy="<?php echo $pomo_cy; ?>" r="<?php echo $pomo_r_in; ?>" transform="rotate(-90 <?php echo $pomo_cx; ?> <?php echo $pomo_cy; ?>) translate(0,260) scale(1,-1)"></circle>
 				</svg>
 				<div class="pomo-clock__readout">
 					<div class="pomo-clock__time" id="pomodoro-time" role="timer">25:00</div>
