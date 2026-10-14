@@ -76,6 +76,7 @@
 					<div class="hidden sm:ml-6 sm:block">
 						<div class="flex space-x-4">
 							<a href="#funcionalidades" class="rounded-md px-3 py-2 text-sm font-medium text-white" aria-current="page">Funcionalidades</a>
+							<a href="#precos" class="rounded-md px-3 py-2 text-sm font-medium text-white" aria-current="page">Preço</a>
 							<a href="#comunidades" class="rounded-md px-3 py-2 text-sm font-medium text-white" aria-current="page">Comunidade</a>
 							<a href="#historico" class="rounded-md px-3 py-2 text-sm font-medium text-white" aria-current="page">Histórico</a>
 							<a href="#depoimentos" class="rounded-md px-3 py-2 text-sm font-medium text-white" aria-current="page">Depoimentos</a>
@@ -109,6 +110,7 @@
 		<div x-show="mobileMenuOpen" x-transition class="sm:hidden" id="mobile-menu">
 			<div class="space-y-1 px-2 pt-2 pb-3">
 				<a href="#funcionalidades" class="block w-full rounded-md rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white" aria-current="page">Funcionalidades</a>
+				<a href="#precos" class="block w-full rounded-md rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white" aria-current="page">Preço</a>
 				<a href="#comunidades" class="block w-full rounded-md rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white" aria-current="page">Comunidade</a>
 				<a href="#historico" class="block w-full rounded-md rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white" aria-current="page">Histórico</a>
 				<a href="#depoimentos" class="block w-full rounded-md rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white" aria-current="page">Depoimentos</a>

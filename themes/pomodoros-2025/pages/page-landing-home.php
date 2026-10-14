@@ -229,7 +229,7 @@
 					<span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-green-400 mb-3">
 						<i class="fas fa-star" aria-hidden="true"></i> Assinatura
 					</span>
-					<p class="text-4xl font-bold text-white mb-1">Premium</p>
+					<p class="mb-1"><span class="text-4xl font-bold text-white">R$ 29</span><span class="text-lg text-gray-400">/mês</span></p>
 					<p class="text-gray-400 mb-6">para quem quer ir além</p>
 
 					<ul class="space-y-3 text-gray-300 flex-1">
