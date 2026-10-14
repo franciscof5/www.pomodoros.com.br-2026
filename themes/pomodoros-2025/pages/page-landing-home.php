@@ -45,9 +45,9 @@
 				<span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-green-400 mb-4">
 					<span class="fas fa-bolt" aria-hidden="true"></span> Pomodoros.com.br
 				</span>
-				<h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Relaxa e Foca</h2>
-				<p class="text-gray-300 mb-4">A chave para o sucesso é investir bem seu recurso mais valioso, seu tempo!</p>
-				<p class="text-gray-300 mb-6">Cronômetro online para tarefas e projetos, você e seu time mais produtivos do que nunca</p>
+				<h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Estude para Concursos</h2>
+				<p class="text-gray-300 mb-4">A ferramenta que vai te ajudar a estudar e passar no concurso</p>
+				<p class="text-gray-300 mb-6">Tenha mais foco e controle do seu tempo e ainda concorra a prêmios</p>
 				<p>
 					<a href="/register" class="inline-block bg-green-600 hover:bg-green-500 text-white font-semibold py-3 px-8 rounded-xl transition duration-300">🚀 Registre-se Grátis</a>
 				</p>
