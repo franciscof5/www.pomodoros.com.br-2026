@@ -194,6 +194,74 @@
 			</script>
 		</section>
 
+		<!-- Preço -->
+		<section id="precos" class="bg-gray-800 border border-gray-700 rounded-2xl p-6 sm:p-8 shadow-xl">
+			<h2 class="text-2xl font-bold text-white text-center mb-6 pb-3 border-b border-gray-700">💳 Preço</h2>
+
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+				<!-- Grátis -->
+				<div class="flex flex-col bg-gray-900 border border-gray-700 rounded-xl p-6 sm:p-8">
+					<span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
+						<i class="fas fa-seedling" aria-hidden="true"></i> Grátis
+					</span>
+					<p class="text-4xl font-bold text-white mb-1">R$ 0</p>
+					<p class="text-gray-400 mb-6">para começar agora</p>
+
+					<ul class="space-y-3 text-gray-300 flex-1">
+						<li class="flex items-start gap-3">
+							<i class="fas fa-check text-green-400 mt-1" aria-hidden="true"></i>
+							<span>1 usuário</span>
+						</li>
+						<li class="flex items-start gap-3">
+							<i class="fas fa-check text-green-400 mt-1" aria-hidden="true"></i>
+							<span>Sem limite de uso</span>
+						</li>
+					</ul>
+
+					<a href="/register" class="mt-8 inline-flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-xl transition">
+						<i class="fas fa-rocket" aria-hidden="true"></i> Criar conta grátis
+					</a>
+				</div>
+
+				<!-- Assinatura -->
+				<div class="relative flex flex-col bg-gray-900 border-2 border-green-500 rounded-xl p-6 sm:p-8 shadow-2xl">
+					<span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-500 text-gray-900 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full">Recomendado</span>
+					<span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-green-400 mb-3">
+						<i class="fas fa-star" aria-hidden="true"></i> Assinatura
+					</span>
+					<p class="text-4xl font-bold text-white mb-1">Premium</p>
+					<p class="text-gray-400 mb-6">para quem quer ir além</p>
+
+					<ul class="space-y-3 text-gray-300 flex-1">
+						<li class="flex items-start gap-3">
+							<i class="fas fa-check text-green-400 mt-1" aria-hidden="true"></i>
+							<span>Acesso a provas de concursos</span>
+						</li>
+						<li class="flex items-start gap-3">
+							<i class="fas fa-check text-green-400 mt-1" aria-hidden="true"></i>
+							<span>Grupos</span>
+						</li>
+						<li class="flex items-start gap-3">
+							<i class="fas fa-check text-green-400 mt-1" aria-hidden="true"></i>
+							<span>Calendário</span>
+						</li>
+						<li class="flex items-start gap-3">
+							<i class="fas fa-check text-green-400 mt-1" aria-hidden="true"></i>
+							<span>Ranking</span>
+						</li>
+						<li class="flex items-start gap-3">
+							<i class="fas fa-check text-green-400 mt-1" aria-hidden="true"></i>
+							<span>Concorre a prêmios</span>
+						</li>
+					</ul>
+
+					<a href="/register" class="mt-8 inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-semibold py-3 px-6 rounded-xl transition">
+						<i class="fas fa-crown" aria-hidden="true"></i> Assinar agora
+					</a>
+				</div>
+			</div>
+		</section>
+
 		<!-- Comunidade -->
 		<section id="comunidades" class="bg-gray-800 border border-gray-700 rounded-2xl p-6 sm:p-8 shadow-xl">
 			<h2 class="text-2xl font-bold text-white text-center mb-6 pb-3 border-b border-gray-700">📊 Estatísticas da Comunidade</h2>
