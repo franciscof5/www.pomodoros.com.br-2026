@@ -449,7 +449,7 @@ if ( ! function_exists('pomodoro_is_app_shell_request') ) {
 			}
 		}
 		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-		return (bool) preg_match('#/(focus|ranking|calendar|produtividade|stats|csv|metas|premios|game|invite|help|tag|users|members|activity)/?(\?|$)#', $uri);
+		return (bool) preg_match('#/(focus|ranking|calendar|produtividade|stats|csv|metas|premios|game|invite|help|tag|users|members|activity|register)/?(\?|$)#', $uri);
 	}
 }
 

@@ -1821,6 +1821,146 @@ body.pomo-app #item-header div.generic-button {
 }
 
 /* ================================================================== */
+/* Register (/register) - BuddyPress legacy markup on the dark shell   */
+/* ================================================================== */
+body.pomo-app #center_layout {
+	display: block;
+	width: 100%;
+	max-width: 860px;
+	margin: 0 auto;
+	padding: 24px 16px 64px;
+	float: none;
+}
+
+body.pomo-app #center_layout .padder {
+	padding: 0;
+}
+
+body.pomo-app #center_layout .register_div_box,
+body.pomo-app #center_layout #rbox1,
+body.pomo-app #center_layout #rbox2 {
+	float: none;
+	width: 100%;
+	margin: 0 0 18px;
+	padding: 22px;
+	background: var(--pomo-surface);
+	border: 1px solid var(--pomo-border);
+	border-radius: var(--pomo-radius);
+	box-shadow: var(--pomo-shadow);
+}
+
+body.pomo-app #center_layout #rbox1 h2,
+body.pomo-app #center_layout #rbox2 h2 {
+	margin: 0 0 10px;
+}
+
+body.pomo-app #signup_form {
+	width: 100%;
+}
+
+body.pomo-app #signup_form h2 {
+	margin-top: 0;
+}
+
+body.pomo-app #signup_form h4 {
+	margin: 4px 0 12px;
+	font-size: 13px;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--pomo-muted);
+}
+
+body.pomo-app #signup_form label,
+body.pomo-app #signup_form .label {
+	display: block;
+	margin: 16px 0 8px;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--pomo-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+
+body.pomo-app #signup_form input[type="text"],
+body.pomo-app #signup_form input[type="email"],
+body.pomo-app #signup_form input[type="password"],
+body.pomo-app #signup_form input[type="tel"],
+body.pomo-app #signup_form input[type="number"],
+body.pomo-app #signup_form select,
+body.pomo-app #signup_form textarea {
+	width: 100%;
+	background: var(--pomo-bg-soft);
+	border: 1px solid var(--pomo-border);
+	border-radius: var(--pomo-radius-sm);
+	color: var(--pomo-text);
+	padding: 12px 14px;
+	font-size: 15px;
+	min-height: 48px;
+}
+
+body.pomo-app #signup_form input:focus,
+body.pomo-app #signup_form select:focus,
+body.pomo-app #signup_form textarea:focus {
+	outline: none;
+	border-color: var(--pomo-accent);
+	box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+body.pomo-app #signup_form .radio,
+body.pomo-app #signup_form .checkbox,
+body.pomo-app #signup_form .datebox {
+	color: var(--pomo-text);
+}
+
+body.pomo-app #signup_form .description {
+	color: var(--pomo-muted);
+	font-size: 12px;
+	margin: 4px 0 0;
+}
+
+body.pomo-app #signup_form .field-visibility-settings-toggle,
+body.pomo-app #signup_form .field-visibility-settings-notoggle {
+	color: var(--pomo-muted);
+	font-size: 12px;
+}
+
+body.pomo-app #signup_form .error,
+body.pomo-app #signup_form .bp-required-field {
+	color: #fca5a5;
+}
+
+body.pomo-app #signup_form .submit {
+	margin-top: 24px;
+}
+
+body.pomo-app #signup_form #signup_submit {
+	width: 100%;
+	border: 0;
+	border-radius: 999px;
+	padding: 15px 28px;
+	font-size: 16px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #04140a;
+	background: linear-gradient(135deg, var(--pomo-accent) 0%, var(--pomo-accent-2) 100%);
+	cursor: pointer;
+	box-shadow: 0 12px 30px -12px color-mix(in srgb, var(--pomo-accent) 70%, transparent);
+}
+
+body.pomo-app #signup_form #signup_submit:hover {
+	filter: brightness(1.06);
+}
+
+/* The legacy grid columns just stack (no Bootstrap on the app shell) */
+body.pomo-app #center_layout [class*="col-"] {
+	float: none;
+	width: 100%;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+/* ================================================================== */
 /* Focus - wide 3-column layout: panel | timer | tasks                 */
 /* ================================================================== */
 @media (min-width: 1080px) {
