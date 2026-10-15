@@ -1123,9 +1123,15 @@
 		if (clean) announce('Cleaning list...');
 		$.post(window.ajaxurl, payload, function (response) {
 			if (clean && response) {
-				announce('Cycle list cleared');
+				if (window.alertify) window.alertify.success('Ciclo limpo');
+				S.cycleSuppressSave = true;
 				$('#contem-ciclo').html('');
 				refreshTasksUI();
+				window.setTimeout(function () { S.cycleSuppressSave = false; }, 0);
+			} else if (response) {
+				if (window.alertify) window.alertify.success('Ciclo salvo');
+			} else {
+				if (window.alertify) window.alertify.error('Falha ao salvar o ciclo');
 			}
 		});
 	}
@@ -1247,6 +1253,7 @@
 		// the TODO list, can be reordered, and removes an item when dropped out.
 		if (cycle && !S.cycleSortable) {
 			var saveCycle = function () {
+				if (S.cycleSuppressSave) return;
 				if (S.cycleSaveTimer) window.clearTimeout(S.cycleSaveTimer);
 				S.cycleSaveTimer = window.setTimeout(function () {
 					S.cycleSaveTimer = null;
@@ -1286,6 +1293,16 @@
 					saveCycle();
 				}
 			}));
+
+			// Safety net: any DOM change in the cycle (add/reorder/remove/spill)
+			// triggers a save, regardless of which Sortable event fired.
+			if (window.MutationObserver) {
+				S.cycleObserver = new window.MutationObserver(function () {
+					refreshTasksUI();
+					saveCycle();
+				});
+				S.cycleObserver.observe(cycle, { childList: true });
+			}
 		}
 	}
 
