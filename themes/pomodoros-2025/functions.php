@@ -1159,19 +1159,44 @@ function save_or_delete_model () {
 
 function update_cycle_list() {
 	checkLogin();
-	//
-	if(isset($_POST["clean"])) {
-		$ok = update_user_meta(get_current_user_id(), "cycle_list", "");
-		echo $ok;
-	} else {
-		if(isset($_POST['list'])) {
-			$ok = update_user_meta(get_current_user_id(), "cycle_list", $_POST["list"]);
-			echo $ok;
-		} else {
-			echo false;
-		}	
+	$user_id = get_current_user_id();
+
+	// Clear the cycle.
+	if ( isset( $_POST['clean'] ) ) {
+		update_user_meta( $user_id, 'cycle_ids', array() );
+		update_user_meta( $user_id, 'cycle_list', '' );
+		echo 1;
+		return;
 	}
-	
+
+	// Preferred: the ordered list of task IDs (projectimer_focus posts).
+	$ids = array();
+	if ( isset( $_POST['ids'] ) ) {
+		$incoming = json_decode( wp_unslash( $_POST['ids'] ), true );
+		if ( is_array( $incoming ) ) {
+			foreach ( $incoming as $id ) {
+				$id = intval( $id );
+				if ( $id > 0 && ! in_array( $id, $ids, true ) ) {
+					$ids[] = $id;
+				}
+			}
+		}
+	} elseif ( isset( $_POST['list'] ) ) {
+		// Backwards compatibility: extract the IDs from the legacy HTML.
+		if ( preg_match_all( '/data-modelid=["\']?(\d+)/', wp_unslash( $_POST['list'] ), $m ) ) {
+			foreach ( $m[1] as $id ) {
+				$id = intval( $id );
+				if ( $id > 0 && ! in_array( $id, $ids, true ) ) {
+					$ids[] = $id;
+				}
+			}
+		}
+	}
+
+	update_user_meta( $user_id, 'cycle_ids', $ids );
+	// Cycle no longer stores HTML; drop the legacy value so it cannot repopulate.
+	update_user_meta( $user_id, 'cycle_list', '' );
+	echo 1;
 }
 function create_post_type() {
 	createPostTypeCOPY_FROM_PROJECTIMER_PLUGIN();

@@ -63,6 +63,71 @@ $pomo_cx    = 130;
 $pomo_cy    = 130;
 $pomo_r_out = 120;
 $pomo_r_in  = 100;
+
+if ( ! function_exists( 'pomo_task_item_html' ) ) {
+	/**
+	 * Render a task item (projectimer_focus). Uses the exact same markup for
+	 * both the TODO list and the automatic-cycle list so the styles match.
+	 * The cycle variant has no ids (avoids duplicates) and a single "remove
+	 * from cycle" (minus) button instead of the TODO actions.
+	 */
+	function pomo_task_item_html( $post_id, $context = 'todo' ) {
+		$post_id = (int) $post_id;
+		$title   = get_the_title( $post_id );
+
+		$slugs = array();
+		$tags  = get_the_tags( $post_id );
+		if ( $tags ) {
+			foreach ( $tags as $tag ) {
+				$slugs[] = $tag->slug;
+			}
+		}
+		$tags_plain = implode( ', ', $slugs );
+		$tags_html  = '';
+		foreach ( $slugs as $slug ) {
+			$tags_html .= '<span class="pomo-task__tag"><span class="fas fa-tags" aria-hidden="true"></span>' . esc_html( $slug ) . '</span>';
+		}
+
+		$is_todo  = ( 'cycle' !== $context );
+		$li_id    = $is_todo ? ' id="modelo-carregado-' . $post_id . '"' : '';
+		$title_id = $is_todo ? ' id="bxtitle' . $post_id . '"' : '';
+		$tag_id   = $is_todo ? ' id="bxtag' . $post_id . '"' : '';
+
+		if ( $is_todo ) {
+			$actions = '<button type="button" class="delete-task-model-btn" data-modelid="' . $post_id . '" title="' . esc_attr__( 'Complete pomodoro', 'sis-foca-js' ) . '" aria-label="' . esc_attr__( 'Complete pomodoro', 'sis-foca-js' ) . '"><span class="fas fa-check"></span></button>'
+				. '<button type="button" class="remove-task-from-list-btn" data-modelid="' . $post_id . '" title="' . esc_attr__( 'Remove from list', 'sis-foca-js' ) . '" aria-label="' . esc_attr__( 'Remove from list', 'sis-foca-js' ) . '"><span class="fas fa-trash"></span></button>';
+		} else {
+			$actions = '<button type="button" class="remove-cycle-item-btn" data-modelid="' . $post_id . '" title="' . esc_attr__( 'Remove from cycle', 'sis-foca-js' ) . '" aria-label="' . esc_attr__( 'Remove from cycle', 'sis-foca-js' ) . '"><span class="fas fa-minus"></span></button>';
+		}
+
+		return '<li class="modelo-carregado"' . $li_id . '>'
+			. '<div class="model-container" data-modelid="' . $post_id . '">'
+			. '<span class="pomo-task__handle fas fa-grip-vertical" aria-hidden="true"></span>'
+			. '<div class="pomo-task__body">'
+			. '<span class="pomo-task__title"' . $title_id . '>' . esc_html( $title ) . '</span>'
+			. ( $tags_html ? '<span class="pomo-task__tags">' . $tags_html . '</span>' : '' )
+			. '<span' . $tag_id . ' hidden>' . esc_html( $tags_plain ) . '</span>'
+			. '</div></div>'
+			. '<div class="model-container-extra">' . $actions . '</div>'
+			. '</li>';
+	}
+}
+
+// Cycle list: ordered task IDs (migrates the legacy HTML stored in cycle_list).
+$pomo_cycle_ids = get_user_meta( get_current_user_id(), 'cycle_ids', true );
+if ( ! is_array( $pomo_cycle_ids ) ) {
+	$pomo_cycle_ids = array();
+}
+if ( empty( $pomo_cycle_ids ) ) {
+	$pomo_legacy_cycle = get_user_meta( get_current_user_id(), 'cycle_list', true );
+	if ( ! empty( $pomo_legacy_cycle ) && preg_match_all( '/data-modelid=["\']?(\d+)/', $pomo_legacy_cycle, $pomo_legacy_m ) ) {
+		$pomo_cycle_ids = array_map( 'intval', $pomo_legacy_m[1] );
+		// Migrate once: persist the IDs and drop the legacy HTML.
+		update_user_meta( get_current_user_id(), 'cycle_ids', $pomo_cycle_ids );
+		update_user_meta( get_current_user_id(), 'cycle_list', '' );
+	}
+}
+$pomo_cycle_ids = array_values( array_unique( array_filter( array_map( 'intval', $pomo_cycle_ids ) ) ) );
 ?>
 	<script>
 		document.title = "Pomodoros <?php global $title_apendix;
@@ -221,7 +286,11 @@ $pomo_r_in  = 100;
 							</div>
 						</div>
 						<ul id="contem-ciclo" data-empty="<?php esc_attr_e('Drag tasks here to build an automatic cycle', 'sis-foca-js'); ?>">
-							<?php echo get_user_meta(get_current_user_id(), "cycle_list", true); ?>
+							<?php
+							foreach ( $pomo_cycle_ids as $pomo_cid ) {
+								echo pomo_task_item_html( $pomo_cid, 'cycle' );
+							}
+							?>
 						</ul>
 					</div>
 
@@ -235,48 +304,17 @@ $pomo_r_in  = 100;
 						</div>
 						<ul id="contem-modelos" data-empty="<?php esc_attr_e('No tasks yet. Create one on the left.', 'sis-foca-js'); ?>">
 							<?php
-							$args = array(
+							$pomo_todo_query = new WP_Query( array(
 								'post_type' => 'projectimer_focus',
 								'post_status' => 'pending',
 								'author' => get_current_user_id(),
 								'order' => 'ASC',
 								'posts_per_page' => -1,
-							);
-							$the_query = new WP_Query($args);
-
-							while ($the_query->have_posts()) : $the_query->the_post();
-								$counter = $post->ID;
-								$tags_plain = "";
-								$tags_html = "";
-								$posttags = get_the_tags();
-								if ($posttags) {
-									$slugs = array();
-									foreach ($posttags as $tag) {
-										$slugs[] = $tag->slug;
-									}
-									$tags_plain = implode(", ", $slugs);
-									foreach ($slugs as $slug) {
-										$tags_html .= '<span class="pomo-task__tag"><span class="fas fa-tags" aria-hidden="true"></span>' . esc_html($slug) . '</span>';
-									}
-								}
-								?>
-								<li class="modelo-carregado" id="modelo-carregado-<?php echo $counter; ?>">
-									<div class="model-container" data-modelid="<?php echo $counter ?>">
-										<span class="pomo-task__handle fas fa-grip-vertical" aria-hidden="true"></span>
-										<div class="pomo-task__body">
-											<span class="pomo-task__title" id="bxtitle<?php echo $counter; ?>"><?php echo esc_html(get_the_title()); ?></span>
-											<?php if ($tags_html) : ?>
-												<span class="pomo-task__tags"><?php echo $tags_html; ?></span>
-											<?php endif; ?>
-											<span id="bxtag<?php echo $counter; ?>" hidden><?php echo esc_html($tags_plain); ?></span>
-										</div>
-									</div>
-									<div class="model-container-extra">
-										<button type="button" class="delete-task-model-btn" data-modelid="<?php echo $counter ?>" title="<?php esc_attr_e('Mark as done', 'sis-foca-js'); ?>" aria-label="<?php esc_attr_e('Mark as done', 'sis-foca-js'); ?>"><span class="fas fa-check"></span></button>
-										<button type="button" class="remove-task-from-list-btn" data-modelid="<?php echo $counter ?>" title="<?php esc_attr_e('Remove from list', 'sis-foca-js'); ?>" aria-label="<?php esc_attr_e('Remove from list', 'sis-foca-js'); ?>"><span class="fas fa-trash"></span></button>
-									</div>
-								</li>
-							<?php endwhile;
+							) );
+							while ( $pomo_todo_query->have_posts() ) {
+								$pomo_todo_query->the_post();
+								echo pomo_task_item_html( get_the_ID(), 'todo' );
+							}
 							wp_reset_postdata();
 							?>
 						</ul>

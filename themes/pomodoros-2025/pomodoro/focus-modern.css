@@ -649,6 +649,7 @@ body.pomo-app #contem-modelos li.modelo-carregado {
 	align-items: center;
 	justify-content: space-between;
 	gap: 10px;
+	
 }
 
 body.pomo-app #contem-ciclo li.cycleSelectedTask {
@@ -2163,12 +2164,15 @@ body.pomo-app #contem-ciclo li {
 	display: flex;
 	align-items: flex-start;
 	gap: 10px;
-	padding: 10px 10px 10px 12px;
+	/* padding: 10px 10px 10px 12px; */
 	background: var(--pomo-bg-soft) !important;
 	border: 1px solid var(--pomo-border);
 	border-radius: var(--pomo-radius-sm);
 	color: var(--pomo-text) !important;
 	transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.12s ease;
+	height: 27px;
+	padding: 0;
+	margin: 0;
 }
 
 body.pomo-app #contem-ciclo li .model-container {
@@ -2185,6 +2189,21 @@ body.pomo-app #contem-ciclo li .col-xs-6 {
 	padding: 0;
 }
 
+/* Legibility guard: legacy saved data must never paint white/black here. */
+body.pomo-app #contem-ciclo li,
+body.pomo-app #contem-ciclo li .model-container,
+body.pomo-app #contem-ciclo li .pomo-task__body,
+body.pomo-app #contem-ciclo li .col-xs-6,
+body.pomo-app #contem-ciclo li .model-container-extra {
+	background-color: transparent !important;
+}
+
+body.pomo-app #contem-ciclo li {
+	background: var(--pomo-bg-soft) !important;
+	color: var(--pomo-text) !important;
+}
+
+body.pomo-app #contem-ciclo li .pomo-task__title,
 body.pomo-app #contem-ciclo li .model-container span[id^="bxtitle"] {
 	color: var(--pomo-text) !important;
 }
@@ -2216,12 +2235,14 @@ body.pomo-app #contem-modelos li.modelo-carregado {
 	display: flex;
 	align-items: flex-start;
 	gap: 10px;
-	padding: 10px 10px 10px 12px;
+	/* padding: 10px 10px 10px 12px; */
 	background: var(--pomo-bg-soft);
 	border: 1px solid var(--pomo-border);
 	border-radius: var(--pomo-radius-sm);
 	color: var(--pomo-text);
 	transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.12s ease;
+	padding: 0 5px;
+  	height: 26px;
 }
 
 body.pomo-app #contem-ciclo li:hover,
@@ -2251,6 +2272,7 @@ body.pomo-app .pomo-task__handle {
 	color: var(--pomo-muted);
 	opacity: 0.65;
 	cursor: grab;
+	padding-top: 7px;
 }
 
 body.pomo-app .pomo-task__handle:active {
@@ -2261,7 +2283,7 @@ body.pomo-app .pomo-task__body {
 	display: block;
 	min-width: 0;
 	flex: 1;
-	line-height: 1.5;
+	line-height: 0;
 }
 
 body.pomo-app .pomo-task__title,
@@ -2311,7 +2333,8 @@ body.pomo-app .model-container-extra {
 }
 
 body.pomo-app .delete-task-model-btn,
-body.pomo-app .remove-task-from-list-btn {
+body.pomo-app .remove-task-from-list-btn,
+body.pomo-app .remove-cycle-item-btn {
 	width: 34px;
 	height: 34px;
 	padding: 0;
@@ -2342,8 +2365,15 @@ body.pomo-app .remove-task-from-list-btn:hover {
 	color: #fff;
 }
 
+body.pomo-app .remove-cycle-item-btn:hover {
+	background: #f59e0b;
+	border-color: transparent;
+	color: #04140a;
+}
+
 body.pomo-app .delete-task-model-btn:active,
-body.pomo-app .remove-task-from-list-btn:active {
+body.pomo-app .remove-task-from-list-btn:active,
+body.pomo-app .remove-cycle-item-btn:active {
 	transform: scale(0.94);
 }
 
