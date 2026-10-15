@@ -114,6 +114,7 @@ if ( ! function_exists( 'pomo_task_item_html' ) ) {
 }
 
 // Cycle list: ordered task IDs (migrates the legacy HTML stored in cycle_list).
+// The same task may repeat in the sequence, so ids are NOT deduplicated.
 $pomo_cycle_ids = get_user_meta( get_current_user_id(), 'cycle_ids', true );
 if ( ! is_array( $pomo_cycle_ids ) ) {
 	$pomo_cycle_ids = array();
@@ -127,7 +128,7 @@ if ( empty( $pomo_cycle_ids ) ) {
 		update_user_meta( get_current_user_id(), 'cycle_list', '' );
 	}
 }
-$pomo_cycle_ids = array_values( array_unique( array_filter( array_map( 'intval', $pomo_cycle_ids ) ) ) );
+$pomo_cycle_ids = array_values( array_filter( array_map( 'intval', $pomo_cycle_ids ) ) );
 ?>
 	<script>
 		document.title = "Pomodoros <?php global $title_apendix;

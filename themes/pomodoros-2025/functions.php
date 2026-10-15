@@ -1170,13 +1170,14 @@ function update_cycle_list() {
 	}
 
 	// Preferred: the ordered list of task IDs (projectimer_focus posts).
+	// The same task may appear more than once in the cycle (sequence).
 	$ids = array();
 	if ( isset( $_POST['ids'] ) ) {
 		$incoming = json_decode( wp_unslash( $_POST['ids'] ), true );
 		if ( is_array( $incoming ) ) {
 			foreach ( $incoming as $id ) {
 				$id = intval( $id );
-				if ( $id > 0 && ! in_array( $id, $ids, true ) ) {
+				if ( $id > 0 ) {
 					$ids[] = $id;
 				}
 			}
@@ -1186,7 +1187,7 @@ function update_cycle_list() {
 		if ( preg_match_all( '/data-modelid=["\']?(\d+)/', wp_unslash( $_POST['list'] ), $m ) ) {
 			foreach ( $m[1] as $id ) {
 				$id = intval( $id );
-				if ( $id > 0 && ! in_array( $id, $ids, true ) ) {
+				if ( $id > 0 ) {
 					$ids[] = $id;
 				}
 			}
