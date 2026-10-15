@@ -9,13 +9,11 @@
  * The shared app bar lives in part-appbar.php (rendered by header-app.php).
  */
 
-// Tom Select (modern tags box) + jquery-ui (sortable cycler and draggable TODO list)
+// Tom Select (modern tags box) + SortableJS (drag/reorder do ciclador e da lista de tarefas)
 wp_register_script("tom-select-js", get_bloginfo("stylesheet_directory") . "/assets/tom-select/tom-select.complete.min.js");
 wp_register_style('tom-select-css', get_bloginfo("stylesheet_directory") . "/assets/tom-select/tom-select.default.min.css", __FILE__);
 
-wp_register_script("jquery-ui-js", get_bloginfo("stylesheet_directory") . "/assets/jquery-ui/jquery-ui.min.js");
-wp_register_style('jquery-ui-css', get_bloginfo("stylesheet_directory") . "/assets/jquery-ui/jquery-ui.min.css", __FILE__);
-wp_register_script("jquery-ui-touhc-js", get_bloginfo("stylesheet_directory") . "/assets/jquery.ui.touch-punch.min.js");
+wp_register_script("sortable-js", get_bloginfo("stylesheet_directory") . "/assets/sortable/Sortable.min.js", array(), "1.15.6", true);
 wp_enqueue_script("jquery-color", get_bloginfo("stylesheet_directory") . "/assets/jquery.color-2.1.2.min.js");
 
 // wake lock + voice
@@ -27,9 +25,7 @@ wp_enqueue_script("rangeslider-js");
 wp_enqueue_script("sound-js");
 wp_enqueue_script("tom-select-js");
 wp_enqueue_style("tom-select-css");
-wp_enqueue_script("jquery-ui-js");
-wp_enqueue_style("jquery-ui-css");
-wp_enqueue_script("jquery-ui-touhc-js");
+wp_enqueue_script("sortable-js");
 wp_enqueue_script("nosleep-js");
 wp_enqueue_script("artyom-js");
 

@@ -1087,21 +1087,36 @@
 		});
 	}
 
-	function loadModel(id) {
+	function loadModel(id, sourceEl) {
 		debug('loadModel', id);
 		announce(t('txt_loading_model', 'Tarefa carregada, hora de produzir!'));
-		var titleEl = byId('bxtitle' + id);
-		if (titleEl) setVal('title_box', titleEl.textContent);
-		var contentEl = byId('bxcontent' + id);
-		setVal('description_box', contentEl ? contentEl.textContent : '');
 
-		var tagEl = byId('bxtag' + id);
+		var title = '';
+		if (sourceEl) {
+			var titleEl = sourceEl.querySelector('.pomo-task__title') || sourceEl.querySelector('[id^="bxtitle"]');
+			if (titleEl) title = titleEl.textContent;
+		} else {
+			var globalTitle = byId('bxtitle' + id);
+			if (globalTitle) title = globalTitle.textContent;
+		}
+		if (title) setVal('title_box', title);
+
 		var tags = [];
-		if (tagEl) {
-			tagEl.textContent.split(',').forEach(function (part) {
-				var clean = part.replace(/\s+/g, '');
-				if (clean) tags.push(clean);
-			});
+		if (sourceEl) {
+			var chips = sourceEl.querySelectorAll('.pomo-task__tag');
+			for (var i = 0; i < chips.length; i++) {
+				var slug = chips[i].textContent.replace(/\s+/g, '');
+				if (slug) tags.push(slug);
+			}
+		}
+		if (!tags.length) {
+			var tagEl = byId('bxtag' + id);
+			if (tagEl) {
+				tagEl.textContent.split(',').forEach(function (part) {
+					var clean = part.replace(/\s+/g, '');
+					if (clean) tags.push(clean);
+				});
+			}
 		}
 		if (S.tagSelect && tags.length) {
 			S.tagSelect.addOptions(tags.map(function (name) {
@@ -1135,10 +1150,14 @@
 	}
 
 	function cycle_list_load_model() {
-		var currentModelId = jQuery('#contem-ciclo li:nth-child(' + S.cycleIndex + ')').find('[data-modelid]').data('modelid');
+		var li = document.querySelector('#contem-ciclo li:nth-child(' + S.cycleIndex + ')');
 		jQuery('#contem-ciclo li').removeClass('cycleSelectedTask');
-		jQuery('#contem-ciclo li:nth-child(' + S.cycleIndex + ')').addClass('cycleSelectedTask');
-		if (currentModelId !== undefined) loadModel(currentModelId);
+		if (!li) return;
+		li.classList.add('cycleSelectedTask');
+		var container = li.querySelector('[data-modelid]');
+		if (container) {
+			loadModel(jQuery(container).data('modelid'), container);
+		}
 	}
 
 	function cycle_list_play() {
@@ -1181,48 +1200,59 @@
 		cycle_list_load_model();
 	}
 
+	function stripIds(el) {
+		if (!el) return;
+		el.removeAttribute('id');
+		var withIds = el.querySelectorAll('[id]');
+		for (var i = 0; i < withIds.length; i++) withIds[i].removeAttribute('id');
+	}
+
 	function setupSortable() {
-		if (!$ || !$.fn || !$.fn.sortable) return;
+		if (!window.Sortable) return;
+		var todo = byId('contem-modelos');
+		var cycle = byId('contem-ciclo');
 
-		if (!S.sortableReady) {
-			var removeIntent = false;
+		var base = {
+			animation: 160,
+			ghostClass: 'pomo-sortable-ghost',
+			chosenClass: 'pomo-sortable-chosen',
+			dragClass: 'pomo-sortable-drag',
+			filter: '.delete-task-model-btn, .remove-task-from-list-btn, button, input, a'
+		};
 
-			$('#contem-ciclo').sortable({
-				revert: true,
-				over: function () {
-					removeIntent = false;
-				},
-				out: function () {
-					removeIntent = true;
-				},
-				beforeStop: function (event, ui) {
-					if (removeIntent === true) ui.item.remove();
-				},
-				receive: function () {
-					cycle_list_update();
+		// TODO list: source of clones (drag out to build the cycle sequence).
+		if (todo && !S.todoSortable) {
+			S.todoSortable = window.Sortable.create(todo, Object.assign({}, base, {
+				group: { name: 'pomo-tasks', pull: 'clone', put: false },
+				sort: false,
+				onClone: function (evt) {
+					stripIds(evt.item);
 				}
-			}).droppable({
-				out: function () {
-					cycle_list_update();
-				}
-			});
-
-			S.sortableReady = true;
+			}));
 		}
 
-		// (Re)apply draggable so tasks added after page load can also be
-		// dragged into the automatic cycle.
-		if ($.fn.draggable) {
-			$('#contem-modelos li').not('.ui-draggable').draggable({
-				connectToSortable: '#contem-ciclo',
-				snap: '#contem-ciclo',
-				snapMode: 'outer',
-				helper: 'clone',
-				revert: 'invalid',
-				cursor: 'move'
-			});
+		// Cycle list: the ordered sequence of pomodoros. Accepts clones from
+		// the TODO list and can be reordered; dragging an item out removes it.
+		if (cycle && !S.cycleSortable) {
+			S.cycleSortable = window.Sortable.create(cycle, Object.assign({}, base, {
+				group: { name: 'pomo-tasks', pull: true, put: true },
+				sort: true,
+				onAdd: function (evt) {
+					stripIds(evt.item);
+					evt.item.classList.add('modelo-carregado');
+					cycle_list_update();
+					refreshTasksUI();
+				},
+				onUpdate: function () {
+					cycle_list_update();
+					refreshTasksUI();
+				},
+				onRemove: function () {
+					cycle_list_update();
+					refreshTasksUI();
+				}
+			}));
 		}
-		if ($.fn.disableSelection) $('ul, li').disableSelection();
 	}
 
 	function modelTaskButtons() {
@@ -1239,9 +1269,9 @@
 			$(this).parent().parent().remove();
 			cycle_list_update();
 		});
-		$('#contem-modelos .model-container').off('click.pom').on('click.pom', function (e) {
+		$('#contem-modelos .model-container, #contem-ciclo .model-container').off('click.pom').on('click.pom', function (e) {
 			e.preventDefault();
-			loadModel($(this).data('modelid'));
+			loadModel($(this).data('modelid'), this);
 		});
 		setupSortable();
 		S.qtddTasks = $('ul#contem-ciclo li').length;

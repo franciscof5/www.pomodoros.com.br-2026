@@ -1961,6 +1961,32 @@ body.pomo-app #center_layout [class*="col-"] {
 }
 
 /* ================================================================== */
+/* SortableJS - drag/reorder of tasks (TODO list <-> cycle)            */
+/* ================================================================== */
+body.pomo-app .pomo-sortable-ghost {
+	opacity: 0.3;
+	background: var(--pomo-surface-2) !important;
+	border-style: dashed !important;
+	border-color: var(--pomo-accent) !important;
+}
+
+body.pomo-app .pomo-sortable-chosen {
+	border-color: var(--pomo-accent) !important;
+}
+
+body.pomo-app .pomo-sortable-drag {
+	opacity: 0.95;
+	box-shadow: 0 18px 34px -18px rgba(0, 0, 0, 0.95);
+	border-color: var(--pomo-accent) !important;
+	cursor: grabbing;
+}
+
+body.pomo-app #contem-modelos li .pomo-task__handle,
+body.pomo-app #contem-ciclo li .pomo-task__handle {
+	cursor: grab;
+}
+
+/* ================================================================== */
 /* Focus - wide 3-column layout: panel | timer | tasks                 */
 /* ================================================================== */
 @media (min-width: 1080px) {
