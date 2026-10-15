@@ -1136,6 +1136,32 @@
 		});
 	}
 
+	// Single debounced save for the cycle. While a drag is in progress we only
+	// mark it dirty and flush once on drop, so it never fires twice nor toasts
+	// mid-drag.
+	function queueCycleSave() {
+		if (S.cycleSaveTimer) window.clearTimeout(S.cycleSaveTimer);
+		S.cycleSaveTimer = window.setTimeout(function () {
+			S.cycleSaveTimer = null;
+			S.cyclePendingSave = false;
+			cycle_list_update();
+		}, 300);
+	}
+
+	function scheduleCycleSave() {
+		if (S.cycleSuppressSave) return;
+		if (S.dragging) {
+			S.cyclePendingSave = true;
+			return;
+		}
+		queueCycleSave();
+	}
+
+	function endDragFlush() {
+		S.dragging = false;
+		if (S.cyclePendingSave) queueCycleSave();
+	}
+
 	function confirmAction(message, onOk) {
 		if (window.alertify && typeof window.alertify.confirm === 'function') {
 			window.alertify.confirm(message, function () { onOk(); });
@@ -1245,61 +1271,55 @@
 		if (todo && !S.todoSortable) {
 			S.todoSortable = window.Sortable.create(todo, Object.assign({}, base, {
 				group: { name: 'pomo-tasks', pull: 'clone', put: false },
-				sort: false
+				sort: false,
+				onStart: function () { S.dragging = true; },
+				onEnd: function () { endDragFlush(); }
 			}));
 		}
 
 		// Cycle list: the ordered sequence of pomodoros. Accepts clones from
 		// the TODO list, can be reordered, and removes an item when dropped out.
 		if (cycle && !S.cycleSortable) {
-			var saveCycle = function () {
-				if (S.cycleSuppressSave) return;
-				if (S.cycleSaveTimer) window.clearTimeout(S.cycleSaveTimer);
-				S.cycleSaveTimer = window.setTimeout(function () {
-					S.cycleSaveTimer = null;
-					cycle_list_update();
-				}, 250);
-			};
-
 			S.cycleSortable = window.Sortable.create(cycle, Object.assign({}, base, {
 				group: { name: 'pomo-tasks', pull: true, put: true },
 				sort: true,
 				removeOnSpill: true,
+				onStart: function () { S.dragging = true; },
 				onClone: function (evt) {
 					normalizeCycleItem(evt.item);
 				},
 				onAdd: function (evt) {
 					normalizeCycleItem(evt.item);
 					refreshTasksUI();
-					saveCycle();
+					scheduleCycleSave();
 				},
 				onUpdate: function () {
 					refreshTasksUI();
-					saveCycle();
+					scheduleCycleSave();
 				},
 				onSort: function () {
-					saveCycle();
+					scheduleCycleSave();
 				},
 				onRemove: function () {
 					refreshTasksUI();
-					saveCycle();
+					scheduleCycleSave();
 				},
 				onSpill: function () {
 					refreshTasksUI();
-					saveCycle();
+					scheduleCycleSave();
 				},
 				onEnd: function () {
 					refreshTasksUI();
-					saveCycle();
+					endDragFlush();
 				}
 			}));
 
 			// Safety net: any DOM change in the cycle (add/reorder/remove/spill)
-			// triggers a save, regardless of which Sortable event fired.
+			// triggers the same debounced save, regardless of Sortable events.
 			if (window.MutationObserver) {
 				S.cycleObserver = new window.MutationObserver(function () {
 					refreshTasksUI();
-					saveCycle();
+					scheduleCycleSave();
 				});
 				S.cycleObserver.observe(cycle, { childList: true });
 			}
@@ -1326,7 +1346,6 @@
 			e.preventDefault();
 			var li = this.closest('li');
 			if (li && li.parentNode) li.parentNode.removeChild(li);
-			cycle_list_update();
 			refreshTasksUI();
 		});
 
@@ -1335,9 +1354,8 @@
 			e.preventDefault();
 			var li = this.closest('li');
 			confirmAction(t('txt_confirm_remove_cycle', 'Remover esta tarefa do ciclo automatico?'), function () {
+				// Removing the node triggers the MutationObserver -> single save.
 				if (li && li.parentNode) li.parentNode.removeChild(li);
-				cycle_list_update();
-				refreshTasksUI();
 			});
 		});
 
