@@ -156,6 +156,56 @@
 		var notifyButton = document.querySelector('.js-pomo-notify');
 		var notifyLabel = notifyButton ? notifyButton.querySelector('.js-pomo-notify-label') : null;
 		var pushCfg = window.pomoPush || {};
+		var nativePushInit = false;
+		var capac = window.Capacitor;
+		var isNativeApp = !!(capac && typeof capac.isNativePlatform === 'function' && capac.isNativePlatform() && capac.Plugins && capac.Plugins.PushNotifications);
+
+		function nativePush() {
+			return window.Capacitor.Plugins.PushNotifications;
+		}
+
+		function saveDeviceToken(token) {
+			if (!token || !window.jQuery || !pushCfg.ajax) return;
+			window.jQuery.post(pushCfg.ajax, { action: 'save_device_token', token: token, platform: 'android' });
+		}
+
+		function removeDeviceToken() {
+			if (!window.jQuery || !pushCfg.ajax) return;
+			window.jQuery.post(pushCfg.ajax, { action: 'remove_device_token' });
+		}
+
+		// Native app (Android/Capacitor): use the native FCM push plugin.
+		function initNativePush() {
+			if (!isNativeApp || nativePushInit) return;
+			nativePushInit = true;
+			var Push = nativePush();
+			try {
+				Push.addListener('registration', function (t) {
+					if (t && t.value) {
+						saveDeviceToken(t.value);
+						setNotifyState(true);
+					}
+				});
+				Push.addListener('registrationError', function () {});
+			} catch (e) {}
+		}
+
+		function registerNativePush(callback) {
+			initNativePush();
+			var Push = nativePush();
+			try {
+				Push.requestPermissions().then(function (res) {
+					if (res && res.receive === 'granted') {
+						Push.register();
+						if (callback) callback(true);
+					} else if (callback) {
+						callback(false);
+					}
+				});
+			} catch (e) {
+				if (callback) callback(false);
+			}
+		}
 
 		function setNotifyState(on) {
 			if (!notifyButton) return;
@@ -173,7 +223,7 @@
 		}
 
 		function pushSupported() {
-			return ('serviceWorker' in navigator) && ('PushManager' in window) && ('Notification' in window);
+			return isNativeApp || (('serviceWorker' in navigator) && ('PushManager' in window) && ('Notification' in window));
 		}
 
 		function getRegistration() {
@@ -198,6 +248,9 @@
 		}
 
 		function subscribePush() {
+			if (isNativeApp) {
+				return new Promise(function (resolve) { registerNativePush(function (ok) { setNotifyState(!!ok); resolve(ok); }); });
+			}
 			return getRegistration().then(function (reg) {
 				return reg.pushManager.getSubscription().then(function (existing) {
 					if (existing) {
@@ -218,6 +271,11 @@
 		}
 
 		function unsubscribePush() {
+			if (isNativeApp) {
+				removeDeviceToken();
+				setNotifyState(false);
+				return Promise.resolve(null);
+			}
 			return getRegistration().then(function (reg) {
 				return reg.pushManager.getSubscription().then(function (sub) {
 					if (!sub) {
@@ -251,6 +309,11 @@
 
 		function refreshNotifyState() {
 			if (!notifyButton) return;
+			if (isNativeApp) {
+				initNativePush();
+				registerNativePush(function (granted) { setNotifyState(!!granted); });
+				return;
+			}
 			if (!pushSupported() || Notification.permission !== 'granted') {
 				setNotifyState(false);
 				return;
@@ -274,6 +337,12 @@
 				if (notifyButton.classList.contains('is-on')) {
 					unsubscribePush().then(function () {
 						toast('Notificações desativadas', 'log');
+					});
+					return;
+				}
+				if (isNativeApp) {
+					subscribePush().then(function () {
+						toast('Notificações ativadas', 'suc');
 					});
 					return;
 				}

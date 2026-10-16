@@ -238,7 +238,7 @@ function pomo_push_complete_now() {
 	}
 	delete_user_meta( $user_id, 'pomo_push_pending' );
 	if ( is_array( $pending ) ) {
-		pomo_webpush_send( $user_id, pomo_push_payload( $pending ) );
+		pomo_send_completion_push( $user_id, pomo_push_payload( $pending ) );
 	}
 }
 
@@ -249,5 +249,183 @@ function pomo_push_due_handler( $user_id ) {
 	if ( ! is_array( $pending ) ) {
 		return;
 	}
-	pomo_webpush_send( $user_id, pomo_push_payload( $pending ) );
+	pomo_send_completion_push( $user_id, pomo_push_payload( $pending ) );
+}
+
+/* ------------------------------------------------------------------ */
+/* Native app (Android/FCM) device tokens                              */
+/* ------------------------------------------------------------------ */
+
+function pomo_device_tokens( $user_id ) {
+	$t = get_user_meta( $user_id, 'pomo_device_tokens', true );
+	return is_array( $t ) ? $t : array();
+}
+
+function pomo_save_device_token() {
+	checkLogin();
+	$user_id  = get_current_user_id();
+	$token    = isset( $_POST['token'] ) ? sanitize_text_field( wp_unslash( $_POST['token'] ) ) : '';
+	$platform = isset( $_POST['platform'] ) ? sanitize_text_field( wp_unslash( $_POST['platform'] ) ) : 'android';
+	header( 'Content-type: application/json' );
+	if ( ! $token ) {
+		echo wp_json_encode( array( 'saved' => false ) );
+		die;
+	}
+	$t = pomo_device_tokens( $user_id );
+	$t[ $token ] = array( 'token' => $token, 'platform' => $platform, 'created' => time() );
+	update_user_meta( $user_id, 'pomo_device_tokens', $t );
+	echo wp_json_encode( array( 'saved' => true ) );
+	die;
+}
+
+function pomo_remove_device_token() {
+	checkLogin();
+	$user_id = get_current_user_id();
+	$token   = isset( $_POST['token'] ) ? sanitize_text_field( wp_unslash( $_POST['token'] ) ) : '';
+	$t = pomo_device_tokens( $user_id );
+	if ( $token && isset( $t[ $token ] ) ) {
+		unset( $t[ $token ] );
+	} else {
+		$t = array();
+	}
+	update_user_meta( $user_id, 'pomo_device_tokens', $t );
+	header( 'Content-type: application/json' );
+	echo wp_json_encode( array( 'removed' => true ) );
+	die;
+}
+
+function pomo_fcm_service_account() {
+	$paths = array(
+		get_stylesheet_directory() . '/firebase-service-account.json',
+		ABSPATH . 'pomo-firebase-service-account.json',
+	);
+	foreach ( $paths as $p ) {
+		if ( file_exists( $p ) ) {
+			$j = json_decode( file_get_contents( $p ), true );
+			if ( is_array( $j ) && ! empty( $j['client_email'] ) && ! empty( $j['private_key'] ) && ! empty( $j['project_id'] ) ) {
+				return $j;
+			}
+		}
+	}
+	$opt = get_option( 'pomo_fcm_service_account' );
+	if ( is_string( $opt ) && '' !== $opt ) {
+		$j = json_decode( $opt, true );
+		if ( is_array( $j ) && ! empty( $j['private_key'] ) && ! empty( $j['project_id'] ) ) {
+			return $j;
+		}
+	}
+	return null;
+}
+
+function pomo_fcm_access_token() {
+	$cached = get_transient( 'pomo_fcm_access_token' );
+	if ( $cached ) {
+		return $cached;
+	}
+	$sa = pomo_fcm_service_account();
+	if ( ! $sa ) {
+		return '';
+	}
+	$token_uri = ! empty( $sa['token_uri'] ) ? $sa['token_uri'] : 'https://oauth2.googleapis.com/token';
+	$now = time();
+	$b64 = function ( $d ) { return rtrim( strtr( base64_encode( $d ), '+/', '-_' ), '=' ); };
+	$header = $b64( wp_json_encode( array( 'alg' => 'RS256', 'typ' => 'JWT' ) ) );
+	$claims = $b64( wp_json_encode( array(
+		'iss'   => $sa['client_email'],
+		'scope' => 'https://www.googleapis.com/auth/firebase.messaging',
+		'aud'   => $token_uri,
+		'iat'   => $now,
+		'exp'   => $now + 3600,
+	) ) );
+	$signing = $header . '.' . $claims;
+	$key = openssl_pkey_get_private( $sa['private_key'] );
+	if ( ! $key ) {
+		error_log( 'pomo_fcm: invalid service account private key' );
+		return '';
+	}
+	$sig = '';
+	openssl_sign( $signing, $sig, $key, OPENSSL_ALGO_SHA256 );
+	$jwt = $signing . '.' . $b64( $sig );
+
+	$res = wp_remote_post( $token_uri, array(
+		'timeout' => 15,
+		'body'    => array(
+			'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+			'assertion'  => $jwt,
+		),
+	) );
+	if ( is_wp_error( $res ) ) {
+		error_log( 'pomo_fcm token error: ' . $res->get_error_message() );
+		return '';
+	}
+	$body = json_decode( wp_remote_retrieve_body( $res ), true );
+	if ( empty( $body['access_token'] ) ) {
+		error_log( 'pomo_fcm token response: ' . wp_remote_retrieve_body( $res ) );
+		return '';
+	}
+	set_transient( 'pomo_fcm_access_token', $body['access_token'], 3000 );
+	return $body['access_token'];
+}
+
+function pomo_fcm_send( $user_id, $payload ) {
+	$tokens = pomo_device_tokens( $user_id );
+	if ( ! $tokens ) {
+		return 0;
+	}
+	$sa = pomo_fcm_service_account();
+	if ( ! $sa ) {
+		return 0;
+	}
+	$access = pomo_fcm_access_token();
+	if ( ! $access ) {
+		return 0;
+	}
+	$endpoint = 'https://fcm.googleapis.com/v1/projects/' . $sa['project_id'] . '/messages:send';
+	$sent = 0;
+	$dead = array();
+	foreach ( $tokens as $t ) {
+		if ( empty( $t['token'] ) ) {
+			continue;
+		}
+		$message = array(
+			'message' => array(
+				'token'        => $t['token'],
+				'notification' => array( 'title' => $payload['title'], 'body' => $payload['body'] ),
+				'data'         => array( 'url' => ! empty( $payload['url'] ) ? $payload['url'] : home_url( '/focus/' ) ),
+				'android'      => array( 'priority' => 'HIGH', 'notification' => array( 'channel_id' => 'pomodoro', 'sound' => 'default' ) ),
+			),
+		);
+		$res = wp_remote_post( $endpoint, array(
+			'timeout' => 15,
+			'headers' => array( 'Authorization' => 'Bearer ' . $access, 'Content-Type' => 'application/json' ),
+			'body'    => wp_json_encode( $message ),
+		) );
+		if ( is_wp_error( $res ) ) {
+			continue;
+		}
+		$code = (int) wp_remote_retrieve_response_code( $res );
+		if ( $code >= 200 && $code < 300 ) {
+			$sent++;
+		} elseif ( 404 === $code || 400 === $code ) {
+			$dead[ $t['token'] ] = true;
+		}
+	}
+	if ( $dead ) {
+		$kept = array();
+		foreach ( $tokens as $t ) {
+			if ( empty( $dead[ $t['token'] ] ) ) {
+				$kept[] = $t;
+			}
+		}
+		update_user_meta( $user_id, 'pomo_device_tokens', $kept );
+	}
+	return $sent;
+}
+
+/**
+ * Send the pomodoro-completed notification through every available channel.
+ */
+function pomo_send_completion_push( $user_id, $payload ) {
+	pomo_webpush_send( $user_id, $payload );
+	pomo_fcm_send( $user_id, $payload );
 }
