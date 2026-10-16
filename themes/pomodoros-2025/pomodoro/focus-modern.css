@@ -2272,7 +2272,7 @@ body.pomo-app .pomo-task__handle {
 	color: var(--pomo-muted);
 	opacity: 0.65;
 	cursor: grab;
-	padding-top: 7px;
+	padding-top: 2px;
 }
 
 body.pomo-app .pomo-task__handle:active {
@@ -2283,7 +2283,7 @@ body.pomo-app .pomo-task__body {
 	display: block;
 	min-width: 0;
 	flex: 1;
-	line-height: 0;
+	line-height: 1;
 }
 
 body.pomo-app .pomo-task__title,
