@@ -81,10 +81,10 @@ add_filter('query_vars', 'custom_query_vars');
 // for Web Push to control /focus/ and other pages).
 add_action('init', 'pomo_register_sw_rewrite');
 function pomo_register_sw_rewrite() {
-	add_rewrite_rule('^sw\.js$', 'index.php?pomo_sw=1', 'top');
-	if (get_option('pomo_sw_rewrite_ver') !== '1') {
+	add_rewrite_rule('^sw\.js/?$', 'index.php?pomo_sw=1', 'top');
+	if (get_option('pomo_sw_rewrite_ver') !== '2') {
 		flush_rewrite_rules(false);
-		update_option('pomo_sw_rewrite_ver', '1');
+		update_option('pomo_sw_rewrite_ver', '2');
 	}
 }
 function pomo_sw_query_var($vars) {
@@ -92,6 +92,14 @@ function pomo_sw_query_var($vars) {
 	return $vars;
 }
 add_filter('query_vars', 'pomo_sw_query_var');
+// /sw.js must not get a canonical trailing-slash redirect.
+add_filter('redirect_canonical', 'pomo_sw_no_canonical', 10, 2);
+function pomo_sw_no_canonical($redirect_url, $requested_url) {
+	if (get_query_var('pomo_sw')) {
+		return false;
+	}
+	return $redirect_url;
+}
 add_action('template_redirect', 'pomo_serve_sw');
 function pomo_serve_sw() {
 	if (!get_query_var('pomo_sw')) {
