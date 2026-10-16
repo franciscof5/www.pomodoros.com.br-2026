@@ -1,76 +1,14 @@
 <?php
 /**
- * Server-side Web Push for completed pomodoros.
+ * Server-side "pomodoro completed" push.
  *
- * When a `projectimer_focus` post transitions from `future` to `publish`
- * (i.e. a running focus timer finished, either because WordPress published
- * the scheduled post or because the client called save_progress("publish")),
- * we send a OneSignal notification to the post author only.
- *
- * This keeps working while the phone screen is locked or the app/browser is
- * closed. It relies on the OneSignal plugin settings (`OneSignalWPSetting`)
- * and on the client registering the WordPress user id as the OneSignal
- * external id (see pomodoro/focus-ui.js).
+ * Fired when a `projectimer_focus` post reaches `publish` (future -> publish)
+ * or is sent directly by the completion trigger. Delegates to the Web Push
+ * (VAPID) sender in inc/webpush.php.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
-}
-
-if ( ! function_exists( 'pomodoro_push_credentials' ) ) {
-	/**
-	 * Read the OneSignal credentials configured by the OneSignal plugin.
-	 *
-	 * @return array|null { app_id, api_key } or null when not configured.
-	 */
-	function pomodoro_push_credentials() {
-		$settings = get_option( 'OneSignalWPSetting' );
-
-		if ( ! is_array( $settings ) ) {
-			return null;
-		}
-
-		$app_id  = isset( $settings['app_id'] ) ? trim( (string) $settings['app_id'] ) : '';
-		$api_key = isset( $settings['app_rest_api_key'] ) ? trim( (string) $settings['app_rest_api_key'] ) : '';
-
-		if ( '' === $app_id || '' === $api_key ) {
-			return null;
-		}
-
-		return array(
-			'app_id'  => $app_id,
-			'api_key' => $api_key,
-		);
-	}
-}
-
-if ( ! function_exists( 'pomodoro_push_post' ) ) {
-	/**
-	 * Send a notification payload to the OneSignal REST API.
-	 *
-	 * @param array $payload Notification payload.
-	 * @param array $creds   Credentials from pomodoro_push_credentials().
-	 * @return int HTTP status code (0 on WP_Error).
-	 */
-	function pomodoro_push_post( $payload, $creds ) {
-		$response = wp_remote_post(
-			'https://onesignal.com/api/v1/notifications',
-			array(
-				'headers' => array(
-					'Content-Type'  => 'application/json; charset=utf-8',
-					'Authorization' => 'Basic ' . $creds['api_key'],
-				),
-				'body'    => wp_json_encode( $payload ),
-				'timeout' => 5,
-			)
-		);
-
-		if ( is_wp_error( $response ) ) {
-			return 0;
-		}
-
-		return (int) wp_remote_retrieve_response_code( $response );
-	}
 }
 
 if ( ! function_exists( 'pomodoro_push_send_completion' ) ) {
