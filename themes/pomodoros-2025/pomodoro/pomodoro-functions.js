@@ -147,24 +147,6 @@
 		}
 	}
 
-	// The cycle list is stored as raw HTML in user meta. Older sessions saved
-	// inline colors (white background / black text and icons) from animations
-	// that no longer exist and made the list unreadable on the dark theme.
-	// We also mirror the TODO item classes so both lists share the same look.
-	function cleanCycleInlineStyles() {
-		var root = byId('contem-ciclo');
-		if (!root) return;
-		var items = root.querySelectorAll('li');
-		for (var i = 0; i < items.length; i++) {
-			items[i].removeAttribute('style');
-			items[i].classList.add('modelo-carregado');
-			items[i].classList.add('ui-draggable');
-			items[i].classList.add('ui-draggable-handle');
-		}
-		var styled = root.querySelectorAll('li *[style]');
-		for (var j = 0; j < styled.length; j++) styled[j].removeAttribute('style');
-	}
-
 	function announce(message, kind) {
 		if (S.voice) {
 			try {
@@ -1087,21 +1069,36 @@
 		});
 	}
 
-	function loadModel(id) {
+	function loadModel(id, sourceEl) {
 		debug('loadModel', id);
 		announce(t('txt_loading_model', 'Tarefa carregada, hora de produzir!'));
-		var titleEl = byId('bxtitle' + id);
-		if (titleEl) setVal('title_box', titleEl.textContent);
-		var contentEl = byId('bxcontent' + id);
-		setVal('description_box', contentEl ? contentEl.textContent : '');
 
-		var tagEl = byId('bxtag' + id);
+		var title = '';
+		if (sourceEl) {
+			var titleEl = sourceEl.querySelector('.pomo-task__title') || sourceEl.querySelector('[id^="bxtitle"]');
+			if (titleEl) title = titleEl.textContent;
+		} else {
+			var globalTitle = byId('bxtitle' + id);
+			if (globalTitle) title = globalTitle.textContent;
+		}
+		if (title) setVal('title_box', title);
+
 		var tags = [];
-		if (tagEl) {
-			tagEl.textContent.split(',').forEach(function (part) {
-				var clean = part.replace(/\s+/g, '');
-				if (clean) tags.push(clean);
-			});
+		if (sourceEl) {
+			var chips = sourceEl.querySelectorAll('.pomo-task__tag');
+			for (var i = 0; i < chips.length; i++) {
+				var slug = chips[i].textContent.replace(/\s+/g, '');
+				if (slug) tags.push(slug);
+			}
+		}
+		if (!tags.length) {
+			var tagEl = byId('bxtag' + id);
+			if (tagEl) {
+				tagEl.textContent.split(',').forEach(function (part) {
+					var clean = part.replace(/\s+/g, '');
+					if (clean) tags.push(clean);
+				});
+			}
 		}
 		if (S.tagSelect && tags.length) {
 			S.tagSelect.addOptions(tags.map(function (name) {
@@ -1113,32 +1110,75 @@
 
 	function cycle_list_update(clean) {
 		refreshTasksUI();
+		var ids = [];
+		jQuery('#contem-ciclo li').each(function () {
+			var container = this.querySelector('[data-modelid]');
+			if (container) ids.push(jQuery(container).data('modelid'));
+		});
 		var payload = {
 			action: 'update_cycle_list',
-			list: $('#contem-ciclo').html(),
+			ids: JSON.stringify(ids),
 			clean: clean
 		};
 		if (clean) announce('Cleaning list...');
 		$.post(window.ajaxurl, payload, function (response) {
-			if (clean) {
-				if (response) {
-					announce('Cycle list cleared');
-					$('#contem-ciclo').html('');
-					refreshTasksUI();
-				}
+			if (clean && response) {
+				if (window.alertify) window.alertify.success('Ciclo limpo');
+				S.cycleSuppressSave = true;
+				$('#contem-ciclo').html('');
+				refreshTasksUI();
+				window.setTimeout(function () { S.cycleSuppressSave = false; }, 0);
 			} else if (response) {
-				announce('updating cycle list');
+				if (window.alertify) window.alertify.success('Ciclo salvo');
 			} else {
-				announce('Not updated cycle list', 'er');
+				if (window.alertify) window.alertify.error('Falha ao salvar o ciclo');
 			}
 		});
 	}
 
+	// Single debounced save for the cycle. While a drag is in progress we only
+	// mark it dirty and flush once on drop, so it never fires twice nor toasts
+	// mid-drag.
+	function queueCycleSave() {
+		if (S.cycleSaveTimer) window.clearTimeout(S.cycleSaveTimer);
+		S.cycleSaveTimer = window.setTimeout(function () {
+			S.cycleSaveTimer = null;
+			S.cyclePendingSave = false;
+			cycle_list_update();
+		}, 300);
+	}
+
+	function scheduleCycleSave() {
+		if (S.cycleSuppressSave) return;
+		if (S.dragging) {
+			S.cyclePendingSave = true;
+			return;
+		}
+		queueCycleSave();
+	}
+
+	function endDragFlush() {
+		S.dragging = false;
+		if (S.cyclePendingSave) queueCycleSave();
+	}
+
+	function confirmAction(message, onOk) {
+		if (window.alertify && typeof window.alertify.confirm === 'function') {
+			window.alertify.confirm(message, function () { onOk(); });
+			return;
+		}
+		if (window.confirm(message)) onOk();
+	}
+
 	function cycle_list_load_model() {
-		var currentModelId = jQuery('#contem-ciclo li:nth-child(' + S.cycleIndex + ')').find('[data-modelid]').data('modelid');
+		var li = document.querySelector('#contem-ciclo li:nth-child(' + S.cycleIndex + ')');
 		jQuery('#contem-ciclo li').removeClass('cycleSelectedTask');
-		jQuery('#contem-ciclo li:nth-child(' + S.cycleIndex + ')').addClass('cycleSelectedTask');
-		if (currentModelId !== undefined) loadModel(currentModelId);
+		if (!li) return;
+		li.classList.add('cycleSelectedTask');
+		var container = li.querySelector('[data-modelid]');
+		if (container) {
+			loadModel(jQuery(container).data('modelid'), container);
+		}
 	}
 
 	function cycle_list_play() {
@@ -1181,48 +1221,109 @@
 		cycle_list_load_model();
 	}
 
+	function stripIds(el) {
+		if (!el) return;
+		el.removeAttribute('id');
+		var withIds = el.querySelectorAll('[id]');
+		for (var i = 0; i < withIds.length; i++) withIds[i].removeAttribute('id');
+	}
+
+	// A task cloned from the TODO list into the cycle keeps the same look but
+	// must expose only the "remove from cycle" (minus) action.
+	function normalizeCycleItem(li) {
+		if (!li) return;
+		stripIds(li);
+		li.classList.add('modelo-carregado');
+		var extra = li.querySelector('.model-container-extra');
+		if (!extra) return;
+		var del = extra.querySelector('.delete-task-model-btn');
+		var rem = extra.querySelector('.remove-task-from-list-btn');
+		if (del && del.parentNode) del.parentNode.removeChild(del);
+		if (rem && rem.parentNode) rem.parentNode.removeChild(rem);
+		if (!extra.querySelector('.remove-cycle-item-btn')) {
+			var container = li.querySelector('[data-modelid]');
+			var mid = container ? container.getAttribute('data-modelid') : '';
+			var btn = document.createElement('button');
+			btn.type = 'button';
+			btn.className = 'remove-cycle-item-btn';
+			if (mid) btn.setAttribute('data-modelid', mid);
+			btn.title = 'Remover do ciclo';
+			btn.setAttribute('aria-label', 'Remover do ciclo');
+			btn.innerHTML = '<span class="fas fa-minus"></span>';
+			extra.appendChild(btn);
+		}
+	}
+
 	function setupSortable() {
-		if (!$ || !$.fn || !$.fn.sortable) return;
+		if (!window.Sortable) return;
+		var todo = byId('contem-modelos');
+		var cycle = byId('contem-ciclo');
 
-		if (!S.sortableReady) {
-			var removeIntent = false;
+		var base = {
+			animation: 160,
+			ghostClass: 'pomo-sortable-ghost',
+			chosenClass: 'pomo-sortable-chosen',
+			dragClass: 'pomo-sortable-drag',
+			filter: '.delete-task-model-btn, .remove-task-from-list-btn, .remove-cycle-item-btn, button, input, a'
+		};
 
-			$('#contem-ciclo').sortable({
-				revert: true,
-				over: function () {
-					removeIntent = false;
-				},
-				out: function () {
-					removeIntent = true;
-				},
-				beforeStop: function (event, ui) {
-					if (removeIntent === true) ui.item.remove();
-				},
-				receive: function () {
-					cycle_list_update();
-				}
-			}).droppable({
-				out: function () {
-					cycle_list_update();
-				}
-			});
-
-			S.sortableReady = true;
+		// TODO list: source of clones (drag out to build the cycle sequence).
+		if (todo && !S.todoSortable) {
+			S.todoSortable = window.Sortable.create(todo, Object.assign({}, base, {
+				group: { name: 'pomo-tasks', pull: 'clone', put: false },
+				sort: false,
+				onStart: function () { S.dragging = true; },
+				onEnd: function () { endDragFlush(); }
+			}));
 		}
 
-		// (Re)apply draggable so tasks added after page load can also be
-		// dragged into the automatic cycle.
-		if ($.fn.draggable) {
-			$('#contem-modelos li').not('.ui-draggable').draggable({
-				connectToSortable: '#contem-ciclo',
-				snap: '#contem-ciclo',
-				snapMode: 'outer',
-				helper: 'clone',
-				revert: 'invalid',
-				cursor: 'move'
-			});
+		// Cycle list: the ordered sequence of pomodoros. Accepts clones from
+		// the TODO list, can be reordered, and removes an item when dropped out.
+		if (cycle && !S.cycleSortable) {
+			S.cycleSortable = window.Sortable.create(cycle, Object.assign({}, base, {
+				group: { name: 'pomo-tasks', pull: true, put: true },
+				sort: true,
+				removeOnSpill: true,
+				onStart: function () { S.dragging = true; },
+				onClone: function (evt) {
+					normalizeCycleItem(evt.item);
+				},
+				onAdd: function (evt) {
+					normalizeCycleItem(evt.item);
+					refreshTasksUI();
+					scheduleCycleSave();
+				},
+				onUpdate: function () {
+					refreshTasksUI();
+					scheduleCycleSave();
+				},
+				onSort: function () {
+					scheduleCycleSave();
+				},
+				onRemove: function () {
+					refreshTasksUI();
+					scheduleCycleSave();
+				},
+				onSpill: function () {
+					refreshTasksUI();
+					scheduleCycleSave();
+				},
+				onEnd: function () {
+					refreshTasksUI();
+					endDragFlush();
+				}
+			}));
+
+			// Safety net: any DOM change in the cycle (add/reorder/remove/spill)
+			// triggers the same debounced save, regardless of Sortable events.
+			if (window.MutationObserver) {
+				S.cycleObserver = new window.MutationObserver(function () {
+					refreshTasksUI();
+					scheduleCycleSave();
+				});
+				S.cycleObserver.observe(cycle, { childList: true });
+			}
 		}
-		if ($.fn.disableSelection) $('ul, li').disableSelection();
 	}
 
 	function modelTaskButtons() {
@@ -1230,19 +1331,40 @@
 			e.preventDefault();
 			saveModel();
 		});
-		$('.delete-task-model-btn').off('click.pom').on('click.pom', function (e) {
+
+		// Complete a pomodoro (TODO list): asks for confirmation first.
+		$(document).off('click.pom', '.delete-task-model-btn').on('click.pom', '.delete-task-model-btn', function (e) {
 			e.preventDefault();
-			deleteModel($(this).data('modelid'));
+			var id = $(this).data('modelid');
+			confirmAction(t('txt_confirm_complete', 'Concluir este pomodoro? A tarefa sera marcada como concluida.'), function () {
+				deleteModel(id);
+			});
 		});
-		$('.remove-task-from-list-btn').off('click.pom').on('click.pom', function (e) {
+
+		// Remove a task from the TODO list (does not complete it).
+		$(document).off('click.pom', '.remove-task-from-list-btn').on('click.pom', '.remove-task-from-list-btn', function (e) {
 			e.preventDefault();
-			$(this).parent().parent().remove();
-			cycle_list_update();
+			var li = this.closest('li');
+			if (li && li.parentNode) li.parentNode.removeChild(li);
+			refreshTasksUI();
 		});
-		$('#contem-modelos .model-container').off('click.pom').on('click.pom', function (e) {
+
+		// Remove an item from the automatic cycle: asks for confirmation first.
+		$(document).off('click.pom', '.remove-cycle-item-btn').on('click.pom', '.remove-cycle-item-btn', function (e) {
 			e.preventDefault();
-			loadModel($(this).data('modelid'));
+			var li = this.closest('li');
+			confirmAction(t('txt_confirm_remove_cycle', 'Remover esta tarefa do ciclo automatico?'), function () {
+				// Removing the node triggers the MutationObserver -> single save.
+				if (li && li.parentNode) li.parentNode.removeChild(li);
+			});
 		});
+
+		$(document).off('click.pom', '.model-container').on('click.pom', '.model-container', function (e) {
+			e.preventDefault();
+			if (e.target.closest('.remove-cycle-item-btn, .delete-task-model-btn, .remove-task-from-list-btn')) return;
+			loadModel($(this).data('modelid'), this);
+		});
+
 		setupSortable();
 		S.qtddTasks = $('ul#contem-ciclo li').length;
 		refreshTasksUI();
@@ -1437,7 +1559,6 @@
 		scheduleDigitalClock();
 		bindUi();
 		bindFormChange();
-		cleanCycleInlineStyles();
 		startContinuousArtyom();
 		startNoSleepWakeLock();
 		announce(t('txt_loading_initial_data', 'Bem vindo ao Pomodoros.com.br'));

@@ -3232,6 +3232,8 @@ div.post .postmetadata {
 	background-color: #CCC;
 	padding: 5px 0px 2px 6px;
 	width: 100%;
+	padding: 2px 0 !important;
+ 	border-radius: 5px;
 }
 #contem-ciclo .modelo-carregado {
 	background-color: #FFF;
