@@ -93,57 +93,31 @@ if ( ! function_exists( 'pomodoro_push_send_completion' ) ) {
 			return;
 		}
 
-		$creds = pomodoro_push_credentials();
-		if ( null === $creds ) {
-			return;
-		}
-
 		update_post_meta( $post->ID, '_pomodoro_push_sent', 1 );
 
 		$task = '' !== trim( (string) $post->post_title ) ? $post->post_title : __( 'Pomodoro', 'sis-foca-js' );
 
 		$payload = array(
-			'app_id'          => $creds['app_id'],
-			'include_aliases' => array(
-				'external_id' => array( (string) $author_id ),
-			),
-			'target_channel'  => 'push',
-			'isAnyWeb'        => true,
-			'headings'        => array(
-				'en' => __( 'Pomodoro completed!', 'sis-foca-js' ),
-				'pt' => __( 'Pomodoro concluído!', 'sis-foca-js' ),
-			),
-			'contents'        => array(
-				'en' => sprintf( __( 'You finished "%s". Time to rest!', 'sis-foca-js' ), $task ),
-				'pt' => sprintf( __( 'Você concluiu "%s". Hora do descanso!', 'sis-foca-js' ), $task ),
-			),
-			'url'             => home_url( '/focus/' ),
-			'data'            => array(
-				'type'       => 'pomodoro_complete',
-				'post_id'    => (int) $post->ID,
-				'focus_url'  => home_url( '/focus/' ),
+			'title' => __( 'Pomodoro concluído!', 'sis-foca-js' ),
+			'body'  => sprintf( __( 'Você concluiu "%s". Hora do descanso!', 'sis-foca-js' ), $task ),
+			'url'   => home_url( '/focus/' ),
+			'tag'   => 'pomodoro-' . (int) $post->ID,
+			'data'  => array(
+				'type'    => 'pomodoro_complete',
+				'post_id' => (int) $post->ID,
+				'url'     => home_url( '/focus/' ),
 			),
 		);
 
 		/**
-		 * Filter the OneSignal payload before it is sent.
+		 * Filter the web push payload before it is sent.
 		 *
 		 * @param array   $payload Notification payload.
 		 * @param WP_Post $post    The completed pomodoro post.
 		 */
 		$payload = apply_filters( 'pomodoro_push_payload', $payload, $post );
 
-		$status = pomodoro_push_post( $payload, $creds );
-
-		if ( $status >= 400 ) {
-			// Fall back to the legacy external-id targeting fields used by
-			// older OneSignal apps / SDK v1.
-			unset( $payload['include_aliases'], $payload['target_channel'] );
-			$payload['include_external_user_ids']         = array( (string) $author_id );
-			$payload['channel_for_external_user_ids']     = 'push';
-
-			pomodoro_push_post( $payload, $creds );
-		}
+		pomo_webpush_send( $author_id, $payload );
 	}
 }
 

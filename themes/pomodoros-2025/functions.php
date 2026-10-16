@@ -5,6 +5,7 @@ Lógica mais louca usa a página 404 como central de tudo kkk
 */
 //
 require_once get_stylesheet_directory() . '/inc/pomodoro-push.php';
+require_once get_stylesheet_directory() . '/inc/webpush.php';
 
 add_action('wp_enqueue_scripts', 'load_scritps');
 add_action('login_form_middle', 'add_lost_password_link' );
@@ -20,6 +21,10 @@ add_action('wp_ajax_save_session_state', 'save_session_state');
 add_action('wp_ajax_nopriv_save_session_state', 'save_session_state');
 add_action('wp_ajax_save_rest', 'save_rest');
 add_action('wp_ajax_nopriv_save_rest', 'save_rest');
+add_action('wp_ajax_save_push_subscription', 'pomo_webpush_save_subscription');
+add_action('wp_ajax_nopriv_save_push_subscription', 'pomo_webpush_save_subscription');
+add_action('wp_ajax_remove_push_subscription', 'pomo_webpush_remove_subscription');
+add_action('wp_ajax_nopriv_remove_push_subscription', 'pomo_webpush_remove_subscription');
 add_action('wp_ajax_save_or_delete_model', 'save_or_delete_model');
 add_action('wp_ajax_nopriv_save_or_delete_model', 'save_or_delete_model');
 add_action('wp_ajax_update_cycle_list', 'update_cycle_list');
@@ -71,6 +76,33 @@ function custom_query_vars($vars) {
     return $vars;
 }
 add_filter('query_vars', 'custom_query_vars');
+
+// Service Worker exactly at the origin root, so its scope is "/" (required
+// for Web Push to control /focus/ and other pages).
+add_action('init', 'pomo_register_sw_rewrite');
+function pomo_register_sw_rewrite() {
+	add_rewrite_rule('^sw\.js$', 'index.php?pomo_sw=1', 'top');
+	if (get_option('pomo_sw_rewrite_ver') !== '1') {
+		flush_rewrite_rules(false);
+		update_option('pomo_sw_rewrite_ver', '1');
+	}
+}
+function pomo_sw_query_var($vars) {
+	$vars[] = 'pomo_sw';
+	return $vars;
+}
+add_filter('query_vars', 'pomo_sw_query_var');
+add_action('template_redirect', 'pomo_serve_sw');
+function pomo_serve_sw() {
+	if (!get_query_var('pomo_sw')) {
+		return;
+	}
+	header('Content-Type: application/javascript; charset=utf-8');
+	header('Service-Worker-Allowed: /');
+	header('Cache-Control: no-cache, no-store, must-revalidate');
+	readfile(get_stylesheet_directory() . '/inc/pomo-sw.js');
+	exit;
+}
 
 
 function admin_default_page() {
@@ -409,24 +441,12 @@ function load_scritps() {
 	if ( function_exists('pomodoro_is_app_shell_request') && pomodoro_is_app_shell_request() ) {
 		wp_enqueue_style('pomodoro-focus-css', get_bloginfo("stylesheet_directory")."/pomodoro/focus-modern.css", __FILE__, time());
 		wp_enqueue_script('pomodoro-focus-ui-js', get_bloginfo("stylesheet_directory")."/pomodoro/focus-ui.js", array('jquery'), time(), true);
-
-		// If the OneSignal plugin is not active but an App ID is configured,
-		// load the SDK ourselves so the "enable notifications" button works.
-		if ( ! class_exists('OneSignal_Public') ) {
-			$pomo_onesignal = get_option('OneSignalWPSetting');
-			if ( is_array($pomo_onesignal) && ! empty($pomo_onesignal['app_id']) ) {
-				$pomo_app_id   = trim($pomo_onesignal['app_id']);
-				$pomo_sdk_base = content_url('plugins/onesignal-free-web-push-notifications/sdk_files/');
-				wp_enqueue_script('pomodoro-onesignal-sdk', 'https://cdn.onesignal.com/sdks/OneSignalSDK.js', array(), null, false);
-				$pomo_os_init = sprintf(
-					'window.OneSignal=window.OneSignal||[];OneSignal.push(function(){OneSignal.SERVICE_WORKER_UPDATER_PATH="OneSignalSDKUpdaterWorker.js";OneSignal.SERVICE_WORKER_PATH="OneSignalSDKWorker.js";OneSignal.SERVICE_WORKER_PARAM={scope:"/"};OneSignal.setDefaultNotificationUrl(%1$s);OneSignal.init({appId:%2$s,allowLocalhostAsSecureOrigin:true,path:%3$s});});',
-					wp_json_encode(home_url('/focus/')),
-					wp_json_encode($pomo_app_id),
-					wp_json_encode($pomo_sdk_base)
-				);
-				wp_add_inline_script('pomodoro-onesignal-sdk', $pomo_os_init);
-			}
-		}
+		wp_localize_script('pomodoro-focus-ui-js', 'pomoPush', array(
+			'vapid'  => POMO_WEBPUSH_VAPID_PUBLIC,
+			'sw'     => home_url('/sw.js'),
+			'ajax'   => admin_url('admin-ajax.php'),
+			'userId' => get_current_user_id(),
+		));
 	}
 }
 
@@ -718,6 +738,7 @@ function save_progress () {
 	$tagsinput = $_POST['post_tags'];
 	
 	if($_POST["post_acao"]=="publish") {
+		pomo_push_complete_now();
 		$future = wp_get_post_from_current_user("future");
 		if($future) {
 			$update_status = array(
@@ -755,6 +776,9 @@ function save_progress () {
 
 		$save_progress = wp_insert_post( $my_post );
 		echo "save_progress: ".$save_progress;
+		if ($save_progress) {
+			pomo_push_schedule_pending( $save_progress, $data_post, isset($_POST['post_titulo']) ? sanitize_text_field( wp_unslash( $_POST['post_titulo'] ) ) : '' );
+		}
 		if($save_progress) {
 			if($save_progress) {
 				update_post_meta( $save_progress, 'post_location_city', $_POST['post_local_city'] );
@@ -791,6 +815,7 @@ function save_progress () {
 		}
 	}
 	if($_POST["post_acao"]=="interrupt") {
+		pomo_push_cancel_pending();
 		$future = wp_get_post_from_current_user("future");
 		if($future) {
 			echo wp_delete_post($future[0]->ID);

@@ -50,6 +50,9 @@
 	<?php wp_head(); ?>
 
 	<meta name="viewport" content="width=device-width, user-scalable=no">
+	<link rel="manifest" href="<?php echo esc_url( get_stylesheet_directory_uri() . '/assets/manifest.webmanifest' ); ?>">
+	<link rel="apple-touch-icon" href="<?php echo esc_url( get_stylesheet_directory_uri() . '/pomodoros-favicon.png' ); ?>">
+	<meta name="theme-color" content="#22c55e">
 </head>
 
 

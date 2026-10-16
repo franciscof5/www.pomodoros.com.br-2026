@@ -147,12 +147,15 @@
 		}
 
 		/* -------------------------------------------------------------- */
-		/* Notifications (OneSignal web push)                             */
+		/* Notifications (Web Push / VAPID + Service Worker)              */
+		/* Delivered by the system push service: works with the screen    */
+		/* off and even when the browser/app is closed.                   */
 		/* -------------------------------------------------------------- */
 		var userIdBox = document.getElementById('pomo-user-id');
 		var userId = userIdBox ? userIdBox.value : '';
 		var notifyButton = document.querySelector('.js-pomo-notify');
 		var notifyLabel = notifyButton ? notifyButton.querySelector('.js-pomo-notify-label') : null;
+		var pushCfg = window.pomoPush || {};
 
 		function setNotifyState(on) {
 			if (!notifyButton) return;
@@ -160,185 +163,136 @@
 			if (notifyLabel) notifyLabel.textContent = on ? 'Notificações ativas' : 'Ativar notificações';
 		}
 
-		// The OneSignal snippet defines window.OneSignal as an array (a command
-		// queue). Only treat it as "ready" once the real SDK object is present.
-		function realOneSignal() {
-			var sdk = window.OneSignal;
-			if (!sdk || Array.isArray(sdk)) return null;
-			if (typeof sdk.init === 'function' || sdk.User || sdk.Notifications ||
-				typeof sdk.registerForPushNotifications === 'function' ||
-				typeof sdk.showNativePrompt === 'function') {
-				return sdk;
-			}
-			return null;
+		function urlBase64ToUint8Array(base64String) {
+			var padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+			var base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+			var raw = window.atob(base64);
+			var out = new Uint8Array(raw.length);
+			for (var i = 0; i < raw.length; ++i) out[i] = raw.charCodeAt(i);
+			return out;
 		}
 
-		function whenOneSignalReady(callback, attempt) {
-			attempt = attempt || 0;
-			var sdk = realOneSignal();
-			if (sdk) {
-				callback(sdk);
-				return;
-			}
-			if (attempt >= 40) {
-				callback(null);
-				return;
-			}
-			window.setTimeout(function () {
-				whenOneSignalReady(callback, attempt + 1);
-			}, 250);
+		function pushSupported() {
+			return ('serviceWorker' in navigator) && ('PushManager' in window) && ('Notification' in window);
 		}
 
-		function linkUser(sdk) {
-			if (!userId || !sdk) return;
-			try {
-				if (typeof sdk.login === 'function') { sdk.login(String(userId)); return; }
-				if (sdk.User && typeof sdk.User.login === 'function') { sdk.User.login(String(userId)); return; }
-				if (typeof sdk.setExternalUserId === 'function') { sdk.setExternalUserId(String(userId)); return; }
-				if (typeof sdk.push === 'function') {
-					sdk.push(function () {
-						var one = window.OneSignal;
-						try {
-							if (one && typeof one.setExternalUserId === 'function') one.setExternalUserId(String(userId));
-							else if (one && typeof one.login === 'function') one.login(String(userId));
-						} catch (e) {}
-					});
-				}
-			} catch (e) {}
+		function getRegistration() {
+			return navigator.serviceWorker.register(pushCfg.sw || '/sw.js', { scope: '/' })
+				.then(function () { return navigator.serviceWorker.ready; });
 		}
 
-		function subscribe(sdk) {
-			if (!sdk) return;
-			linkUser(sdk);
-			try {
-				if (sdk.User && sdk.User.PushSubscription && typeof sdk.User.PushSubscription.optIn === 'function') {
-					sdk.User.PushSubscription.optIn();
-					return;
-				}
-				if (typeof sdk.registerForPushNotifications === 'function') {
-					sdk.registerForPushNotifications();
-					return;
-				}
-				if (typeof sdk.setSubscription === 'function') {
-					sdk.setSubscription(true);
-				}
-			} catch (e) {}
-		}
-
-		function unsubscribe(sdk) {
-			if (!sdk) return;
-			try {
-				if (sdk.User && sdk.User.PushSubscription && typeof sdk.User.PushSubscription.optOut === 'function') {
-					sdk.User.PushSubscription.optOut();
-					return;
-				}
-				if (typeof sdk.setSubscription === 'function') {
-					sdk.setSubscription(false);
-				}
-			} catch (e) {}
-		}
-
-		// Ask the browser directly (native prompt), bypassing the OneSignal
-		// prompt UI which does not always show on Firefox mobile. This also
-		// overrides any previous OneSignal opt-out.
-		function requestPermission(callback) {
-			var done = false;
-			function finish(permission) {
-				if (done) return;
-				done = true;
-				callback(permission || 'default');
-			}
-
-			if ('Notification' in window && typeof Notification.requestPermission === 'function') {
-				try {
-					var result = Notification.requestPermission(finish);
-					if (result && typeof result.then === 'function') {
-						result.then(finish);
-					}
-					return;
-				} catch (e) {}
-			}
-
-			var sdk = realOneSignal();
-			if (sdk && sdk.Notifications && typeof sdk.Notifications.requestPermission === 'function') {
-				try {
-					var p = sdk.Notifications.requestPermission();
-					if (p && typeof p.then === 'function') {
-						p.then(function (granted) { finish(granted ? 'granted' : 'denied'); });
-						return;
-					}
-				} catch (e) {}
-			}
-			finish('denied');
-		}
-
-		function refreshNotifyState() {
-			if (!notifyButton) return;
-
-			var granted = ('Notification' in window) && Notification.permission === 'granted';
-			if (!granted) {
-				setNotifyState(false);
-				return;
-			}
-			setNotifyState(true);
-
-			whenOneSignalReady(function (sdk) {
-				if (!sdk) return;
-				try {
-					if (sdk.User && sdk.User.PushSubscription) {
-						var ps = sdk.User.PushSubscription;
-						if (typeof ps.optedIn === 'boolean') setNotifyState(ps.optedIn);
-						return;
-					}
-					if (typeof sdk.isPushNotificationsEnabled === 'function') {
-						var result = sdk.isPushNotificationsEnabled(function (enabled) {
-							setNotifyState(!!enabled);
-						});
-						if (result && typeof result.then === 'function') {
-							result.then(function (enabled) { setNotifyState(!!enabled); });
-						}
-					}
-				} catch (e) {}
+		function saveSubscription(sub) {
+			if (!window.jQuery || !pushCfg.ajax) return;
+			window.jQuery.post(pushCfg.ajax, {
+				action: 'save_push_subscription',
+				subscription: JSON.stringify(sub)
 			});
 		}
 
-		if (notifyButton) {
-			notifyButton.addEventListener('click', function () {
-				// Toggle: if already active, turn it off; otherwise ask the
-				// browser permission (directly) and opt the user in.
-				if (notifyButton.classList.contains('is-on')) {
-					whenOneSignalReady(function (sdk) { unsubscribe(sdk); });
-					setNotifyState(false);
-					toast('Notificações desativadas', 'log');
-					return;
-				}
+		function removeSubscription(endpoint) {
+			if (!window.jQuery || !pushCfg.ajax) return;
+			window.jQuery.post(pushCfg.ajax, {
+				action: 'remove_push_subscription',
+				endpoint: endpoint
+			});
+		}
 
-				requestPermission(function (permission) {
-					if (permission !== 'granted') {
-						if (permission === 'denied') {
-							toast('Notificações bloqueadas. Habilite para este site nas configurações do navegador.', 'er');
-						} else {
-							toast('Permissão de notificações não concedida', 'er');
-						}
-						setNotifyState(false);
-						return;
+		function subscribePush() {
+			return getRegistration().then(function (reg) {
+				return reg.pushManager.getSubscription().then(function (existing) {
+					if (existing) {
+						saveSubscription(existing);
+						setNotifyState(true);
+						return existing;
 					}
-					setNotifyState(true);
-					toast('Notificações ativadas', 'suc');
-					whenOneSignalReady(function (sdk) {
-						if (sdk) subscribe(sdk);
+					return reg.pushManager.subscribe({
+						userVisibleOnly: true,
+						applicationServerKey: urlBase64ToUint8Array(pushCfg.vapid)
+					}).then(function (sub) {
+						saveSubscription(sub);
+						setNotifyState(true);
+						return sub;
 					});
 				});
 			});
 		}
 
-		// Link the WP user id as soon as the SDK is available.
-		if (userId) {
-			whenOneSignalReady(function (sdk) {
-				if (sdk) linkUser(sdk);
+		function unsubscribePush() {
+			return getRegistration().then(function (reg) {
+				return reg.pushManager.getSubscription().then(function (sub) {
+					if (!sub) {
+						setNotifyState(false);
+						return null;
+					}
+					var endpoint = sub.endpoint;
+					return sub.unsubscribe().then(function () {
+						removeSubscription(endpoint);
+						setNotifyState(false);
+						return null;
+					});
+				});
 			});
 		}
 
+		function requestPermission(callback) {
+			if (!('Notification' in window)) {
+				callback('denied');
+				return;
+			}
+			try {
+				var result = Notification.requestPermission(callback);
+				if (result && typeof result.then === 'function') {
+					result.then(callback);
+				}
+			} catch (e) {
+				callback('default');
+			}
+		}
+
+		function refreshNotifyState() {
+			if (!notifyButton) return;
+			if (!pushSupported() || Notification.permission !== 'granted') {
+				setNotifyState(false);
+				return;
+			}
+			getRegistration().then(function (reg) {
+				return reg.pushManager.getSubscription();
+			}).then(function (sub) {
+				setNotifyState(!!sub);
+				if (sub) saveSubscription(sub);
+			}).catch(function () {
+				setNotifyState(false);
+			});
+		}
+
+		if (notifyButton) {
+			notifyButton.addEventListener('click', function () {
+				if (!pushSupported()) {
+					toast('Este navegador não suporta notificações push.', 'er');
+					return;
+				}
+				if (notifyButton.classList.contains('is-on')) {
+					unsubscribePush().then(function () {
+						toast('Notificações desativadas', 'log');
+					});
+					return;
+				}
+				requestPermission(function (permission) {
+					if (permission !== 'granted') {
+						toast(permission === 'denied'
+							? 'Notificações bloqueadas. Habilite para este site nas configurações do navegador.'
+							: 'Permissão de notificações não concedida', 'er');
+						setNotifyState(false);
+						return;
+					}
+					subscribePush().then(function () {
+						toast('Notificações ativadas', 'suc');
+					}).catch(function () {
+						toast('Não foi possível ativar as notificações', 'er');
+					});
+				});
+			});
+		}
 		refreshNotifyState();
 	});
 })();
